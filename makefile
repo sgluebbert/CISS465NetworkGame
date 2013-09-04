@@ -1,17 +1,8 @@
 
-exe:
-	g++ main.cpp
-
-clean:
-	rm -f a.out
-
-run:
-	./a.out
-
-r:
-	./a.out
-
 push:
+	cd client;\
+	make clean
+	cd server;\
 	make clean
 	git add *
 	git status
