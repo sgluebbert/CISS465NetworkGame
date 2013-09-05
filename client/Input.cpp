@@ -7,6 +7,7 @@ Mouse::Mouse()
 {
 	leftPressed = false; leftDown = false; leftReleased = false;
 	rightPressed = false; rightDown = false; rightReleased = false;
+	x = 0; y = 0; dx = 0; dy = 0;
 }
 
 Mouse* Mouse::getInstance()
@@ -27,6 +28,8 @@ void Mouse::reset()
 	leftReleased = false;
 	rightPressed = false;
 	rightReleased = false;
+	dx = 0;
+	dy = 0;
 }
 
 void Mouse::handlePress(Uint8 button)

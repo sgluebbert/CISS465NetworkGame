@@ -10,6 +10,8 @@ struct Mouse
 	bool leftPressed, leftDown, leftReleased;
 	bool rightPressed, rightDown, rightReleased;
 
+	int x, y, dx, dy;
+
 	void reset();
 	void handlePress(Uint8);
 	void handleRelease(Uint8);

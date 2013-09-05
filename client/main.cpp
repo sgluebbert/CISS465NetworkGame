@@ -24,10 +24,10 @@ int main(int argc, char const *argv[])
 					mouse->handleRelease(event.button.button);
 					break;
 				case SDL_MOUSEMOTION:
-					// mouse.mouse_dx = event.motion.xrel;
-					// mouse.mouse_dy = event.motion.yrel;
-					// mouse.mouse_x = event.motion.x;
-					// mouse.mouse_y = event.motion.y;
+					mouse->dx = event.motion.xrel;
+					mouse->dy = event.motion.yrel;
+					mouse->x = event.motion.x;
+					mouse->y = event.motion.y;
 					break;
 				case SDL_KEYDOWN: 
 					// keyboard.pressed(event.key.keysym.sym);
