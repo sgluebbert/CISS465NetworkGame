@@ -11,7 +11,7 @@ Window::Window()
 
 	if (surface == NULL)
 	{
-		printf("Unable to set 640x480 video: %s\n", SDL_GetError());
+		printf("Unable to set %ix%i video: %s\n", WIDTH, HEIGHT, SDL_GetError());
 		fflush(stdout);
 		exit(1);
 	}

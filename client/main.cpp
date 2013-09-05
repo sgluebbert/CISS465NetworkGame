@@ -6,17 +6,22 @@ int main(int argc, char const *argv[])
 {
 	Window* window = Window::getInstance();
 	Mouse* mouse = Mouse::getInstance();
+	Keyboard* keyboard = Keyboard::getInstance();
 
 	SDL_Event event;
 	bool running = true;
 	while (running)
 	{
+		/////////////////////////////////////////////////////////////////////////////
+		// Handle Events
 		mouse->reset();
+		keyboard->reset();
 		while (SDL_PollEvent(&event))
 		{
 			switch(event.type)
 			{
-				case SDL_QUIT: return 0;
+				case SDL_QUIT:
+					return 0;
 				case SDL_MOUSEBUTTONDOWN:
 					mouse->handlePress(event.button.button);
 					break;
@@ -30,13 +35,16 @@ int main(int argc, char const *argv[])
 					mouse->y = event.motion.y;
 					break;
 				case SDL_KEYDOWN: 
-					// keyboard.pressed(event.key.keysym.sym);
+					keyboard->handlePress(event.key.keysym.sym);
 					break;
 				case SDL_KEYUP: 
-					// keyboard.released(event.key.keysym.sym);
+					keyboard->handleRelease(event.key.keysym.sym);
 					break;
 			}
 		}
+		/////////////////////////////////////////////////////////////////////////////
+
+
 	}
 
 	return 0;

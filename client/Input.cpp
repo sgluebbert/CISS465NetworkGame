@@ -1,5 +1,8 @@
 #include "Input.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////
+// Mouse
+
 bool Mouse::instanceFlag = false;
 Mouse* Mouse::single = NULL;
 
@@ -74,4 +77,48 @@ void Mouse::handleRelease(Uint8 button)
 	case SDL_BUTTON_WHEELDOWN:
 		break;
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// Keyboard
+
+bool Keyboard::instanceFlag = false;
+Keyboard* Keyboard::single = NULL;
+
+Keyboard::Keyboard()
+{
+}
+
+Keyboard* Keyboard::getInstance()
+{
+	if (!instanceFlag)
+	{
+		single = new Keyboard();
+		instanceFlag = true;
+		return single;
+	}
+	else
+		return single;
+}
+
+void Keyboard::reset()
+{
+	keysPressed.reset();
+	keysReleased.reset();
+}
+
+void Keyboard::handlePress(SDLKey key)
+{
+	int index = (int)key;
+	if (index >= AMOUNT_OF_KEYS) return;
+	keysPressed.set(index, true);
+	keysDown.set(index, true);
+}
+
+void Keyboard::handleRelease(SDLKey key)
+{
+	int index = (int)key;
+	if (index >= AMOUNT_OF_KEYS) return;
+	keysReleased.set(index, true);
+	keysDown.set(index, false);
 }
