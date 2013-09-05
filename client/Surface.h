@@ -12,13 +12,11 @@ const int FLAGS = SDL_ANYFORMAT;
 struct Window
 {
 	static Window* getInstance();
-	bool checkStable() { return stable; }
 
 private:
 	Window();
 
 	SDL_Surface *surface;
-	bool stable;
 
 	static bool instanceFlag;
 	static Window *single;

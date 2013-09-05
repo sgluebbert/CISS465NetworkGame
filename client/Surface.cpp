@@ -9,14 +9,12 @@ Window::Window()
 	SDL_WM_SetCaption("Not Named", NULL);
 	surface = SDL_SetVideoMode ( WIDTH, HEIGHT, BPP, FLAGS );
 
-	if ( surface == NULL ) 
+	if (surface == NULL)
 	{
-		printf( "Unable to set 640x480 video: %s\n", SDL_GetError() );
+		printf("Unable to set 640x480 video: %s\n", SDL_GetError());
 		fflush(stdout);
-		stable = false;
+		exit(1);
 	}
-	else
-		stable = true;
 	atexit( SDL_Quit );
 }
 
