@@ -1,0 +1,33 @@
+#include "Surface.h"
+
+bool Window::instanceFlag = false;
+Window* Window::single = NULL;
+
+Window::Window()
+{
+	SDL_Init( SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE );
+	SDL_WM_SetCaption("Not Named", NULL);
+	surface = SDL_SetVideoMode ( WIDTH, HEIGHT, BPP, FLAGS );
+
+	if ( surface == NULL ) 
+	{
+		printf( "Unable to set 640x480 video: %s\n", SDL_GetError() );
+		fflush(stdout);
+		stable = false;
+	}
+	else
+		stable = true;
+	atexit( SDL_Quit );
+}
+
+Window* Window::getInstance()
+{
+	if (!instanceFlag)
+	{
+		single = new Window();
+		instanceFlag = true;
+		return single;
+	}
+	else
+		return single;
+}
