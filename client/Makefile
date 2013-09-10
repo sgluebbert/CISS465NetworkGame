@@ -1,5 +1,5 @@
 exe: Surface.o Input.o
-	g++ Main.cpp Surface.o Input.o `sdl-config --cflags --libs`
+	g++ Main.cpp Surface.o Input.o `sdl-config --cflags --libs` -Iincludes#Source/*.cpp 
 
 Surface.o: Surface.h
 	g++ -c Surface.cpp `sdl-config --cflags --libs`
