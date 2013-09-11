@@ -2,7 +2,7 @@
 #define SURFACE_H
 
 #include <SDL.h>
-//#include <SDL_image.h>
+#include <SDL_image.h>
 
 //
 //Don't honestly know why this is a class rather than a collection of functions to mess with SDL_Surfaces
@@ -13,11 +13,17 @@ public:
         Surface();
 		
         static SDL_Surface * OnLoad(char* File);
+        
         static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y);
 		static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y, int X2, int Y2, int W, int H);
+		
+	    static Uint32 Map_RGB(SDL_Surface * Surf_Src, const SDL_Color & color);
+	    
 		static bool Transparent(SDL_Surface* Surf_Dest, int R, int G, int B);
-		static bool DrawRect(SDL_Surface* Surf_Dest, int X, int Y, int W, int H);
-		static bool Fill(SDL_Surface* Surf_Dest, int X, int Y, int W, int H, int R, int G, int B, int A);
+		
+        static bool DrawRect(SDL_Surface * Surf_Dest, int X, int Y, int W, int H, SDL_Color color);
+        
+		static bool Fill(SDL_Surface* Surf_Dest, int W, int H, SDL_Color color);
 };
  
 Surface::Surface() {
@@ -73,6 +79,10 @@ bool Surface::Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y, 
     return true;
 }
 
+Uint32 Surface::Map_RGB(SDL_Surface * Surf_Src, const SDL_Color & color) {
+	return SDL_MapRGB(Surf_Src->format, color.r, color.g, color.b);
+}
+
 bool Surface::Transparent(SDL_Surface* Surf_Dest, int R, int G, int B) {
     if(Surf_Dest == NULL) {
         return false;
@@ -83,24 +93,24 @@ bool Surface::Transparent(SDL_Surface* Surf_Dest, int R, int G, int B) {
     return true;
 }
 
-bool Surface::DrawRect(SDL_Surface * Surf_Dest, int X, int Y, int W, int H) {
+bool Surface::DrawRect(SDL_Surface * Surf_Dest, int X, int Y, int W, int H, SDL_Color color) {
     if(Surf_Dest == NULL)
         return false;
         
 	SDL_Rect rect = {X,Y,W,H};
-	//Uint32 pixel = map_rgb(color);
-	//SDL_FillRect(Surf_Dest, &rect, pixel);
+	Uint32 pixel = Map_RGB(Surf_Dest, color);
+	SDL_FillRect(Surf_Dest, &rect, pixel);
  
     return true;
 }
 
-bool Surface::Fill(SDL_Surface* Surf_Dest, int X, int Y, int W, int H, int R, int G, int B, int A) {
+bool Surface::Fill(SDL_Surface* Surf_Dest, int W, int H, SDL_Color color) {
     if(Surf_Dest == NULL)
         return false;
         
-	SDL_Rect rect = {X,Y,W,H};
-	//Uint32 pixel = map_rgb(color);
-	//SDL_FillRect(Surf_Dest, &rect, pixel);
+	SDL_Rect rect = {0,0,W,H};
+	Uint32 pixel = Map_RGB(Surf_Dest, color);
+	SDL_FillRect(Surf_Dest, &rect, pixel);
  
     return true;
 }

@@ -2,32 +2,42 @@
 #define APPLICATION_H
 
 #include <SDL.h>
+#include <iostream>
 
 #include "Animation.h"
-#include "AppStateManager.h"
+//#include "AppStateManager.h"
 #include "Camera.h"
 #include "Entity.h"
 #include "EventHandler.h"
 #include "FPS.h"
 #include "Menu.h"
-#include "Sound.h"
-#include "System.h"
+#include "Player.h"
 
 class Application : public EventHandler {
 public:
     Application();
     
-    virtual bool Execute();
-    virtual bool Initialize();
-    virtual void Events(SDL_Event *);
-    virtual void Draw();
-    virtual void Update();
-    virtual void Cleanup();
+    bool Execute();
     
+    bool Initialize();
+    void Events(SDL_Event *);
+    void Draw();
+    void Update();
+    void Cleanup();
+ 
+    void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
+    void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
+        
+    void OnMinimize();
+    void OnRestore();
+    void OnResize(int w,int h);
+    void OnExpose();
     void OnExit();
+    void OnUser(Uint8 type, int code, void * data1, void * data2);
     
 protected:
     bool is_running;
+    Entity pawn;
 };
 
 Application::Application() {
@@ -64,27 +74,39 @@ bool Application::Initialize() {
 
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     
-    buildTrigTable();
-    buildKeyArray();
+    Build_Trig_Table();
+    Build_Key_Array();
     
-    AppStateManager::Initialize();
+    pawn.LoadSurface("./Art/Untitled.bmp", 40, 40);
+    pawn.max_velocity = 10;
+    pawn.acceleration = 2;
+    pawn.deceleration = 2;
+    
+    //AppStateManager::Initialize();
     
     return true;
 }
 
 void Application::Events(SDL_Event * Event) {
+    //Sends Events to appropriate functions
     EventHandler::OnEvent(Event);
-    AppStateManager::Events(Event);
+    //AppStateManager::Events(Event);
 }
 
 void Application::Draw() {
-    AppStateManager::Draw();
+    Clear_Window();
+    
+    pawn.Draw();
+    //AppStateManager::Draw();
 
     SDL_Flip(WINDOW);
 }
 
 void Application::Update() {
-    AppStateManager::Update();
+    if (pawn.throttle < 1.0)
+        pawn.throttle += 0.001;
+    pawn.Update();
+    //AppStateManager::Update();
 
     FPS::FPSControl.Update();
 
@@ -94,14 +116,59 @@ void Application::Update() {
 }
 
 void Application::Cleanup() {
-    AppStateManager::Cleanup();
+    //AppStateManager::Cleanup();
 
     SDL_FreeSurface(WINDOW);
     SDL_Quit();
 }
 
+void Application::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
+    //Updates the Key Pressed Table
+    EventHandler::OnKeyDown(sym, mod, unicode);
+    
+    //Prints debugging on any key press
+    switch(sym) {
+    default:
+        std::cout << "Pos: [" << pawn.x << ", " << pawn.y << "]\n";
+        std::cout << "Size: [" << pawn.width << ", " << pawn.height << "]\n";
+        std::cout << "Speed: [" << pawn.dx << ", " << pawn.dy << "]\n";
+        std::cout << "Velocity: [" << pawn.velocity << "/" << pawn.max_velocity << "]\n";
+        std::cout << "Throttle: [" << pawn.throttle << "]\n";
+        std::cout << "Angle: [" << pawn.angle << "]\n";
+        break;
+    }
+}
+
+void Application::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
+    //Updates the Key Pressed Table
+    EventHandler::OnKeyUp(sym, mod, unicode);
+    
+    switch(sym) {
+    default:
+        break;
+    }
+}
+
+void Application::OnMinimize() {
+}
+
+void Application::OnRestore() {
+}
+
+void Application::OnResize(int w, int h) {
+    WINDOW_WIDTH = w;
+    WINDOW_HEIGHT = h;
+    WINDOW = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+}
+
+void Application::OnExpose() {
+}
+
 void Application::OnExit() {
     is_running = false;
+}
+
+void Application::OnUser(Uint8 type, int code, void* data1, void* data2) {
 }
 
 #endif

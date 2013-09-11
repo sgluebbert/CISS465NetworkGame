@@ -25,7 +25,7 @@ public:
     virtual void Draw();
     virtual void Update();
     
-protected:
+//protected:
     SDL_Surface * entity_surface;
     
     double x, y;
@@ -44,18 +44,18 @@ protected:
 
 Entity::Entity() {
     entity_surface = NULL;
-    x = 0;
-    y = 0;
-    dx = 0;
-    dy = 0;
-    width = 0;
-    height = 0;
-    angle = 0;
-    turn_rate = 0;
-    throttle = 0;
-    velocity = 0;
-    acceleration = 0;
-    deceleration = 0;
+    x = 0.0;
+    y = 0.0;
+    dx = 0.0;
+    dy = 0.0;
+    width = 0.0;
+    height = 0.0;
+    angle = 0.0;
+    turn_rate = 0.0;
+    throttle = 0.0;
+    velocity = 0.0;
+    acceleration = 0.0;
+    deceleration = 0.0;
 }
 
 Entity::~Entity() {
@@ -80,25 +80,30 @@ void Entity::Draw() {
     if (entity_surface == NULL)
         return;
         
-    Surface::Blit(WINDOW, entity_surface, 0, 0, x, y, width, height);
+    Surface::Blit(WINDOW, entity_surface, x, y, 0, 0, width, height);
 }
 
 void Entity::CalculateSpeed(double delta) {
-    //Adjust dx and dy according to the velocity
+    dx = max_velocity * TRIG_TABLE[int(angle / 5.0)][0];
+    dy = max_velocity * TRIG_TABLE[int(angle / 5.0)][1];
 }
 
 void Entity::CalculateVelocity(double delta) {
     double tempA = acceleration * delta;
     double tempD = deceleration * delta;
     
-    if (velocity > max_velocity * throttle - tempD)
+    if (velocity > max_velocity * throttle) {
         velocity -= tempD;
-    else if (velocity > max_velocity * throttle)
-        velocity = max_velocity * throttle;
-    else if (velocity < max_velocity * throttle - tempA)
+        
+        if (velocity < max_velocity * throttle)
+            velocity = max_velocity * throttle;
+    }
+    else if (velocity < max_velocity * throttle) {
         velocity += tempA;
-    else if (velocity < max_velocity * throttle)
-        velocity = max_velocity * throttle;
+        
+        if (velocity > max_velocity * throttle)
+            velocity = max_velocity * throttle;
+    }
 }
 
 void Entity::Turn_Left(double delta) {

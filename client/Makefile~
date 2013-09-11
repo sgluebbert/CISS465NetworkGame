@@ -8,8 +8,8 @@ r:
 	./a.out
 
 clean:
-	#rm a.out *.cpp~ ./Source/*.h~ ./Source/*.cpp~ Makefile~
+	rm a.out #*.cpp~ ./Source/*.h~ ./Source/*.cpp~ Makefile~
 
 c:
-	#rm a.out *.cpp~ ./Source/*.h~ ./Source/*.cpp~
+	rm a.out #*.cpp~ ./Source/*.h~ ./Source/*.cpp~
 

@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <vector>
 
-//#include "Font.h"
+#include "Font.h"
 #include "Surface.h"
 
 class Menu {
@@ -38,7 +38,7 @@ protected:
     bool vertically_oriented;
     
     SDL_Surface * option_background;
-    //Font menu_font;
+    Font menu_font;
 };
 
 Menu::Menu() {

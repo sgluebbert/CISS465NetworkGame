@@ -1,8 +1,7 @@
 #include "./Source/Application.h"
 
-int main(int argc, char const *argv[])
-{
-	Application GameApp;
+int main(int argc, char* argv[]) {
+    Application GameApp;
 
-	return GameApp.Execute();
+    return GameApp.Execute();
 }
