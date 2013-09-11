@@ -12,7 +12,7 @@ public:
     Entity();
     ~Entity();
     
-    bool LoadSurface(char *, double, double);
+    bool LoadSurface(const char *, double, double);
     void SetSurface(SDL_Surface *, double, double);
     
     void Turn_Left(double);
@@ -62,7 +62,7 @@ Entity::~Entity() {
     SDL_FreeSurface(entity_surface);
 }
 
-bool Entity::LoadSurface(char * File, double new_width, double new_height) {
+bool Entity::LoadSurface(const char * File, double new_width, double new_height) {
     entity_surface = Surface::OnLoad(File);
     width = new_width;
     height = new_height;

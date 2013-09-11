@@ -12,7 +12,7 @@ class Surface {
 public:
         Surface();
 		
-        static SDL_Surface * OnLoad(char* File);
+        static SDL_Surface * OnLoad(const char* File);
         
         static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y);
 		static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y, int X2, int Y2, int W, int H);
@@ -29,7 +29,7 @@ public:
 Surface::Surface() {
 }
  
-SDL_Surface * Surface::OnLoad(char* File) {
+SDL_Surface * Surface::OnLoad(const char* File) {
     SDL_Surface* Surf_Temp = NULL;
     SDL_Surface* Surf_Return = NULL; 
     

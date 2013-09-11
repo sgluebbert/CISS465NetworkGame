@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "Animation.h"
+#include "SurfaceManager.h"
 //#include "AppStateManager.h"
 #include "Camera.h"
 #include "Entity.h"
@@ -76,8 +77,10 @@ bool Application::Initialize() {
     
     Build_Trig_Table();
     Build_Key_Array();
+
+    SurfaceManager *surfaceManager = SurfaceManager::getInstance();
     
-    pawn.LoadSurface("./Art/Untitled.bmp", 40, 40);
+    pawn.SetSurface(surfaceManager->pawnSurface1, 40, 40);
     pawn.max_velocity = 10;
     pawn.acceleration = 2;
     pawn.deceleration = 2;
