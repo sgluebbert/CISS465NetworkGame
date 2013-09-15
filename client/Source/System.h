@@ -36,6 +36,7 @@ static const char * WINDOW_ICON_FILEPATH = "./Art/icon.bmp";
 static const char * APPLICATION_VERSION = "0.0.0.0";
 static bool IS_KEY_PRESSED[SDLK_LAST];
 static double PI = 3.141592654;
+static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
 
@@ -57,7 +58,7 @@ void Reset_To_Default() {
 
 void Build_Trig_Table() {
     for (int i = 0; i < 72; i++) {
-        double temp = 2 * PI * i / 72;
+        double temp = PI / 180 * (i * 5);
         TRIG_TABLE[i][0] = sin(temp);
         TRIG_TABLE[i][1] = cos(temp);
     }

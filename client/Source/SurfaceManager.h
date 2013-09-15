@@ -23,7 +23,7 @@ SurfaceManager* SurfaceManager::single = NULL;
 
 
 SurfaceManager::SurfaceManager() {
-	pawnSurface1 = loadImage("./Art/Untitled.bmp");
+	pawnSurface1 = loadImage("./Art/ship01.png");
 }
 
 SurfaceManager::~SurfaceManager() {

@@ -40,6 +40,7 @@ public:
     double velocity;
     double acceleration;
     double deceleration;
+    bool move_forward, turn_left, turn_right;
 };
 
 Entity::Entity() {
@@ -56,6 +57,7 @@ Entity::Entity() {
     velocity = 0.0;
     acceleration = 0.0;
     deceleration = 0.0;
+    move_forward = turn_left = turn_right = false;
 }
 
 Entity::~Entity() {
@@ -79,13 +81,17 @@ void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_heig
 void Entity::Draw() {
     if (entity_surface == NULL)
         return;
-        
-    Surface::Blit(WINDOW, entity_surface, x, y, 0, 0, width, height);
+    
+    int index = round(angle / (360 / 72));
+    if (index >= 72) index = 71;
+    if (index < 0) index = 0;
+
+    Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
 }
 
 void Entity::CalculateSpeed(double delta) {
-    dx = max_velocity * TRIG_TABLE[int(angle / 5.0)][0];
-    dy = max_velocity * TRIG_TABLE[int(angle / 5.0)][1];
+    dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
+    dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
 }
 
 void Entity::CalculateVelocity(double delta) {
@@ -107,21 +113,35 @@ void Entity::CalculateVelocity(double delta) {
 }
 
 void Entity::Turn_Left(double delta) {
-    angle -= turn_rate * delta;
+    angle += turn_rate * delta;
+    if (angle >= 360) angle = angle - 360;
 }
 
 void Entity::Turn_Right(double delta) {
-    angle += turn_rate * delta;
+    angle -= turn_rate * delta;
+    if (angle < 0) angle = 360 + angle;
 }
 
 void Entity::Move(double delta) {
     x += dx * delta;
-    y += dy * delta;
+    y -= dy * delta;
 }
 
 void Entity::Update() {
     double delta = GetTimePerFrame();
     
+    if (move_forward)
+    {
+        throttle = 1;
+    }
+    else
+        throttle = 0;
+
+    if (turn_left)
+        Turn_Left(delta);
+    if (turn_right)
+        Turn_Right(delta);
+
     CalculateVelocity(delta);
     CalculateSpeed(delta);
     Move(delta);

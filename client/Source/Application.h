@@ -38,7 +38,7 @@ public:
     
 protected:
     bool is_running;
-    Entity pawn;
+    Entity player;
 };
 
 Application::Application() {
@@ -80,10 +80,11 @@ bool Application::Initialize() {
 
     SurfaceManager *surfaceManager = SurfaceManager::getInstance();
     
-    pawn.SetSurface(surfaceManager->pawnSurface1, 40, 40);
-    pawn.max_velocity = 10;
-    pawn.acceleration = 2;
-    pawn.deceleration = 2;
+    player.SetSurface(surfaceManager->pawnSurface1, 64, 64);
+    player.max_velocity = 30;
+    player.acceleration = 8;
+    player.deceleration = 6;
+    player.turn_rate = 30;
     
     //AppStateManager::Initialize();
     
@@ -99,16 +100,14 @@ void Application::Events(SDL_Event * Event) {
 void Application::Draw() {
     Clear_Window();
     
-    pawn.Draw();
+    player.Draw();
     //AppStateManager::Draw();
 
     SDL_Flip(WINDOW);
 }
 
 void Application::Update() {
-    if (pawn.throttle < 1.0)
-        pawn.throttle += 0.001;
-    pawn.Update();
+    player.Update();
     //AppStateManager::Update();
 
     FPS::FPSControl.Update();
@@ -131,13 +130,22 @@ void Application::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     
     //Prints debugging on any key press
     switch(sym) {
+    case SDLK_LEFT:
+        player.turn_left = true;
+        break;
+    case SDLK_RIGHT:
+        player.turn_right = true;
+        break;
+    case SDLK_UP:
+        player.move_forward = true;
+        break;
     default:
-        std::cout << "Pos: [" << pawn.x << ", " << pawn.y << "]\n";
-        std::cout << "Size: [" << pawn.width << ", " << pawn.height << "]\n";
-        std::cout << "Speed: [" << pawn.dx << ", " << pawn.dy << "]\n";
-        std::cout << "Velocity: [" << pawn.velocity << "/" << pawn.max_velocity << "]\n";
-        std::cout << "Throttle: [" << pawn.throttle << "]\n";
-        std::cout << "Angle: [" << pawn.angle << "]\n";
+        std::cout << "Pos: [" << player.x << ", " << player.y << "]\n";
+        std::cout << "Size: [" << player.width << ", " << player.height << "]\n";
+        std::cout << "Speed: [" << player.dx << ", " << player.dy << "]\n";
+        std::cout << "Velocity: [" << player.velocity << "/" << player.max_velocity << "]\n";
+        std::cout << "Throttle: [" << player.throttle << "]\n";
+        std::cout << "Angle: [" << player.angle << "]\n";
         break;
     }
 }
@@ -147,6 +155,15 @@ void Application::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     EventHandler::OnKeyUp(sym, mod, unicode);
     
     switch(sym) {
+    case SDLK_LEFT:
+        player.turn_left = false;
+        break;
+    case SDLK_RIGHT:
+        player.turn_right = false;
+        break;
+    case SDLK_UP:
+        player.move_forward = false;
+        break;
     default:
         break;
     }
