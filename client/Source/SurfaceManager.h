@@ -7,7 +7,8 @@ struct SurfaceManager {
 	static SurfaceManager* getInstance();
 	SDL_Surface *loadImage(const char*);
 
-	SDL_Surface *pawnSurface1;
+	SDL_Surface *ship01;
+	SDL_Surface *bullet01;
 
 private:
 	SurfaceManager();
@@ -23,11 +24,13 @@ SurfaceManager* SurfaceManager::single = NULL;
 
 
 SurfaceManager::SurfaceManager() {
-	pawnSurface1 = loadImage("./Art/ship01.png");
+	bullet01 = loadImage("./Art/Untitled.bmp");
+	ship01 = loadImage("./Art/ship01.png");
 }
 
 SurfaceManager::~SurfaceManager() {
-	SDL_FreeSurface(pawnSurface1);
+	SDL_FreeSurface(ship01);
+	SDL_FreeSurface(bullet01);
 }
 
 SDL_Surface *SurfaceManager::loadImage(const char *filename) {

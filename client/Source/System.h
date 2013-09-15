@@ -39,6 +39,9 @@ static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
+const int ROOM_WIDTH = 2000;
+const int ROOM_HEIGHT = 2000;
+
 
 
 /*System Functions*/

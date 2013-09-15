@@ -15,11 +15,12 @@ public:
     bool LoadSurface(const char *, double, double);
     void SetSurface(SDL_Surface *, double, double);
     
-    void Turn_Left(double);
-    void Turn_Right(double);
+    void TurnLeft(double);
+    void TurnRight(double);
     void CalculateSpeed(double);
     void CalculateVelocity(double);
     void Move(double);
+    void TryFire();
     
     //virtual void Events(SDL_Event *);
     virtual void Draw();
@@ -112,12 +113,12 @@ void Entity::CalculateVelocity(double delta) {
     }
 }
 
-void Entity::Turn_Left(double delta) {
+void Entity::TurnLeft(double delta) {
     angle += turn_rate * delta;
     if (angle >= 360) angle = angle - 360;
 }
 
-void Entity::Turn_Right(double delta) {
+void Entity::TurnRight(double delta) {
     angle -= turn_rate * delta;
     if (angle < 0) angle = 360 + angle;
 }
@@ -138,13 +139,20 @@ void Entity::Update() {
         throttle = 0;
 
     if (turn_left)
-        Turn_Left(delta);
+        TurnLeft(delta);
     if (turn_right)
-        Turn_Right(delta);
+        TurnRight(delta);
 
     CalculateVelocity(delta);
     CalculateSpeed(delta);
     Move(delta);
+}
+
+void Entity::TryFire()
+{
+    Bullet_List *bullet_list = Bullet_List::getInstance();
+
+    bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
 }
 
 #endif

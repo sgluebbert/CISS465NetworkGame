@@ -6,6 +6,7 @@
 
 #include "Animation.h"
 #include "SurfaceManager.h"
+#include "Bullet.h"
 //#include "AppStateManager.h"
 #include "Camera.h"
 #include "Entity.h"
@@ -80,7 +81,7 @@ bool Application::Initialize() {
 
     SurfaceManager *surfaceManager = SurfaceManager::getInstance();
     
-    player.SetSurface(surfaceManager->pawnSurface1, 64, 64);
+    player.SetSurface(surfaceManager->ship01, 64, 64);
     player.max_velocity = 30;
     player.acceleration = 8;
     player.deceleration = 6;
@@ -102,11 +103,13 @@ void Application::Draw() {
     
     player.Draw();
     //AppStateManager::Draw();
+    Bullet_List::getInstance()->Draw();
 
     SDL_Flip(WINDOW);
 }
 
 void Application::Update() {
+    Bullet_List::getInstance()->Update();
     player.Update();
     //AppStateManager::Update();
 
@@ -138,6 +141,9 @@ void Application::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
         break;
     case SDLK_UP:
         player.move_forward = true;
+        break;
+    case SDLK_SPACE:
+        player.TryFire();
         break;
     default:
         std::cout << "Pos: [" << player.x << ", " << player.y << "]\n";
