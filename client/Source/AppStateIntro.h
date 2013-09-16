@@ -24,7 +24,7 @@ private:
         const double color_change_rate;
         double current_color;
         
-        Font title_font;
+        // Font title_font;
         
 public:
         AppStateIntro();
@@ -60,7 +60,7 @@ void AppStateIntro::Initialize() {
     current_bumper = 0;
     bumper_timer = 0.0;
     current_color = 0.0;
-    title_font = Font("./Font/microsbe.ttf", 50);
+    // title_font = Font("./Font/microsbe.ttf", 50);
     
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
@@ -93,17 +93,14 @@ void AppStateIntro::Update() {
 }
 
 void AppStateIntro::Draw() {
-    SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
-    /*SDL_Surface * temp_surf;// = title_font.render(bumper_titles[current_bumper], color);
-    SDL_Rect temp_rect;// = temp_surf->clip_rect;
-    
-    temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
-    temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
+    FontManager *fontManger = FontManager::getInstance();
 
-    SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);*/
-    
-    SDL_Rect rect = {200, 150, 400, 300};
-    Surface::DrawRect(WINDOW, rect, color);
+    SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
+    SDL_Surface * temp_surf = fontManger->Render(fontManger->title_font_12, bumper_titles[current_bumper], color);
+    SDL_Rect temp_rect = temp_surf->clip_rect;
+
+    Surface::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0, (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0);
+    SDL_FreeSurface(temp_surf);
 }
 
 void AppStateIntro::Cleanup() {

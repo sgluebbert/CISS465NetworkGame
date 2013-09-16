@@ -97,6 +97,13 @@ public:
 		Mix_OpenAudio(MIX_DEFAULT_FREQUENCY,
                   MIX_DEFAULT_FORMAT,
                   MIX_DEFAULT_CHANNELS, 512);
+
+		if (filename == NULL)
+		{
+			sample = NULL;
+			return;
+		}
+
 		sample = Mix_LoadMUS(filename);
 		
 		if (sample == NULL) 

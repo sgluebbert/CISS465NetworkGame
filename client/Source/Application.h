@@ -64,7 +64,9 @@ bool Application::Execute() {
 }
 
 bool Application::Initialize() {
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    // if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    //     return false;
+    if(SDL_Init(SDL_INIT_VIDEO) < 0)
         return false;
         
 	SDL_WM_SetCaption(WINDOW_TITLE, NULL);
