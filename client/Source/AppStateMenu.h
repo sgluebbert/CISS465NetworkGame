@@ -78,15 +78,10 @@ AppStateBase * AppStateMenu::GetInstance() {
 
 void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-<<<<<<< HEAD
-    case SDLK_TAB:  AppStateEvent::New_Event(APPSTATE_NONE);    break;
-    default:        AppStateEvent::New_Event(APPSTATE_GAME);    break;
-=======
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_GAME);    break;
     default:
         break;
->>>>>>> updated stuff
     }
 }
 
