@@ -3,23 +3,25 @@
 
 #include <SDL.h>
 
+#include "AppStateEvent.h"
 #include "EventHandler.h"
  
 class AppStateBase : public EventHandler {
-    protected:
-        bool is_running;
-        
-    public:
-        AppStateBase();
+public:
+    AppStateBase();
+    virtual ~AppStateBase();
  
-        virtual void Initialize() = 0;
-        virtual void Events(SDL_Event *) = 0;
-        virtual void Update() = 0;
-        virtual void Draw() = 0;
-        virtual void Cleanup() = 0;
+    virtual void Initialize() = 0;
+    virtual void Events(SDL_Event *) = 0;
+    virtual void Update() = 0;
+    virtual void Draw() = 0;
+    virtual void Cleanup() = 0;
 };
 
 AppStateBase::AppStateBase() {
+}
+
+AppStateBase::~AppStateBase() {
 }
 
 #endif

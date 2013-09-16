@@ -1,17 +1,9 @@
 #ifndef APPSTATEMANAGER_H
 #define APPSTATEMANAGER_H
  
-#include "AppStateBase.h"
-//#include "AppStateIntro.h"
-//#include "AppStateMenu.h"
-//#include "AppStateGame.h"
- 
-enum AppState {
-    APPSTATE_NONE,
-    APPSTATE_INTRO,
-    APPSTATE_MENU,
-    APPSTATE_GAME
-};
+#include "AppStateIntro.h"
+#include "AppStateMenu.h"
+#include "AppStateGame.h"
  
 class AppStateManager {
     private:
@@ -26,8 +18,6 @@ class AppStateManager {
         static void Cleanup();
  
         static void SetActiveAppState(AppState);
-        static AppState GetActiveAppState();
-        static AppStateBase * GetActiveInstance();
 };
 
 AppState AppStateManager::ActiveAppState = APPSTATE_NONE;
@@ -45,6 +35,11 @@ void AppStateManager::Events(SDL_Event * Event) {
 void AppStateManager::Update() {
     if(ActiveAppInstance != NULL)
         ActiveAppInstance->Update();
+        
+    AppStateEvent * appEvent = AppStateEvent::Poll_Event();
+    
+    if (appEvent != NULL)
+        SetActiveAppState(appEvent->Get_Event_Code());
 }
  
 void AppStateManager::Draw() {
@@ -60,16 +55,20 @@ void AppStateManager::SetActiveAppState(AppState NewStateID) {
     
     switch(ActiveAppState) {
     case APPSTATE_INTRO:
-        //ActiveAppInstance = new AppStateIntro(); || ActiveAppInstance = AppStateIntro::GetInstance();
+        ActiveAppInstance = AppStateIntro::GetInstance();
         break;
     case APPSTATE_MENU:
-        //ActiveAppInstance = new AppStateMenu(); || ActiveAppInstance = AppStateMenu::GetInstance();
+        ActiveAppInstance = AppStateMenu::GetInstance();
         break;
     case APPSTATE_GAME:
-        //ActiveAppInstance = new AppStateGame(); || ActiveAppInstance = AppStateGame::GetInstance();
+        ActiveAppInstance = AppStateGame::GetInstance();
         break;
     default:
-        //Throw Exception or somehow fallout of the main loop
+        delete ActiveAppInstance;
+        ActiveAppInstance = NULL;
+        
+        SDL_FreeSurface(WINDOW);
+        SDL_Quit();
         break;
     }
  
@@ -82,14 +81,7 @@ void AppStateManager::Cleanup() {
         ActiveAppInstance->Cleanup();
         
     delete ActiveAppInstance;
-}
- 
-AppState AppStateManager::GetActiveAppState() {
-    return ActiveAppState;
-}
- 
-AppStateBase * AppStateManager::GetActiveInstance() {
-    return ActiveAppInstance;
+    ActiveAppInstance = NULL;
 }
 
 #endif

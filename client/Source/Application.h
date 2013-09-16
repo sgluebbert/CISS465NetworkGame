@@ -4,14 +4,16 @@
 #include <SDL.h>
 #include <iostream>
 
-#include "Animation.h"
-#include "SurfaceManager.h"
+#include "AppStateManager.h"
 #include "Bullet.h"
-//#include "AppStateManager.h"
-#include "Camera.h"
 #include "Entity.h"
 #include "EventHandler.h"
 #include "FPS.h"
+#include "SurfaceManager.h"
+
+//Inludes for Compiling/Debugging Purposes
+#include "Animation.h"
+#include "Camera.h"
 #include "Menu.h"
 #include "Player.h"
 
@@ -44,6 +46,7 @@ protected:
 
 Application::Application() {
     WINDOW = NULL;
+    WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
     is_running = true;
 }
 
@@ -69,9 +72,9 @@ bool Application::Initialize() {
         return false;
         
 	SDL_WM_SetCaption(WINDOW_TITLE, NULL);
-	//SDL_WM_SetIcon(WINDOW_ICON_FILEPATH, NULL);
+	SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
 
-    if((WINDOW = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+    if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
         return false;
 
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -87,7 +90,7 @@ bool Application::Initialize() {
     player.deceleration = 6;
     player.turn_rate = 30;
     
-    //AppStateManager::Initialize();
+    AppStateManager::Initialize();
     
     return true;
 }
@@ -95,15 +98,16 @@ bool Application::Initialize() {
 void Application::Events(SDL_Event * Event) {
     //Sends Events to appropriate functions
     EventHandler::OnEvent(Event);
-    //AppStateManager::Events(Event);
+    AppStateManager::Events(Event);
 }
 
 void Application::Draw() {
     Clear_Window();
     
     player.Draw();
-    //AppStateManager::Draw();
     Bullet_List::getInstance()->Draw();
+	
+    AppStateManager::Draw();
 
     SDL_Flip(WINDOW);
 }
@@ -111,7 +115,8 @@ void Application::Draw() {
 void Application::Update() {
     Bullet_List::getInstance()->Update();
     player.Update();
-    //AppStateManager::Update();
+	
+    AppStateManager::Update();
 
     FPS::FPSControl.Update();
 
@@ -121,7 +126,7 @@ void Application::Update() {
 }
 
 void Application::Cleanup() {
-    //AppStateManager::Cleanup();
+    AppStateManager::Cleanup();
 
     SDL_FreeSurface(WINDOW);
     SDL_Quit();
@@ -182,9 +187,9 @@ void Application::OnRestore() {
 }
 
 void Application::OnResize(int w, int h) {
-    WINDOW_WIDTH = w;
-    WINDOW_HEIGHT = h;
-    WINDOW = SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    WINDOW_BOUNDING_BOX.w = w;
+    WINDOW_BOUNDING_BOX.h = h;
+    WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF);
 }
 
 void Application::OnExpose() {

@@ -33,11 +33,11 @@ protected:
     int menu_x, menu_y;
     int margin_x, margin_y;
     int offset_x, offset_y;
-    int option_width, option_height;
     
     bool vertically_oriented;
     
     SDL_Surface * option_background;
+    SDL_Rect option_rect;
     Font menu_font;
 };
 
@@ -47,8 +47,8 @@ Menu::Menu() {
     menu_y = 0;
     offset_x = 0;
     offset_y = 0;
-    option_width = 100;
-    option_height = 50;
+    option_rect.w = 100;
+    option_rect.h = 50;
     vertically_oriented = true;
     option_background = NULL;
 }
@@ -60,8 +60,8 @@ Menu::Menu(std::string newOption) {
     menu_y = 0;
     offset_x = 0;
     offset_y = 0;
-    option_width = 100;
-    option_height = 50;
+    option_rect.w = 100;
+    option_rect.h = 50;
     vertically_oriented = true;
     option_background = NULL;
 }
@@ -74,8 +74,8 @@ Menu::Menu(std::string * newOptions, int size) {
     menu_y = 0;
     offset_x = 0;
     offset_y = 0;
-    option_width = 100;
-    option_height = 50;
+    option_rect.w = 100;
+    option_rect.h = 50;
     vertically_oriented = true;
     option_background = NULL;
 }
@@ -90,8 +90,8 @@ void Menu::SetPosition(int newX, int newY) {
 }
 
 void Menu::SetSize(int newW, int newH) {
-    option_width = newW;
-    option_height = newH;
+    option_rect.w = newW;
+    option_rect.h = newH;
 }
 
 void Menu::SetOffset(int newoffset_x, int newoffset_y) {
@@ -115,15 +115,19 @@ void Menu::Draw(SDL_Surface * Surf_Dest) {
     int tempY = menu_y;
     
     for (int i = 0; i < menu_options.size(); i++) {
-        Surface::Blit(Surf_Dest, option_background, 0, 0, tempX, tempY, option_width, option_height);
+        option_rect.x = tempX;
+        option_rect.y = tempY;
+        
+        if (option_background != NULL)
+            SDL_BlitSurface(option_background, &option_rect, WINDOW, NULL);
         //Draw Text
         
         if (vertically_oriented) {
             tempX += offset_x;
-            tempY += (option_height + margin_y);
+            tempY += (option_rect.h + margin_y);
         }
         else {
-            tempX += (option_width + margin_x);
+            tempX += (option_rect.w + margin_x);
             tempY += offset_y;
         }
     }
