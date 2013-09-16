@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-exe:	main.cpp
+exe:	Main.cpp
 	clang++ *.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -Iincludes#./Source/*.cpp 
 
 clean:
@@ -13,19 +12,3 @@ run:
 
 r:
 	./a.out
-=======
-exe:	main.cpp
-	clang++ *.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -Iincludes#./Source/*.cpp 
-
-clean:
-	rm -f a.out
-	
-c:
-	rm -f a.out
-
-run:
-	./a.out
-
-r:
-	./a.out
->>>>>>> updated stuff
