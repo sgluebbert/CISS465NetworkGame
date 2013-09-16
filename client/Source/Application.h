@@ -82,7 +82,7 @@ bool Application::Initialize() {
     SurfaceManager *surfaceManager = SurfaceManager::getInstance();
     
     player.SetSurface(surfaceManager->ship01, 64, 64);
-    player.max_velocity = 30;
+    player.max_velocity = 50;
     player.acceleration = 8;
     player.deceleration = 6;
     player.turn_rate = 30;
