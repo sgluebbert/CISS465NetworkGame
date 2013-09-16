@@ -93,10 +93,13 @@ void Bullet_List::Update()
     	}
     }
 
-    while (bullets.front() == NULL)
-    	bullets.pop_front();
-    while (bullets.back() == NULL)
-    	bullets.pop_back();
+    if (bullets.size() > 0)
+    {
+        while (bullets.front() == NULL)
+        	bullets.pop_front();
+        while (bullets.back() == NULL)
+        	bullets.pop_back();
+    }
 }
 
 void Bullet_List::Draw()

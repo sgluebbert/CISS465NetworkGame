@@ -94,21 +94,13 @@ void AppStateIntro::Update() {
 
 void AppStateIntro::Draw() {
     SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
-<<<<<<< HEAD
-    SDL_Surface * temp_surf;// = title_font.render(bumper_titles[current_bumper], color);
-=======
     /*SDL_Surface * temp_surf;// = title_font.render(bumper_titles[current_bumper], color);
->>>>>>> updated stuff
     SDL_Rect temp_rect;// = temp_surf->clip_rect;
     
     temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
     temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
-    
-<<<<<<< HEAD
-    SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);
-=======
+
     SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);*/
->>>>>>> updated stuff
     
     SDL_Rect rect = {200, 150, 400, 300};
     Surface::DrawRect(WINDOW, rect, color);
