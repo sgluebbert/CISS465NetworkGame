@@ -3,6 +3,8 @@
 
 #include <SDL.h>
 
+#include "System.h"
+
 class EventHandler {
 public:
         EventHandler();

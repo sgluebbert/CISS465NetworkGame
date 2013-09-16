@@ -12,34 +12,26 @@ class Surface {
 public:
         Surface();
 		
-        static SDL_Surface * OnLoad(const char* File);
+        static SDL_Surface * OnLoad(const char *);
         
-        static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y);
-		static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y, int X2, int Y2, int W, int H);
+        static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface *, int, int);
+		static bool Blit(SDL_Surface* Surf_Dest, SDL_Surface *, int, int, int, int, int, int);
 		
-	    static Uint32 Map_RGB(SDL_Surface * Surf_Src, const SDL_Color & color);
-	    
-		static bool Transparent(SDL_Surface* Surf_Dest, int R, int G, int B);
-		
-        static bool DrawRect(SDL_Surface * Surf_Dest, int X, int Y, int W, int H, SDL_Color color);
-        
-		static bool Fill(SDL_Surface* Surf_Dest, int W, int H, SDL_Color color);
+	    static Uint32 Map_RGB(SDL_Surface *, const SDL_Color &);
+        static bool DrawRect(SDL_Surface *, SDL_Rect &, const SDL_Color &);
+		static bool Fill(SDL_Surface *, SDL_Rect &, const SDL_Color &);
 };
  
 Surface::Surface() {
 }
  
-SDL_Surface * Surface::OnLoad(const char* File) {
-    SDL_Surface* Surf_Temp = NULL;
-    SDL_Surface* Surf_Return = NULL; 
-    
-    if((Surf_Temp = SDL_LoadBMP(File)) == NULL)
-        return NULL;
- 
-    Surf_Return = SDL_DisplayFormat(Surf_Temp);
-    SDL_FreeSurface(Surf_Temp);
- 
-    return Surf_Return;
+SDL_Surface * Surface::OnLoad(const char* filename) {
+	SDL_Surface *image = IMG_Load(filename);
+	if (image == NULL) {
+		std::cerr << "Error loading: " << filename << '\n';
+	}
+
+	return image;
 }
  
 bool Surface::Blit(SDL_Surface* Surf_Dest, SDL_Surface* Surf_Src, int X, int Y) {
@@ -83,34 +75,22 @@ Uint32 Surface::Map_RGB(SDL_Surface * Surf_Src, const SDL_Color & color) {
 	return SDL_MapRGB(Surf_Src->format, color.r, color.g, color.b);
 }
 
-bool Surface::Transparent(SDL_Surface* Surf_Dest, int R, int G, int B) {
-    if(Surf_Dest == NULL) {
-        return false;
-    }
-
-    SDL_SetColorKey(Surf_Dest, SDL_SRCCOLORKEY | SDL_RLEACCEL, SDL_MapRGB(Surf_Dest->format, R, G, B));
-
-    return true;
-}
-
-bool Surface::DrawRect(SDL_Surface * Surf_Dest, int X, int Y, int W, int H, SDL_Color color) {
-    if(Surf_Dest == NULL)
+bool Surface::DrawRect(SDL_Surface * surf_src, SDL_Rect & rect_to_draw, const SDL_Color & color) {
+    if(surf_src == NULL)
         return false;
         
-	SDL_Rect rect = {X,Y,W,H};
-	Uint32 pixel = Map_RGB(Surf_Dest, color);
-	SDL_FillRect(Surf_Dest, &rect, pixel);
+	Uint32 pixel = Map_RGB(surf_src, color);
+	SDL_FillRect(surf_src, &rect_to_draw, pixel);
  
     return true;
 }
 
-bool Surface::Fill(SDL_Surface* Surf_Dest, int W, int H, SDL_Color color) {
-    if(Surf_Dest == NULL)
+bool Surface::Fill(SDL_Surface* surf_src, SDL_Rect & surf_rect, const SDL_Color & color) {
+    if(surf_src == NULL)
         return false;
         
-	SDL_Rect rect = {0,0,W,H};
-	Uint32 pixel = Map_RGB(Surf_Dest, color);
-	SDL_FillRect(Surf_Dest, &rect, pixel);
+	Uint32 pixel = Map_RGB(surf_src, color);
+	SDL_FillRect(surf_src, &surf_rect, pixel);
  
     return true;
 }
