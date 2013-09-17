@@ -2,7 +2,7 @@
 #define SYSTEM_H
 
 #include <SDL.h>
-#include "SDL_net.h"
+#include <SDL_net.h>
 #include <string>
 #include <cmath>
 
@@ -15,7 +15,7 @@ static const double DEFAULT_FPS_LIMIT = 30.0;
 //static const int DEFAULT_NUM_OF_LAYERS = 1;//For Parallax if it is desired
 
 static const std::string DEFAULT_SERVER_IP = "192.168.0.102";
-static const Uint16 DEFAULT_SERVER_PORT = 1234;
+static const Uint16 DEFAULT_SERVER_PORT = 2000;
 
 static const SDL_Color BLACK    = {  0,   0,   0, 0};
 static const SDL_Color DARKGRAY = { 64,  64,  64, 0};

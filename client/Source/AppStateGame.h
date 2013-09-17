@@ -3,6 +3,7 @@
 
 #include "AppStateBase.h"
 #include "Bullet.h"
+#include "Camera.h"
 #include "Entity.h"
 #include "Player.h"
 #include "Sound.h"
@@ -21,6 +22,7 @@ private:
         static const char * MUSIC_FILENAME;
         
         Entity player;
+        Camera camera;
 public:
  
         void Initialize();
@@ -68,6 +70,7 @@ void AppStateGame::Events(SDL_Event * Event) {
 void AppStateGame::Update() {
     Bullet_List::getInstance()->Update();
     player.Update();
+    camera.Update();
 }
 
 void AppStateGame::Draw() {
@@ -78,6 +81,7 @@ void AppStateGame::Draw() {
     // Surface::DrawRect(WINDOW, rect, CYAN);
     player.Draw();
     Bullet_List::getInstance()->Draw();
+    camera.Draw();//<------This should replace the above two lines at some 
 }
 
 void AppStateGame::Cleanup() {

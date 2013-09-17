@@ -14,7 +14,10 @@ private:
         SDL_Surface * background_surf;
         SDL_Rect background_rect;
         
+        Menu main_menu;
+        
         static const char * BACKGROUND_FILENAME;
+        static const char * BUTTON_FILENAME;
         static const char * MUSIC_FILENAME;
         
         AppStateMenu();
@@ -37,6 +40,7 @@ public:
 AppStateBase * AppStateMenu::instance = NULL;
 
 const char * AppStateMenu::BACKGROUND_FILENAME = "./Art/Main_Menu.bmp";
+const char * AppStateMenu::BUTTON_FILENAME = "./Art/Button.bmp";
 const char * AppStateMenu::MUSIC_FILENAME = "./Sound/Music/Main_Menu.ogg";
 
 AppStateMenu::AppStateMenu() {
@@ -49,6 +53,13 @@ void AppStateMenu::Initialize() {
     
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
+    
+    main_menu.Add_Option("Play");
+    main_menu.Add_Option("Lobby");
+    main_menu.Add_Option("Exit");
+    
+    main_menu.Set_Background(Surface::OnLoad(BUTTON_FILENAME));
+    main_menu.Center_To_Window();
 }
 
 void AppStateMenu::Events(SDL_Event * Event) {
@@ -60,10 +71,7 @@ void AppStateMenu::Update() {
 
 void AppStateMenu::Draw() {
 	Surface::Blit(WINDOW, background_surf, 0, 0);
-    // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
-    
-    // SDL_Rect rect = {200, 150, 400, 300};
-    // Surface::DrawRect(WINDOW, rect, GRAY);
+    main_menu.Draw();
 }
 
 void AppStateMenu::Cleanup() {
@@ -80,9 +88,16 @@ AppStateBase * AppStateMenu::GetInstance() {
 
 void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
-    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_GAME);    break;
-    case SDLK_SPACE:    AppStateEvent::New_Event(APPSTATE_LOBBY);    break;
+    case SDLK_UP:       main_menu.Move_Previous();                  break;
+    case SDLK_DOWN:     main_menu.Move_Next();                      break;
+    case SDLK_RETURN:
+        switch(main_menu.Select()) {
+        case 0:     AppStateEvent::New_Event(APPSTATE_GAME);            break;
+        case 1:     AppStateEvent::New_Event(APPSTATE_LOBBY);           break;
+        case 2:     AppStateEvent::New_Event(APPSTATE_NONE);            break;
+        default:    /*Do Nothing*/                                      break;
+        }
+        break;
     default:
         break;
     }

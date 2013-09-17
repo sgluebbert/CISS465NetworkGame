@@ -1,6 +1,10 @@
 #ifndef APPSTATELOBBY_H
 #define APPSTATELOBBY_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "AppStateBase.h"
 #include "Bullet.h"
 #include "Entity.h"
@@ -15,15 +19,22 @@ private:
         
         SDL_Surface * background_surf;
         SDL_Rect background_rect;
+		
+		char * text_buffer;
+		
+	    UDPsocket sd;	/* Socket Descriptor */
+	    UDPpacket *p;	/* Pointer to packet memory */
+	
+	    IPaddress server_address;
+	    char * host_address;
+	    Uint16 server_port;
         
+        static const int TEXT_BUFFER_SIZE;
+		
         static const char * BACKGROUND_FILENAME;
         static const char * MUSIC_FILENAME;
-
-        UDPsocket sd;       /* Socket descriptor */
-        UDPpacket *p;       /* Pointer to packet memory */
-        AppStateLobby();
-        ~AppStateLobby();
 public:
+		AppStateLobby();
  
         void Initialize();
         void Events(SDL_Event *);
@@ -41,46 +52,47 @@ public:
 
 AppStateBase * AppStateLobby::instance = NULL;
 
+const int AppStateLobby::TEXT_BUFFER_SIZE = 255;
+
 const char * AppStateLobby::BACKGROUND_FILENAME = "./Art/Background.bmp";
 const char * AppStateLobby::MUSIC_FILENAME = "./Sound/Music/Battle.ogg";
 
 AppStateLobby::AppStateLobby() {
 }
 
-AppStateLobby::~AppStateLobby() {
-    /* Clean and exit */
-    // SDLNet_FreePacket(p);
-    // SDLNet_Quit();
-}
-
 void AppStateLobby::Initialize() { 
-    /* Initialize SDL_net */
-    if (SDLNet_Init() < 0)
-    {
-        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-        exit(EXIT_FAILURE);
-    }
-
-    // /* Open a socket */
-    // if (!(sd = SDLNet_UDP_Open(2000)))
-    // {
-    //     fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-    //     exit(EXIT_FAILURE);
-    // }
-
-    //  Make space for the packet 
-    // if (!(p = SDLNet_AllocPacket(512)))
-    // {
-    //     fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-    //     exit(EXIT_FAILURE);
-    // }
-
-    SurfaceManager * surfaceManager = SurfaceManager::getInstance();
-    background_surf = surfaceManager->background_main_menu01;
+    //SurfaceManager * surfaceManager = SurfaceManager::getInstance();
+    background_surf = NULL;//surfaceManager->background_main_menu01;
     //background_rect;
     
-    MUSIC_STREAM.load(MUSIC_FILENAME);
-    MUSIC_STREAM.play();
+    host_address = NULL;
+    server_port = 2000;
+    
+	/* Initialize SDL_net */
+	if (SDLNet_Init() < 0) {
+		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Open a socket on random port */
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Resolve server name  */
+	if (SDLNet_ResolveHost(&server_address, host_address, server_port) == -1) {
+		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Allocate memory for the packet */
+	if (!(p = SDLNet_AllocPacket(512))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+	
+	text_buffer = new char[TEXT_BUFFER_SIZE];
 }
 
 void AppStateLobby::Events(SDL_Event * Event) {
@@ -88,19 +100,30 @@ void AppStateLobby::Events(SDL_Event * Event) {
 }
 
 void AppStateLobby::Update() {
-    
+		/*This will need to be moved to Key States to keep track of key inputs
+	      rather than hanging on this section before doing anything else.*/
+        printf("Fill the buffer\n>");
+        scanf("%s", (char *)p->data);
+        
+        p->address.host = server_address.host;	/* Set the destination host */
+        p->address.port = server_address.port;	/* And destination port */
+        
+        p->len = strlen((char *)p->data) + 1;
+        SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
+        
+        /* Quit if packet contains "quit" */
+        if (!strcmp((char *)p->data, "quit"))
+            AppStateEvent::New_Event(APPSTATE_MENU);
 }
 
 void AppStateLobby::Draw() {
-    // Surface::Blit(WINDOW, background_surf, 0, 0);
-    // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
-    
-    // SDL_Rect rect = {200, 150, 400, 300};
-    // Surface::DrawRect(WINDOW, rect, CYAN);
 }
 
 void AppStateLobby::Cleanup() {
-    MUSIC_STREAM.stop();
+	delete[] text_buffer;
+	
+	SDLNet_FreePacket(p);
+	SDLNet_Quit();
 }
 
 AppStateBase * AppStateLobby::GetInstance() {
@@ -113,8 +136,12 @@ AppStateBase * AppStateLobby::GetInstance() {
 
 void AppStateLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    default:
-        break;
+	//ASCII Keys need to be registered and the mod will need to be used to
+	//allow for use of capitals and such.
+    //case SDLK_RETURN:   p->data = (Uint8 *)text_buffer;				break;
+    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
+    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
+    default:            break;
     }
 }
 
