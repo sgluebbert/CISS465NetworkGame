@@ -4,6 +4,7 @@
 #include "AppStateIntro.h"
 #include "AppStateMenu.h"
 #include "AppStateGame.h"
+#include "AppStateLobby.h"
  
 class AppStateManager {
     private:
@@ -63,12 +64,13 @@ void AppStateManager::SetActiveAppState(AppState NewStateID) {
     case APPSTATE_GAME:
         ActiveAppInstance = AppStateGame::GetInstance();
         break;
+    case APPSTATE_LOBBY:
+        ActiveAppInstance = AppStateLobby::GetInstance();
+        break;
     default:
         delete ActiveAppInstance;
         ActiveAppInstance = NULL;
         
-        SDL_FreeSurface(WINDOW);
-        SDL_Quit();
         break;
     }
  

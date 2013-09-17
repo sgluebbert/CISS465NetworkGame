@@ -12,6 +12,7 @@
 class AppStateGame : public AppStateBase {
 private:
         static AppStateBase * instance;
+        AppStateGame();
         
         SDL_Surface * background_surf;
         SDL_Rect background_rect;
@@ -21,7 +22,6 @@ private:
         
         Entity player;
 public:
-        AppStateGame();
  
         void Initialize();
         void Events(SDL_Event *);
@@ -46,13 +46,13 @@ AppStateGame::AppStateGame() {
 }
 
 void AppStateGame::Initialize() {
-    background_surf = NULL;//LoadImage(BACKGROUND_FILENAME);
+    SurfaceManager * surfaceManager = SurfaceManager::getInstance();
+    background_surf = background_surf = surfaceManager->background_game01;
     //background_rect;
     
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
 
-    SurfaceManager * surfaceManager = SurfaceManager::getInstance();
     
     player.SetSurface(surfaceManager->ship01, 64, 64);
     player.max_velocity = 50;
@@ -71,10 +71,11 @@ void AppStateGame::Update() {
 }
 
 void AppStateGame::Draw() {
-    SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
+	Surface::Blit(WINDOW, background_surf, 0, 0);
+    // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
     
-    SDL_Rect rect = {200, 150, 400, 300};
-    Surface::DrawRect(WINDOW, rect, CYAN);
+    // SDL_Rect rect = {200, 150, 400, 300};
+    // Surface::DrawRect(WINDOW, rect, CYAN);
     player.Draw();
     Bullet_List::getInstance()->Draw();
 }

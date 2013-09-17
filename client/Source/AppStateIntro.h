@@ -26,8 +26,8 @@ private:
         
         // Font title_font;
         
-public:
         AppStateIntro();
+public:
  
         void Initialize();
         void Events(SDL_Event *);
@@ -117,7 +117,8 @@ AppStateBase * AppStateIntro::GetInstance() {
 
 void AppStateIntro::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_TAB:  AppStateEvent::New_Event(APPSTATE_MENU);    break;
+    case SDLK_TAB:    AppStateEvent::New_Event(APPSTATE_MENU);    break;
+    case SDLK_SPACE:  AppStateEvent::New_Event(APPSTATE_LOBBY);    break;
     default:    break;
     }
 }

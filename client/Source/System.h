@@ -2,6 +2,7 @@
 #define SYSTEM_H
 
 #include <SDL.h>
+#include "SDL_net.h"
 #include <string>
 #include <cmath>
 
@@ -90,8 +91,8 @@ void Build_Key_Array() {
 }
 
 void Clear_Window() {
-	Uint32 pixel = SDL_MapRGB(WINDOW->format, BLACK.r, BLACK.g, BLACK.b);
-	SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, pixel);
+	// Uint32 pixel = SDL_MapRGB(WINDOW->format, BLACK.r, BLACK.g, BLACK.b);
+	SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
 }
 
 double GetTimePerFrame() {

@@ -17,8 +17,8 @@ private:
         static const char * BACKGROUND_FILENAME;
         static const char * MUSIC_FILENAME;
         
-public:
         AppStateMenu();
+public:
  
         void Initialize();
         void Events(SDL_Event *);
@@ -43,7 +43,8 @@ AppStateMenu::AppStateMenu() {
 }
 
 void AppStateMenu::Initialize() {
-    background_surf = NULL;//LoadImage(BACKGROUND_FILENAME);
+	SurfaceManager * surfaceManager = SurfaceManager::getInstance();
+    background_surf = surfaceManager->background_main_menu01;
     //background_rect;
     
     MUSIC_STREAM.load(MUSIC_FILENAME);
@@ -58,10 +59,11 @@ void AppStateMenu::Update() {
 }
 
 void AppStateMenu::Draw() {
-    SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
+	Surface::Blit(WINDOW, background_surf, 0, 0);
+    // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
     
-    SDL_Rect rect = {200, 150, 400, 300};
-    Surface::DrawRect(WINDOW, rect, GRAY);
+    // SDL_Rect rect = {200, 150, 400, 300};
+    // Surface::DrawRect(WINDOW, rect, GRAY);
 }
 
 void AppStateMenu::Cleanup() {
@@ -80,6 +82,7 @@ void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_GAME);    break;
+    case SDLK_SPACE:    AppStateEvent::New_Event(APPSTATE_LOBBY);    break;
     default:
         break;
     }
