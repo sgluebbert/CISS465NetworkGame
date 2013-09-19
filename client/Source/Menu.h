@@ -42,7 +42,7 @@ protected:
     
     SDL_Surface * option_background;
     SDL_Rect option_rect;
-    Font menu_font;
+    // Font menu_font;
 };
 
 Menu::Menu() {
@@ -72,7 +72,7 @@ void Menu::Set_Defaults() {
     option_rect.h = 50;
     vertically_oriented = true;
     option_background = NULL;
-    menu_font = Font("./Font/microsbe.ttf", 24);
+    // menu_font = Font("./Font/microsbe.ttf", 24);
 }
 
 void Menu::Add_Option(std::string newOption) {
@@ -162,13 +162,16 @@ void Menu::Draw() {
         
         //if (option_background != NULL)
             //SDL_BlitSurface(option_background, &option_rect, WINDOW, NULL);
-        /*SDL_Surface * temp_surf;// = menu_font.render(menu_options[i], BLACK);
-        SDL_Rect temp_rect;// = temp_surf->clip_rect;
+        FontManager *fontManager = FontManager::getInstance();
+        SDL_Surface *temp_surf = fontManager->Render(fontManager->menu_font_24, menu_options[i], BLACK);
+        // SDL_Rect temp_rect = temp_surf->clip_rect;
         
-        temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
-        temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
+        // temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
+        // temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
         
-        SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);*/
+        // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);
+        Surface::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_surf->w) / 2.0, option_rect.y + temp_surf->h / 2.0);
+        SDL_FreeSurface(temp_surf);
         
         if (vertically_oriented) {
             tempX += offset_x;
