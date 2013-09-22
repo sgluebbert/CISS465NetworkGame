@@ -2,7 +2,7 @@
 #define BULLET_H
 
 #include <deque>
-#include "System.h"
+#include "Camera.h"
 
 struct Bullet
 {
@@ -50,7 +50,10 @@ bool Bullet::Move(double delta) {
 }
 
 void Bullet::Draw() {
-	Surface::Blit(WINDOW, surface, x, y, 0, 0, width, height);
+    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
+
+    if (x > viewport.x - width && x < viewport.x + viewport.w + width && y > viewport.y - height && y < viewport.y + viewport.h + height)
+	   Surface::Blit(WINDOW, surface, x - width / 2 - viewport.x, y - height / 2 - viewport.y, 0, 0, width, height);
 }
 
 void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
@@ -93,13 +96,10 @@ void Bullet_List::Update()
     	}
     }
 
-    if (bullets.size() > 0)
-    {
-        while (bullets.front() == NULL)
-        	bullets.pop_front();
-        while (bullets.back() == NULL)
-        	bullets.pop_back();
-    }
+    if (bullets.size() > 0 && bullets.front() == NULL)
+    	bullets.pop_front();
+    if (bullets.size() > 0 && bullets.back() == NULL)
+    	bullets.pop_back();
 }
 
 void Bullet_List::Draw()

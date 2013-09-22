@@ -3,7 +3,7 @@
 
 #include <SDL.h>
 
-#include "Surface.h"
+#include "Camera.h"
 #include "FPS.h"
 #include "System.h"
 
@@ -41,7 +41,9 @@ public:
     double velocity;
     double acceleration;
     double deceleration;
-    bool move_forward, turn_left, turn_right;
+    bool move_forward, turn_left, turn_right, shoot;
+    int can_shoot, reload_rate;
+    double health, max_health;
 };
 
 Entity::Entity() {
@@ -58,7 +60,10 @@ Entity::Entity() {
     velocity = 0.0;
     acceleration = 0.0;
     deceleration = 0.0;
-    move_forward = turn_left = turn_right = false;
+    move_forward = turn_left = turn_right = shoot = false;
+    can_shoot = 0;
+    reload_rate = 20;
+    health = max_health = 100;
 }
 
 Entity::~Entity() {
@@ -82,12 +87,17 @@ void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_heig
 void Entity::Draw() {
     if (entity_surface == NULL)
         return;
-    
-    int index = round(angle / (360 / 72));
-    if (index >= 72) index = 71;
-    if (index < 0) index = 0;
 
-    Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
+    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
+
+    if (x > viewport.x - width && x < viewport.x + viewport.w + width && y > viewport.y - height && y < viewport.y + viewport.h + height)
+    {
+	    int index = round(angle / (360 / 72));
+	    if (index >= 72) index = 71;
+	    if (index < 0) index = 0;
+
+	    Surface::Blit(WINDOW, entity_surface, x - width / 2 - viewport.x, y - height / 2 - viewport.y, index * width, 0, width, height);
+	}
 }
 
 void Entity::CalculateSpeed(double delta) {
@@ -146,13 +156,24 @@ void Entity::Update() {
     CalculateVelocity(delta);
     CalculateSpeed(delta);
     Move(delta);
+
+    if (can_shoot > 0)
+    	can_shoot--;
+    if (shoot)
+    	TryFire();
 }
 
 void Entity::TryFire()
 {
-    Bullet_List *bullet_list = Bullet_List::getInstance();
+	if (can_shoot == 0)
+	{
+	    Bullet_List *bullet_list = Bullet_List::getInstance();
 
-    bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
+	    int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
+    	int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
+	    bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
+	    can_shoot = reload_rate;
+	}
 }
 
 #endif

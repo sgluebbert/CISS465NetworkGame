@@ -22,7 +22,6 @@ private:
         static const char * MUSIC_FILENAME;
         
         Entity player;
-        Camera camera;
 public:
  
         void Initialize();
@@ -57,6 +56,8 @@ void AppStateGame::Initialize() {
 
     
     player.SetSurface(surfaceManager->ship01, 64, 64);
+    player.x = 128;
+    player.y = 128;
     player.max_velocity = 50;
     player.acceleration = 8;
     player.deceleration = 6;
@@ -70,7 +71,11 @@ void AppStateGame::Events(SDL_Event * Event) {
 void AppStateGame::Update() {
     Bullet_List::getInstance()->Update();
     player.Update();
-    camera.Update();
+
+    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
+    viewport.x = player.x - viewport.w / 2.0;
+    viewport.y = player.y - viewport.h / 2.0;
+    Camera::getInstance()->Set_Viewport(viewport);
 }
 
 void AppStateGame::Draw() {
@@ -81,7 +86,6 @@ void AppStateGame::Draw() {
     // Surface::DrawRect(WINDOW, rect, CYAN);
     player.Draw();
     Bullet_List::getInstance()->Draw();
-    camera.Draw();//<------This should replace the above two lines at some 
 }
 
 void AppStateGame::Cleanup() {
@@ -101,7 +105,7 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_LEFT:     player.turn_left = true;                    break;
     case SDLK_RIGHT:    player.turn_right = true;                   break;
     case SDLK_UP:       player.move_forward = true;                 break;
-    case SDLK_SPACE:    player.TryFire();                           break;
+    case SDLK_SPACE:    player.shoot = true;                        break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
@@ -120,6 +124,7 @@ void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_LEFT:     player.turn_left = false;                    break;
     case SDLK_RIGHT:    player.turn_right = false;                   break;
     case SDLK_UP:       player.move_forward = false;                 break;
+    case SDLK_SPACE:    player.shoot = false;                        break;
         break;
     default:
         break;
