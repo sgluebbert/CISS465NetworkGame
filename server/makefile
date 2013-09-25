@@ -1,4 +1,4 @@
-exe: main.cpp
+exe:	Main.cpp
 	clang++ *.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -Iincludes#./Source/*.cpp 
 
 clean:

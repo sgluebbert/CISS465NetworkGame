@@ -16,8 +16,6 @@ private:
         
         Menu main_menu;
         
-        static const char * BACKGROUND_FILENAME;
-        static const char * BUTTON_FILENAME;
         static const char * MUSIC_FILENAME;
         
         AppStateMenu();
@@ -39,8 +37,6 @@ public:
 
 AppStateBase * AppStateMenu::instance = NULL;
 
-const char * AppStateMenu::BACKGROUND_FILENAME = "./Art/Main_Menu.bmp";
-const char * AppStateMenu::BUTTON_FILENAME = "./Art/Button.bmp";
 const char * AppStateMenu::MUSIC_FILENAME = "./Sound/Music/Main_Menu.ogg";
 
 AppStateMenu::AppStateMenu() {
@@ -58,7 +54,6 @@ void AppStateMenu::Initialize() {
     main_menu.Add_Option("Lobby");
     main_menu.Add_Option("Exit");
     
-    main_menu.Set_Background(Surface::OnLoad(BUTTON_FILENAME));
     main_menu.Center_To_Window();
 }
 

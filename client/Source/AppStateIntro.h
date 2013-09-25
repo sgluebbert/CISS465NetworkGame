@@ -93,10 +93,10 @@ void AppStateIntro::Update() {
 }
 
 void AppStateIntro::Draw() {
-    FontManager *fontManger = FontManager::getInstance();
+    FontManager * fontManger = FontManager::getInstance();
 
     SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
-    SDL_Surface * temp_surf = fontManger->Render(fontManger->title_font_12, bumper_titles[current_bumper], color);
+    SDL_Surface * temp_surf = fontManger->Render(fontManger->title_font_48, bumper_titles[current_bumper], color);
     SDL_Rect temp_rect = temp_surf->clip_rect;
 
     Surface::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0, (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0);

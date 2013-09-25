@@ -6,6 +6,7 @@
 
 #include "Font.h"
 #include "Surface.h"
+#include "SurfaceManager.h"
 #include "System.h"
 
 class Menu {
@@ -42,7 +43,8 @@ protected:
     
     SDL_Surface * option_background;
     SDL_Rect option_rect;
-    // Font menu_font;
+    FontManager * fontManger;
+    SurfaceManager * surfaceManger;
 };
 
 Menu::Menu() {
@@ -72,7 +74,8 @@ void Menu::Set_Defaults() {
     option_rect.h = 50;
     vertically_oriented = true;
     option_background = NULL;
-    // menu_font = Font("./Font/microsbe.ttf", 24);
+    FontManager * fontManger = NULL;
+    SurfaceManager * surfaceManger = NULL;
 }
 
 void Menu::Add_Option(std::string newOption) {
@@ -140,38 +143,41 @@ void Menu::Set_Orientation(bool newFlag) {
 }
 
 void Menu::Draw() {
+    SDL_Surface * temp_surf = NULL;
+    SDL_Rect temp_rect;
     int tempX = menu_x;
     int tempY = menu_y;
+    fontManger = FontManager::getInstance();
+    surfaceManger = SurfaceManager::getInstance();
     
     for (int i = 0; i < menu_options.size(); i++) {
         option_rect.x = tempX;
         option_rect.y = tempY;
         
-        option_rect.x += 5;
-        option_rect.y += 5;
-        option_rect.w -= 5;
-        option_rect.h -= 5;
-        if (selected_option == i)
-            Surface::DrawRect(WINDOW, option_rect, CYAN);
+        if (i == selected_option)
+            option_background = surfaceManger->highlightedbutton01;
         else
-            Surface::DrawRect(WINDOW, option_rect, GRAY);
-        option_rect.x -= 5;
-        option_rect.y -= 5;
-        option_rect.w += 5;
-        option_rect.h += 5;
+            option_background = surfaceManger->button01;
+        
+	    Surface::Blit(WINDOW, option_background, option_rect.x, option_rect.y);
+
+        SDL_Surface * temp_surf = fontManger->Render(fontManger->title_font_12, menu_options[i], BLACK);
+        SDL_Rect temp_rect = temp_surf->clip_rect;
+        temp_rect.x = (option_rect.w - temp_rect.w) / 2.0 + option_rect.x;
+        temp_rect.y = (option_rect.h - temp_rect.h) / 2.0 + option_rect.y;
+
+        Surface::Blit(WINDOW, temp_surf, temp_rect.x, temp_rect.y);
+        SDL_FreeSurface(temp_surf);
         
         //if (option_background != NULL)
             //SDL_BlitSurface(option_background, &option_rect, WINDOW, NULL);
-        FontManager *fontManager = FontManager::getInstance();
-        SDL_Surface *temp_surf = fontManager->Render(fontManager->menu_font_24, menu_options[i], BLACK);
-        // SDL_Rect temp_rect = temp_surf->clip_rect;
+        /*SDL_Surface * temp_surf;// = menu_font.render(menu_options[i], BLACK);
+        SDL_Rect temp_rect;// = temp_surf->clip_rect;
         
-        // temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
-        // temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
+        temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
+        temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
         
-        // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);
-        Surface::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_surf->w) / 2.0, option_rect.y + temp_surf->h / 2.0);
-        SDL_FreeSurface(temp_surf);
+        SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, temp_surf, &temp_rect);*/
         
         if (vertically_oriented) {
             tempX += offset_x;

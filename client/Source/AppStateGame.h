@@ -1,6 +1,9 @@
 #ifndef APPSTATEGAME_H
 #define APPSTATEGAME_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "AppStateBase.h"
 #include "Bullet.h"
 #include "Camera.h"
@@ -22,6 +25,17 @@ private:
         static const char * MUSIC_FILENAME;
         
         Entity player;
+		
+	    UDPsocket sd;	/* Socket Descriptor */
+	    UDPpacket * recieve;	/* Pointer to packet memory */
+	    UDPpacket * send;	/* Pointer to packet memory */
+	    Uint8 inputs[4];
+	
+	    IPaddress server_address;
+	    char * host_address;
+	    Uint16 server_port;
+	    Uint16 host_port;
+	    int client_channel;
 public:
  
         void Initialize();
@@ -51,13 +65,62 @@ void AppStateGame::Initialize() {
     background_surf = background_surf = surfaceManager->background_game01;
     //background_rect;
     
+    host_address = NULL;
+    host_port = 8080;
+    server_port = 8080;
+	    
+	for (int i = 0; i < 4; i++)
+	    inputs[i] = 0;
+    
+    /* Initialize SDL_net */
+	if (SDLNet_Init() < 0) {
+		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Open a socket on random port */
+	if (!(sd = SDLNet_UDP_Open(0))) {
+		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Resolve server name  */
+	if (SDLNet_ResolveHost(&server_address, host_address, server_port) == -1) {
+		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+	}
+ 
+	/* Allocate memory for the packet */
+	if (!(send = SDLNet_AllocPacket(512))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+    }
+ 
+	/* Allocate memory for the packet */
+	if (!(recieve = SDLNet_AllocPacket(512))) {
+		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+		AppStateEvent::New_Event(APPSTATE_MENU);
+    }
+    
+    //p->address.host = server_address.host;	/* Set the destination host */
+    //p->address.port = server_address.port;	/* And destination port */
+    //p->data = "Hello!";
+    //p->len = 7;
+    //SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
+    
+    //Hangs the program until it has communicated with the server
+    //To get id for player array
+    //while (!SDLNet_UDP_Recv(sd, p)) {}
+    
+    send->address.host = server_address.host;	/* Set the destination host */
+    send->address.port = server_address.port;	/* And destination port */
+    send->len = 4;
+    
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
 
     
     player.SetSurface(surfaceManager->ship01, 64, 64);
-    player.x = 128;
-    player.y = 128;
     player.max_velocity = 50;
     player.acceleration = 8;
     player.deceleration = 6;
@@ -69,13 +132,26 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-    Bullet_List::getInstance()->Update();
+    send->data = inputs;
+    SDLNet_UDP_Send(sd, -1, send); /* This sets the p->channel */
+    
+    while (SDLNet_UDP_Recv(sd, recieve)) {
+        char * pEnd = NULL;
+        std::cout << (char *)recieve->data << std::endl;
+        player.x = strtod((char *)recieve->data, &pEnd);
+        player.y = strtod(pEnd, &pEnd);
+        player.angle = strtod(pEnd, NULL);
+    }
+    
+    inputs[3] = 0;
+    
+    //Bullet_List::getInstance()->Update();
     player.Update();
-
-    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
+	SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.x - viewport.w / 2.0;
     viewport.y = player.y - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
+
 }
 
 void AppStateGame::Draw() {
@@ -86,10 +162,14 @@ void AppStateGame::Draw() {
     // Surface::DrawRect(WINDOW, rect, CYAN);
     player.Draw();
     Bullet_List::getInstance()->Draw();
+    camera.Draw();//<------This should replace the above two lines at some 
 }
 
 void AppStateGame::Cleanup() {
     MUSIC_STREAM.stop();
+	SDLNet_FreePacket(recieve);
+	SDLNet_FreePacket(send);
+	SDLNet_Quit();
 }
 
 AppStateBase * AppStateGame::GetInstance() {
@@ -102,10 +182,10 @@ AppStateBase * AppStateGame::GetInstance() {
 
 void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.turn_left = true;                    break;
-    case SDLK_RIGHT:    player.turn_right = true;                   break;
-    case SDLK_UP:       player.move_forward = true;                 break;
-    case SDLK_SPACE:    player.shoot = true;                        break;
+    case SDLK_LEFT:     inputs[0] = 1;                              break;
+    case SDLK_RIGHT:    inputs[1] = 1;                              break;
+    case SDLK_UP:       inputs[2] = 1;                              break;
+    case SDLK_SPACE:    inputs[3] = 1;                              break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
@@ -121,10 +201,9 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 
 void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.turn_left = false;                    break;
-    case SDLK_RIGHT:    player.turn_right = false;                   break;
-    case SDLK_UP:       player.move_forward = false;                 break;
-    case SDLK_SPACE:    player.shoot = false;                        break;
+    case SDLK_LEFT:     inputs[0] = 0;                              break;
+    case SDLK_RIGHT:    inputs[1] = 0;                              break;
+    case SDLK_UP:       inputs[2] = 0;                              break;
         break;
     default:
         break;
