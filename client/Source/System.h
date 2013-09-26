@@ -14,7 +14,7 @@ static const SDL_Rect DEFAULT_WINDOW_BOUNDING_BOX = {0, 0, 800, 600};
 static const double DEFAULT_FPS_LIMIT = 30.0;
 //static const int DEFAULT_NUM_OF_LAYERS = 1;//For Parallax if it is desired
 
-static const std::string DEFAULT_SERVER_IP = "192.168.0.102";
+static const std::string DEFAULT_SERVER_IP = "127.0.0.1";
 static const Uint16 DEFAULT_SERVER_PORT = 8080;
 
 static const SDL_Color BLACK    = {  0,   0,   0, 0};

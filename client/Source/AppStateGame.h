@@ -66,6 +66,7 @@ void AppStateGame::Initialize() {
     //background_rect;
     
     host_address = NULL;
+    client_channel = -1;
     host_port = 8080;
     server_port = 8080;
 	    
@@ -138,7 +139,8 @@ void AppStateGame::Update() {
     while (SDLNet_UDP_Recv(sd, recieve)) {
         char * pEnd = NULL;
         std::cout << (char *)recieve->data << std::endl;
-        player.x = strtod((char *)recieve->data, &pEnd);
+        int channel = strtod((char *)recieve->data, &pEnd);
+        player.x = strtod(pEnd, &pEnd);
         player.y = strtod(pEnd, &pEnd);
         player.angle = strtod(pEnd, NULL);
     }
@@ -162,13 +164,13 @@ void AppStateGame::Draw() {
     // Surface::DrawRect(WINDOW, rect, CYAN);
     player.Draw();
     Bullet_List::getInstance()->Draw();
-    camera.Draw();//<------This should replace the above two lines at some 
+    // camera.Draw();//<------This should replace the above two lines at some 
 }
 
 void AppStateGame::Cleanup() {
     MUSIC_STREAM.stop();
 	SDLNet_FreePacket(recieve);
-	SDLNet_FreePacket(send);
+	// SDLNet_FreePacket(send);
 	SDLNet_Quit();
 }
 

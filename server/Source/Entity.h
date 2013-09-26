@@ -4,17 +4,11 @@
 #include <SDL.h>
 
 #include "Bullet.h"
-#include "Surface.h"
-#include "FPS.h"
 #include "System.h"
 
 class Entity {
 public:
-    Entity();
-    ~Entity();
-    
-    bool LoadSurface(const char *, double, double);
-    void SetSurface(SDL_Surface *, double, double);
+    Entity(int);
     
     void TurnLeft(double);
     void TurnRight(double);
@@ -24,12 +18,10 @@ public:
     void TryFire();
     
     //virtual void Events(SDL_Event *);
-    virtual void Draw();
     virtual void Update();
     
 //protected:
-    SDL_Surface * entity_surface;
-    
+    int team;
     double x, y;
     double dx, dy;
     double width, height;
@@ -42,11 +34,11 @@ public:
     double velocity;
     double acceleration;
     double deceleration;
-    bool move_forward, turn_left, turn_right;
+    bool move_forward, turn_left, turn_right, shoot;
 };
 
-Entity::Entity() {
-    entity_surface = NULL;
+Entity::Entity(int _team)
+    : team(_team) {
     x = 0.0;
     y = 0.0;
     dx = 0.0;
@@ -59,36 +51,7 @@ Entity::Entity() {
     velocity = 0.0;
     acceleration = 0.0;
     deceleration = 0.0;
-    move_forward = turn_left = turn_right = false;
-}
-
-Entity::~Entity() {
-    SDL_FreeSurface(entity_surface);
-}
-
-bool Entity::LoadSurface(const char * File, double new_width, double new_height) {
-    entity_surface = Surface::OnLoad(File);
-    width = new_width;
-    height = new_height;
-    
-    return entity_surface == NULL;
-}
-
-void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
-    entity_surface = SurfSrc;
-    width = new_width;
-    height = new_height;
-}
-
-void Entity::Draw() {
-    if (entity_surface == NULL)
-        return;
-    
-    int index = round(angle / (360 / 72));
-    if (index >= 72) index = 71;
-    if (index < 0) index = 0;
-
-    Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
+    move_forward = turn_left = turn_right = shoot = false;
 }
 
 void Entity::CalculateSpeed(double delta) {
@@ -141,6 +104,8 @@ void Entity::Update() {
         TurnLeft(delta);
     if (turn_right)
         TurnRight(delta);
+    if (shoot)
+        TryFire();
 
     CalculateVelocity(delta);
     CalculateSpeed(delta);
@@ -149,9 +114,9 @@ void Entity::Update() {
 
 void Entity::TryFire()
 {
-    Bullet_List *bullet_list = Bullet_List::getInstance();
+    // Bullet_List *bullet_list = Bullet_List::getInstance();
 
-    bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
+    // bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
 }
 
 #endif
