@@ -51,7 +51,6 @@ void AppStateMenu::Initialize() {
     MUSIC_STREAM.play();
     
     main_menu.Add_Option("Play");
-    main_menu.Add_Option("Lobby");
     main_menu.Add_Option("Exit");
     
     main_menu.Center_To_Window();
@@ -88,9 +87,7 @@ void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_RETURN:
         switch(main_menu.Select()) {
         case 0:     AppStateEvent::New_Event(APPSTATE_GAME);            break;
-        case 1:     AppStateEvent::New_Event(APPSTATE_LOBBY);           break;
-        case 2:     AppStateEvent::New_Event(APPSTATE_NONE);            break;
-        default:    /*Do Nothing*/                                      break;
+        default:    AppStateEvent::New_Event(APPSTATE_NONE);            break;
         }
         break;
     default:
