@@ -8,7 +8,7 @@
 
 class Entity {
 public:
-    Entity(int);
+    Entity(Uint64, Uint32, int);
     
     void TurnLeft(double);
     void TurnRight(double);
@@ -21,7 +21,9 @@ public:
     virtual void Update();
     
 //protected:
-    int team;
+    Uint64 ip;
+    Uint32 port;
+    int id;
     double x, y;
     double dx, dy;
     double width, height;
@@ -37,8 +39,8 @@ public:
     bool move_forward, turn_left, turn_right, shoot;
 };
 
-Entity::Entity(int _team)
-    : team(_team) {
+Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
+    : ip(_ip), port(_port), id(_id) {
     x = 0.0;
     y = 0.0;
     dx = 0.0;

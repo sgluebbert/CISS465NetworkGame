@@ -19,6 +19,7 @@ int main(int argc, char **argv)
 	Uint16 server_port = 8080;
 
 	std::vector<Entity*> entities;
+	int next_player_id = 0;
     
 	Uint8 inputs[4];
 	
@@ -62,55 +63,60 @@ int main(int argc, char **argv)
 		while (SDLNet_UDP_Recv(sd, recieve))
 		{
 			bool exists = false;
-			int entityIndex = -1;
 			Entity *entity;
+
 			for (int i = 0; i < entities.size(); i++)
 			{
-				if (entities[i]->team == recieve->channel)
+				if (entities[i]->ip == recieve->address.host && entities[i]->port == recieve->address.port)
 				{
+					entity = entities[i];
 					exists = true;
-					entityIndex = i;
 					break;
 				}
 			}
 
 			if (!exists)
 			{
-				std::cout << "New player joined on channel: " << recieve->channel << '\n';
-				entity = new Entity(recieve->channel);
+				entity = new Entity(recieve->address.host, recieve->address.port, next_player_id);
 				entities.push_back(entity);
 				entity->max_velocity = 50;
 				entity->acceleration = 8;
 				entity->deceleration = 6;
 				entity->turn_rate = 30;
 				// Do something to determine new player's postion
-				entityIndex = entities.size() - 1;
 
-				// Ignore first frame given to us
-				continue;
+				std::stringstream outbound_stream;
+				outbound_stream << "N " << next_player_id;
+				const char * outbound_data = outbound_stream.str().c_str();
+				send->address.host = recieve->address.host;
+				send->address.port = recieve->address.port;
+				send->data = (unsigned char *) outbound_data;
+			    send->len = strlen((char *)send->data) + 1;
+
+				SDLNet_UDP_Send(sd, -1, send);
+
+				std::cout << "New Player Joined\n";
+				next_player_id++;
 			}
-			else
-				entity = entities[entityIndex];
-
-			if (entity == NULL)
-				continue;
-
-	        /*If a player sends a setup packet*/
-		    /*if (p->channel == -1) {
-		        num_of_channels += 1;
-		        p->data = num_of_channels;
-		    }*/
-	        /*If a player sends a setup packet*/
-		    //else if (p->chan <= num_of_channels)
-			for (int i = 0; i < 4; i++)
-			    inputs[i] = recieve->data[i];
-			
-            entity->turn_left = inputs[0];
-            entity->turn_right = inputs[1];
-            entity->move_forward = inputs[2];
-            entity->shoot = inputs[3];
-                
-            entity->Update();
+			else if (entity != NULL)
+			{
+		        /*If a player sends a setup packet*/
+			    /*if (p->channel == -1) {
+			        num_of_channels += 1;
+			        p->data = num_of_channels;
+			    }*/
+		        /*If a player sends a setup packet*/
+			    //else if (p->chan <= num_of_channels)
+				for (int i = 0; i < 4; i++)
+				    inputs[i] = recieve->data[i];
+				
+	            entity->turn_left = inputs[0];
+	            entity->turn_right = inputs[1];
+	            entity->move_forward = inputs[2];
+	            entity->shoot = inputs[3];
+	                
+	            entity->Update();
+			}
 		}		
 		
 		if (entities.size() > 0)
@@ -123,7 +129,7 @@ int main(int argc, char **argv)
 				if (entity == NULL)
 					continue;
 
-				outbound_stream << entity->team << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle;
+				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle;
 			}
 
 			const char * outbound_data = outbound_stream.str().c_str();
@@ -132,7 +138,6 @@ int main(int argc, char **argv)
 			send->data = (unsigned char *) outbound_data;
 		    send->len = strlen((char *)send->data) + 1;
 			
-			// Does this send to all clients? if no we need to loop again sending the stream.
 			SDLNet_UDP_Send(sd, -1, send);
 		}
 

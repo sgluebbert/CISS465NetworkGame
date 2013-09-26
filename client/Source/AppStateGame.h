@@ -134,17 +134,26 @@ void AppStateGame::Events(SDL_Event * Event) {
 
 void AppStateGame::Update() {
     send->data = inputs;
-    SDLNet_UDP_Send(sd, -1, send); /* This sets the p->channel */
+    SDLNet_UDP_Send(sd, client_channel, send); /* This sets the p->channel */
     
     while (SDLNet_UDP_Recv(sd, recieve)) {
-        char * pEnd = NULL;
         std::cout << (char *)recieve->data << std::endl;
-        int channel = strtod((char *)recieve->data, &pEnd);
-        player.x = strtod(pEnd, &pEnd);
-        player.y = strtod(pEnd, &pEnd);
-        player.angle = strtod(pEnd, NULL);
+        char * pEnd = NULL;
+
+        char type = strtod((char *)recieve->data, &pEnd);
+        int team = strtod(pEnd, &pEnd);
+        if (type == 'N')
+        {
+            std::cout << "New Player: " << team << '\n';
+        }
+        else
+        {
+            player.x = strtod(pEnd, &pEnd);
+            player.y = strtod(pEnd, &pEnd);
+            player.angle = strtod(pEnd, NULL);
+        }
     }
-    
+
     inputs[3] = 0;
     
     //Bullet_List::getInstance()->Update();
