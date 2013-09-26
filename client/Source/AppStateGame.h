@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sstream>
 
 #include "AppStateBase.h"
 #include "Bullet.h"
@@ -24,7 +25,7 @@ private:
         static const char * BACKGROUND_FILENAME;
         static const char * MUSIC_FILENAME;
         
-        Entity player;
+        Entity *player;
 		
 	    UDPsocket sd;	/* Socket Descriptor */
 	    UDPpacket * recieve;	/* Pointer to packet memory */
@@ -120,12 +121,12 @@ void AppStateGame::Initialize() {
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
 
-    
-    player.SetSurface(surfaceManager->ship01, 64, 64);
-    player.max_velocity = 50;
-    player.acceleration = 8;
-    player.deceleration = 6;
-    player.turn_rate = 30;
+    player = NULL;
+    // player->SetSurface(surfaceManager->ship01, 64, 64);
+    // player->max_velocity = 50;
+    // player->acceleration = 8;
+    // player->deceleration = 6;
+    // player->turn_rate = 30;
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -138,29 +139,52 @@ void AppStateGame::Update() {
     
     while (SDLNet_UDP_Recv(sd, recieve)) {
         std::cout << (char *)recieve->data << std::endl;
-        char * pEnd = NULL;
 
-        char type = strtod((char *)recieve->data, &pEnd);
-        int team = strtod(pEnd, &pEnd);
-        if (type == 'N')
+        std::stringstream s;
+        s << recieve->data;
+        char type;
+        s >> type;
+        int team;
+
+        SurfaceManager *surfaceManager;
+        switch (type)
         {
-            std::cout << "New Player: " << team << '\n';
-        }
-        else
-        {
-            player.x = strtod(pEnd, &pEnd);
-            player.y = strtod(pEnd, &pEnd);
-            player.angle = strtod(pEnd, NULL);
+            case 'N':
+                s >> team;
+                surfaceManager = SurfaceManager::getInstance();
+                if (player == NULL)
+                {
+                    player = new Entity(team);
+                    player->SetSurface(surfaceManager->ship01, 64, 64);
+                    player->max_velocity = 50;
+                    player->acceleration = 8;
+                    player->deceleration = 6;
+                    player->turn_rate = 30;
+                }
+                break;
+            case 'P':
+                s >> team;
+
+                // get entity based on team
+                // if team is not found, add the player
+
+                Entity *entity = player;
+
+                s >> entity->x >> entity->y >> entity->angle;
+                break;
         }
     }
 
     inputs[3] = 0;
     
     //Bullet_List::getInstance()->Update();
-    player.Update();
+    // player->Update();
 	SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
-    viewport.x = player.x - viewport.w / 2.0;
-    viewport.y = player.y - viewport.h / 2.0;
+    if (player != NULL)
+    {
+        viewport.x = player->x - viewport.w / 2.0;
+        viewport.y = player->y - viewport.h / 2.0;
+    }
     Camera::getInstance()->Set_Viewport(viewport);
 
 }
@@ -171,7 +195,8 @@ void AppStateGame::Draw() {
     
     // SDL_Rect rect = {200, 150, 400, 300};
     // Surface::DrawRect(WINDOW, rect, CYAN);
-    player.Draw();
+    if (player != NULL)
+        player->Draw();
     Bullet_List::getInstance()->Draw();
     // camera.Draw();//<------This should replace the above two lines at some 
 }
@@ -200,12 +225,15 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
-        std::cout << "Pos: [" << player.x << ", " << player.y << "]\n";
-        std::cout << "Size: [" << player.width << ", " << player.height << "]\n";
-        std::cout << "Speed: [" << player.dx << ", " << player.dy << "]\n";
-        std::cout << "Velocity: [" << player.velocity << "/" << player.max_velocity << "]\n";
-        std::cout << "Throttle: [" << player.throttle << "]\n";
-        std::cout << "Angle: [" << player.angle << "]\n";
+        if (player != NULL)
+        {
+            std::cout << "Pos: [" << player->x << ", " << player->y << "]\n";
+            std::cout << "Size: [" << player->width << ", " << player->height << "]\n";
+            std::cout << "Speed: [" << player->dx << ", " << player->dy << "]\n";
+            std::cout << "Velocity: [" << player->velocity << "/" << player->max_velocity << "]\n";
+            std::cout << "Throttle: [" << player->throttle << "]\n";
+            std::cout << "Angle: [" << player->angle << "]\n";
+        }
         break;
     }
 }

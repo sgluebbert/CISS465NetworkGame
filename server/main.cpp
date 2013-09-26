@@ -129,7 +129,7 @@ int main(int argc, char **argv)
 				if (entity == NULL)
 					continue;
 
-				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle;
+				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle << ' ';
 			}
 
 			const char * outbound_data = outbound_stream.str().c_str();

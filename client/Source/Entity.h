@@ -9,7 +9,7 @@
 
 class Entity {
 public:
-    Entity();
+    Entity(int);
     ~Entity();
     
     bool LoadSurface(const char *, double, double);
@@ -29,6 +29,7 @@ public:
 //protected:
     SDL_Surface * entity_surface;
     
+    int team;
     double x, y;
     double dx, dy;
     double width, height;
@@ -46,7 +47,8 @@ public:
     double health, max_health;
 };
 
-Entity::Entity() {
+Entity::Entity(int _team) 
+    : team(_team) {
     entity_surface = NULL;
     x = 0.0;
     y = 0.0;
