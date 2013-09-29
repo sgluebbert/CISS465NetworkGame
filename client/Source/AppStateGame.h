@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
+#include <deque>
 
 #include "AppStateBase.h"
 #include "Bullet.h"
@@ -26,6 +27,7 @@ private:
         static const char * MUSIC_FILENAME;
         
         Entity *player;
+        std::deque<Entity*> entities;
 		
 	    UDPsocket sd;	/* Socket Descriptor */
 	    UDPpacket * recieve;	/* Pointer to packet memory */
@@ -113,6 +115,8 @@ void AppStateGame::Initialize() {
     //Hangs the program until it has communicated with the server
     //To get id for player array
     //while (!SDLNet_UDP_Recv(sd, p)) {}
+
+   	player = NULL;
     
     send->address.host = server_address.host;	/* Set the destination host */
     send->address.port = server_address.port;	/* And destination port */
@@ -120,13 +124,6 @@ void AppStateGame::Initialize() {
     
     MUSIC_STREAM.load(MUSIC_FILENAME);
     MUSIC_STREAM.play();
-
-    player = NULL;
-    // player->SetSurface(surfaceManager->ship01, 64, 64);
-    // player->max_velocity = 50;
-    // player->acceleration = 8;
-    // player->deceleration = 6;
-    // player->turn_rate = 30;
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -138,41 +135,92 @@ void AppStateGame::Update() {
     SDLNet_UDP_Send(sd, client_channel, send); /* This sets the p->channel */
     
     while (SDLNet_UDP_Recv(sd, recieve)) {
-        std::cout << (char *)recieve->data << std::endl;
+        // std::cout << (char *)recieve->data << std::endl;
 
         std::stringstream s;
         s << recieve->data;
-        char type;
-        s >> type;
-        int team;
 
-        SurfaceManager *surfaceManager;
-        switch (type)
+        bool reading = true;
+
+        while (reading)
         {
-            case 'N':
-                s >> team;
-                surfaceManager = SurfaceManager::getInstance();
-                if (player == NULL)
-                {
-                    player = new Entity(team);
-                    player->SetSurface(surfaceManager->ship01, 64, 64);
-                    player->max_velocity = 50;
-                    player->acceleration = 8;
-                    player->deceleration = 6;
-                    player->turn_rate = 30;
-                }
-                break;
-            case 'P':
-                s >> team;
+	        char type;
+	        s >> type;
+	        int team;
 
-                // get entity based on team
-                // if team is not found, add the player
+	        SurfaceManager *surfaceManager = SurfaceManager::getInstance();;
+	        Entity *entity = NULL;
+	        switch (type)
+	        {
+	            case 'N':
+	                s >> team;
+	                if (player == NULL)
+	                {
+	                    player = new Entity(team);
+	                    player->SetSurface(surfaceManager->ship01, 64, 64);
+		        		entities.push_back(player);
+	                    player->max_velocity = 50;
+	                    player->acceleration = 8;
+	                    player->deceleration = 6;
+	                    player->turn_rate = 30;
+	                }
+	                break;
 
-                Entity *entity = player;
+	            case 'P':
+	                s >> team;
 
-                s >> entity->x >> entity->y >> entity->angle;
-                break;
-        }
+	                for (int i = 0; i < entities.size(); i++)
+	                {
+	                	if (entities[i] == NULL)
+	                		continue;
+	                	if (entities[i]->team == team)
+	                	{
+	                		entity = entities[i];
+	                		break;
+	                	}
+	                }
+
+		        	if (entity == NULL) // New player
+		        	{
+		        		entity = new Entity(team);
+		        		entities.push_back(entity);
+	                    entity->SetSurface(surfaceManager->ship01, 64, 64);
+	                    entity->max_velocity = 50;
+	                    entity->acceleration = 8;
+	                    entity->deceleration = 6;
+	                    entity->turn_rate = 30;
+		        	}
+
+	                s >> entity->x >> entity->y >> entity->angle;
+	                break;
+
+	            case 'R':
+	                s >> team;
+	                for (int i = 0; i < entities.size(); i++)
+	                {
+	                	if (entities[i] == NULL)
+	                		continue;
+	                	if (entities[i]->team == team)
+	                	{
+	                		delete entities[i];
+	                		entities[i] = NULL;
+	                		break;
+	                	}
+	                }
+
+	            case '#':
+	            	reading = false;
+	            	break;
+	        }
+	    }
+    }
+
+    if (entities.size() > 0 && entities.front() == NULL) {
+    	entities.pop_front();
+    }
+
+    if (entities.size() > 0 && entities.back() == NULL) {
+    	entities.pop_back();
     }
 
     inputs[3] = 0;
@@ -180,8 +228,7 @@ void AppStateGame::Update() {
     //Bullet_List::getInstance()->Update();
     // player->Update();
 	SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
-    if (player != NULL)
-    {
+    if (player != NULL)   {
         viewport.x = player->x - viewport.w / 2.0;
         viewport.y = player->y - viewport.h / 2.0;
     }
@@ -195,8 +242,13 @@ void AppStateGame::Draw() {
     
     // SDL_Rect rect = {200, 150, 400, 300};
     // Surface::DrawRect(WINDOW, rect, CYAN);
-    if (player != NULL)
-        player->Draw();
+    for (int i = 0; i < entities.size(); i++)
+    {
+    	if (entities[i] == NULL)
+    		continue;
+    	entities[i]->Draw();
+    }
+
     Bullet_List::getInstance()->Draw();
     // camera.Draw();//<------This should replace the above two lines at some 
 }
@@ -206,6 +258,14 @@ void AppStateGame::Cleanup() {
 	SDLNet_FreePacket(recieve);
 	// SDLNet_FreePacket(send);
 	SDLNet_Quit();
+
+	for (int i = 0; i < entities.size(); i++)
+    {
+    	if (entities[i] == NULL)
+    		continue;
+    	delete entities[i];
+    	entities[i] = NULL;
+    }
 }
 
 AppStateBase * AppStateGame::GetInstance() {
@@ -225,15 +285,6 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
-        if (player != NULL)
-        {
-            std::cout << "Pos: [" << player->x << ", " << player->y << "]\n";
-            std::cout << "Size: [" << player->width << ", " << player->height << "]\n";
-            std::cout << "Speed: [" << player->dx << ", " << player->dy << "]\n";
-            std::cout << "Velocity: [" << player->velocity << "/" << player->max_velocity << "]\n";
-            std::cout << "Throttle: [" << player->throttle << "]\n";
-            std::cout << "Angle: [" << player->angle << "]\n";
-        }
         break;
     }
 }

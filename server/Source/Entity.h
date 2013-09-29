@@ -5,6 +5,7 @@
 
 #include "Bullet.h"
 #include "System.h"
+#include <ctime>
 
 class Entity {
 public:
@@ -23,6 +24,7 @@ public:
 //protected:
     Uint64 ip;
     Uint32 port;
+    clock_t last_input;
     int id;
     double x, y;
     double dx, dy;

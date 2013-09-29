@@ -69,15 +69,6 @@ Entity::Entity(int _team)
 }
 
 Entity::~Entity() {
-    SDL_FreeSurface(entity_surface);
-}
-
-bool Entity::LoadSurface(const char * File, double new_width, double new_height) {
-    entity_surface = Surface::OnLoad(File);
-    width = new_width;
-    height = new_height;
-    
-    return entity_surface == NULL;
 }
 
 void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
