@@ -9,8 +9,8 @@
 #include "AppStateBase.h"
 #include "Bullet.h"
 #include "Camera.h"
-#include "Entity.h"
-#include "Player.h"
+#include "Health_Bar.h"
+#include "Radar.h"
 #include "Sound.h"
 #include "SurfaceManager.h"
 #include "System.h"
@@ -26,8 +26,11 @@ private:
         static const char * BACKGROUND_FILENAME;
         static const char * MUSIC_FILENAME;
         
-        Entity *player;
-        std::deque<Entity*> entities;
+        Entity * player;
+        std::deque<Entity * > entities;
+
+        Health_Bar player_health;
+        Radar player_radar;
 		
 	    UDPsocket sd;	/* Socket Descriptor */
 	    UDPpacket * recieve;	/* Pointer to packet memory */
@@ -66,7 +69,7 @@ AppStateGame::AppStateGame() {
 void AppStateGame::Initialize() {
     SurfaceManager * surfaceManager = SurfaceManager::getInstance();
     background_surf = background_surf = surfaceManager->background_game01;
-    //background_rect;
+    background_rect = Camera::getInstance()->Get_Viewport();
     
     host_address = NULL;
     client_channel = -1;
@@ -224,33 +227,42 @@ void AppStateGame::Update() {
     }
 
     inputs[3] = 0;
+
+    player_health.Notify(player);
+    player_radar.Notify(entities);
+    player_radar.Notify(player);
     
     //Bullet_List::getInstance()->Update();
-    // player->Update();
+    //player->Update();
 	SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
     if (player != NULL)   {
-        viewport.x = player->x - viewport.w / 2.0;
-        viewport.y = player->y - viewport.h / 2.0;
+        viewport.x = player->x + player->width / 2.0 - viewport.w / 2.0;
+        viewport.y = player->y + player->height / 2.0 - viewport.h / 2.0;
     }
     Camera::getInstance()->Set_Viewport(viewport);
 
+    background_rect = Camera::getInstance()->Get_Viewport();
 }
 
 void AppStateGame::Draw() {
-	Surface::Blit(WINDOW, background_surf, 0, 0);
-    // SDL_BlitSurface(WINDOW, &WINDOW_BOUNDING_BOX, background_surf, &background_rect);
-    
-    // SDL_Rect rect = {200, 150, 400, 300};
-    // Surface::DrawRect(WINDOW, rect, CYAN);
+    SDL_BlitSurface(background_surf, &background_rect, WINDOW, NULL);
+
+    Camera * temp = Camera::getInstance();
+
     for (int i = 0; i < entities.size(); i++)
     {
     	if (entities[i] == NULL)
     		continue;
+
+        temp->Map_To_Viewport(entities[i]);
     	entities[i]->Draw();
+        temp->Map_To_World(entities[i]);
     }
 
-    Bullet_List::getInstance()->Draw();
-    // camera.Draw();//<------This should replace the above two lines at some 
+    player_health.Draw();
+    player_radar.Draw();
+
+    //Bullet_List::getInstance()->Draw();
 }
 
 void AppStateGame::Cleanup() {
@@ -299,5 +311,7 @@ void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
         break;
     }
 }
+
+
 
 #endif

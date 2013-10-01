@@ -1,14 +1,22 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+
+
 #include <list>
 #include <SDL.h>
 
+#include "Entity.h"
 #include "Surface.h"
+
+
 
 class Camera {
 public:
 	static Camera* getInstance();
+
+    void Map_To_Viewport(Entity *);
+    void Map_To_World(Entity *);
     
     void Set_Viewport(const SDL_Rect &);
     void Set_Viewport(double, double, double, double);
@@ -22,10 +30,14 @@ private:
 	static Camera *single;
 };
 
-bool Camera::instanceFlag = false;
-Camera* Camera::single = NULL;
 
-Camera* Camera::getInstance() {
+
+bool Camera::instanceFlag = false;
+Camera * Camera::single = NULL;
+
+
+
+Camera * Camera::getInstance() {
 	if (!instanceFlag) {
 		single = new Camera();
 		instanceFlag = true;
@@ -36,8 +48,32 @@ Camera* Camera::getInstance() {
 }
 
 Camera::Camera() {
-	viewport.w = WINDOW->w;
-	viewport.h = WINDOW->h;
+	viewport.w = WINDOW_BOUNDING_BOX.w;
+	viewport.h = WINDOW_BOUNDING_BOX.h;
+}
+
+void Camera::Map_To_Viewport(/*Camera * camera, */Entity * entity) {
+    // if (camera == NULL)
+    //     return;
+    if (entity == NULL)
+        return;
+
+
+    entity->x -= viewport.x;
+    entity->y -= viewport.y;
+}
+
+void Camera::Map_To_World(/*Camera * camera, */Entity * entity) {
+    // if (camera == NULL)
+    //     return;
+    if (entity == NULL)
+        return;
+
+    // entity->x += camera->Get_Viewport().x;
+    // entity->y += camera->Get_Viewport().y;
+
+    entity->x += viewport.x;
+    entity->x += viewport.y;
 }
     
 void Camera::Set_Viewport(const SDL_Rect & nviewport) {
@@ -67,9 +103,10 @@ void Camera::Set_Viewport(double x, double y, double w, double h) {
     	viewport.y = ROOM_HEIGHT - viewport.h;
 }
 
-SDL_Rect Camera::Get_Viewport()
-{
+SDL_Rect Camera::Get_Viewport() {
 	return viewport;
 }
+
+
 
 #endif

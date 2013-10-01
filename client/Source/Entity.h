@@ -1,11 +1,15 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 
+
+
 #include <SDL.h>
 
-#include "Camera.h"
+#include "Bullet.h"
 #include "FPS.h"
 #include "System.h"
+
+
 
 class Entity {
 public:
@@ -14,6 +18,8 @@ public:
     
     bool LoadSurface(const char *, double, double);
     void SetSurface(SDL_Surface *, double, double);
+
+    SDL_Rect Get_Bounding_Box();
     
     void TurnLeft(double);
     void TurnRight(double);
@@ -21,6 +27,9 @@ public:
     void CalculateVelocity(double);
     void Move(double);
     void TryFire();
+
+    void Take_Damage(double);
+    double Get_Health();
     
     //virtual void Events(SDL_Event *);
     virtual void Draw();
@@ -46,6 +55,8 @@ public:
     int can_shoot, reload_rate;
     double health, max_health;
 };
+
+
 
 Entity::Entity(int _team) 
     : team(_team) {
@@ -77,20 +88,30 @@ void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_heig
     height = new_height;
 }
 
+SDL_Rect Entity::Get_Bounding_Box() {
+    SDL_Rect temp;
+    temp.x = x;
+    temp.y = y;
+    temp.w = width;
+    temp.h = height;
+    return temp;
+}
+
 void Entity::Draw() {
     if (entity_surface == NULL)
         return;
 
-    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
+    if (x < 0 || x + width > WINDOW->w)
+        return;
 
-    if (x > viewport.x - width && x < viewport.x + viewport.w + width && y > viewport.y - height && y < viewport.y + viewport.h + height)
-    {
-	    int index = round(angle / (360 / 72));
-	    if (index >= 72) index = 71;
-	    if (index < 0) index = 0;
+    if (y < 0 || y + height > WINDOW->h)
+        return;
 
-	    Surface::Blit(WINDOW, entity_surface, x - width / 2 - viewport.x, y - height / 2 - viewport.y, index * width, 0, width, height);
-	}
+    int index = round(angle / (360 / 72));
+	if (index >= 72) index = 71;
+    if (index < 0) index = 0;
+
+	Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
 }
 
 void Entity::CalculateSpeed(double delta) {
@@ -135,9 +156,7 @@ void Entity::Update() {
     double delta = GetTimePerFrame();
     
     if (move_forward)
-    {
         throttle = 1;
-    }
     else
         throttle = 0;
 
@@ -168,5 +187,15 @@ void Entity::TryFire()
 	    can_shoot = reload_rate;
 	}
 }
+
+void Entity::Take_Damage(double damage) {
+    health -= damage;
+}
+
+double Entity::Get_Health() {
+    return health / max_health;
+}
+
+
 
 #endif
