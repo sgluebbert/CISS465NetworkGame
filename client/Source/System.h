@@ -12,7 +12,6 @@
 /*DEFAULT VARIABLES*/
 static const SDL_Rect DEFAULT_WINDOW_BOUNDING_BOX = {0, 0, 800, 600};
 static const double DEFAULT_FPS_LIMIT = 30.0;
-//static const int DEFAULT_NUM_OF_LAYERS = 1;//For Parallax if it is desired
 
 static const std::string DEFAULT_SERVER_IP = "127.0.0.1";
 static const Uint16 DEFAULT_SERVER_PORT = 8080;
@@ -37,7 +36,6 @@ static const SDL_Color PURPLE   = {255,   0, 255, 0};
 /*System Variables*/
 static SDL_Surface * WINDOW;
 static SDL_Rect WINDOW_BOUNDING_BOX;
-//static Surface LAYERS[DEFAULT_NUM_OF_LAYERS];//For Parallax if it is desired
 static double FPS_LIMIT = DEFAULT_FPS_LIMIT;
 static const char * WINDOW_TITLE = "Game API Demo";
 static const char * WINDOW_ICON_FILEPATH = "./Art/Icon.bmp";
@@ -91,7 +89,6 @@ void Build_Key_Array() {
 }
 
 void Clear_Window() {
-	// Uint32 pixel = SDL_MapRGB(WINDOW->format, BLACK.r, BLACK.g, BLACK.b);
 	SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
 }
 
@@ -104,5 +101,6 @@ SDL_Color Random_Color() {
   return c;
 }
 
+
+
 #endif
-// >>>>>>> updated stuff

@@ -16,6 +16,7 @@ struct FontManager
 	SDL_Surface *Render(TTF_Font *f, std::string &s, const SDL_Color &c);
 	SDL_Surface *Render(TTF_Font *f, const char *s, const SDL_Color &c);
 
+	TTF_Font * chat_window_font;
 	TTF_Font * title_font_12;
 	TTF_Font * title_font_48;
 private:
@@ -36,6 +37,8 @@ FontManager::FontManager() {
 		exit(1);
 	}
 
+	chat_window_font = TTF_OpenFont("./Font/microsbe.ttf", 8);
+	if(!chat_window_font) printf("TTF_OpenFont: %s\n", TTF_GetError());
 	title_font_12 = TTF_OpenFont("./Font/microsbe.ttf", 12);
 	if(!title_font_12) printf("TTF_OpenFont: %s\n", TTF_GetError());
 	title_font_48 = TTF_OpenFont("./Font/microsbe.ttf", 48);

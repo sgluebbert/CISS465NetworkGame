@@ -9,6 +9,7 @@
 #include "AppStateBase.h"
 #include "Bullet.h"
 #include "Camera.h"
+#include "Chat_Window.h"
 #include "Health_Bar.h"
 #include "Radar.h"
 #include "Sound.h"
@@ -29,6 +30,7 @@ private:
         Entity * player;
         std::deque<Entity * > entities;
 
+        Chat_Window player_chat;
         Health_Bar player_health;
         Radar player_radar;
 		
@@ -166,6 +168,7 @@ void AppStateGame::Update() {
 	                    player->acceleration = 8;
 	                    player->deceleration = 6;
 	                    player->turn_rate = 30;
+                        player_chat.Player_Joined(team);
 	                }
 	                break;
 
@@ -199,6 +202,7 @@ void AppStateGame::Update() {
 
 	            case 'R':
 	                s >> team;
+                    player_chat.Player_Disconnected(team);
 	                for (int i = 0; i < entities.size(); i++)
 	                {
 	                	if (entities[i] == NULL)
@@ -259,6 +263,7 @@ void AppStateGame::Draw() {
         temp->Map_To_World(entities[i]);
     }
 
+    player_chat.Draw();
     player_health.Draw();
     player_radar.Draw();
 
@@ -294,6 +299,14 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_RIGHT:    inputs[1] = 1;                              break;
     case SDLK_UP:       inputs[2] = 1;                              break;
     case SDLK_SPACE:    inputs[3] = 1;                              break;
+    case SDLK_j:        player_chat.Player_Joined(5);               break;
+    case SDLK_l:        player_chat.Player_Disconnected(5);         break;
+    case SDLK_d:        player_chat.Player_Died(5);                 break;
+    case SDLK_t:        
+        if (player != NULL)
+            player->Take_Damage(10);
+
+        break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
