@@ -13,11 +13,11 @@ class Entity {
 public:
     Entity(Uint64, Uint32, int);
     
-    void TurnLeft(double);
-    void TurnRight(double);
-    void CalculateSpeed(double);
-    void CalculateVelocity(double);
-    void Move(double);
+    void TurnLeft(float);
+    void TurnRight(float);
+    void CalculateSpeed(float);
+    void CalculateVelocity(float);
+    void Move(float);
     void TryFire();
     
     //virtual void Events(SDL_Event *);
@@ -28,19 +28,20 @@ public:
     Uint32 port;
     clock_t last_input;
     int id;
-    double x, y;
-    double dx, dy;
-    double width, height;
+    float x, y;
+    float dx, dy;
+    float width, height;
     
-    double turn_rate;
-    double angle;
+    float turn_rate;
+    float angle;
     
-    double throttle;
-    double max_velocity;
-    double velocity;
-    double acceleration;
-    double deceleration;
+    float throttle;
+    float max_velocity;
+    float velocity;
+    float acceleration;
+    float deceleration;
     bool move_forward, turn_left, turn_right, shoot;
+    float health;
 
     int can_shoot;
     int used_bullets;
@@ -63,6 +64,7 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     deceleration = 6;
 	max_velocity = 50;
     move_forward = turn_left = turn_right = shoot = false;
+    health = 100;
     can_shoot = 0;
     used_bullets = 0;
     for (int i = 0; i < MAX_BULLETS; ++i) {
@@ -70,14 +72,14 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     }
 }
 
-void Entity::CalculateSpeed(double delta) {
+void Entity::CalculateSpeed(float delta) {
     dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
     dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
 }
 
-void Entity::CalculateVelocity(double delta) {
-    double tempA = acceleration * delta;
-    double tempD = deceleration * delta;
+void Entity::CalculateVelocity(float delta) {
+    float tempA = acceleration * delta;
+    float tempD = deceleration * delta;
     
     if (velocity > max_velocity * throttle) {
         velocity -= tempD;
@@ -93,23 +95,23 @@ void Entity::CalculateVelocity(double delta) {
     }
 }
 
-void Entity::TurnLeft(double delta) {
+void Entity::TurnLeft(float delta) {
     angle += turn_rate * delta;
     if (angle >= 360) angle = angle - 360;
 }
 
-void Entity::TurnRight(double delta) {
+void Entity::TurnRight(float delta) {
     angle -= turn_rate * delta;
     if (angle < 0) angle = 360 + angle;
 }
 
-void Entity::Move(double delta) {
+void Entity::Move(float delta) {
     x += dx * delta;
     y -= dy * delta;
 }
 
 void Entity::Update() {
-    double delta = 1.0 / 30.0;
+    float delta = 1.0 / 30.0;
     
     if (move_forward)
         throttle = 1;

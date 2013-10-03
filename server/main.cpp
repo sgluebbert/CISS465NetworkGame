@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 				if (entity == NULL)
 					continue;
 
-				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle << ' ';
+				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle << ' ' << entity->health << ' ';
 
 				for (int n = 0; n < MAX_BULLETS; ++n)
 				{
@@ -120,6 +120,7 @@ int main(int argc, char **argv)
 			send->address.port = recieve->address.port;
 			send->data = (unsigned char *) outbound_data;
 		    send->len = strlen((char *)send->data) + 1;
+		    std::cout << send->len << '\n';
 			
 			SDLNet_UDP_Send(sd, -1, send);
 		}

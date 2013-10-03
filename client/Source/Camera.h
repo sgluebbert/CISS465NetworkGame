@@ -73,19 +73,19 @@ void Camera::Map_To_World(/*Camera * camera, */Entity * entity) {
     // entity->x += camera->Get_Viewport().x;
     // entity->y += camera->Get_Viewport().y;
     entity->x += viewport.x;
-    entity->x += viewport.y;
+    entity->y += viewport.y;
 }
     
 void Camera::Set_Viewport(const SDL_Rect & nviewport) {
     viewport = nviewport;
-    // if (viewport.x < 0)
-    // 	viewport.x = 0;
-    // if (viewport.y < 0)
-    // 	viewport.y = 0;
-    // if (viewport.x + viewport.w > ROOM_WIDTH)
-    // 	viewport.x = ROOM_WIDTH - viewport.w;
-    // if (viewport.y + viewport.h > ROOM_HEIGHT)
-    // 	viewport.y = ROOM_HEIGHT - viewport.h;
+    if (viewport.x < 0)
+    	viewport.x = 0;
+    if (viewport.y < 0)
+    	viewport.y = 0;
+    if (viewport.x + viewport.w > ROOM_WIDTH)
+    	viewport.x = ROOM_WIDTH - viewport.w;
+    if (viewport.y + viewport.h > ROOM_HEIGHT)
+    	viewport.y = ROOM_HEIGHT - viewport.h;
 }
 
 void Camera::Set_Viewport(double x, double y, double w, double h) {
@@ -93,14 +93,14 @@ void Camera::Set_Viewport(double x, double y, double w, double h) {
     viewport.y = y;
     viewport.w = w;
     viewport.h = h;
-    // if (viewport.x < 0)
-    // 	viewport.x = 0;
-    // if (viewport.y < 0)
-    // 	viewport.y = 0;
-    // if (viewport.x + viewport.w > ROOM_WIDTH)
-    // 	viewport.x = ROOM_WIDTH - viewport.w;
-    // if (viewport.y + viewport.h > ROOM_HEIGHT)
-    // 	viewport.y = ROOM_HEIGHT - viewport.h;
+    if (viewport.x < 0)
+    	viewport.x = 0;
+    if (viewport.y < 0)
+    	viewport.y = 0;
+    if (viewport.x + viewport.w > ROOM_WIDTH)
+    	viewport.x = ROOM_WIDTH - viewport.w;
+    if (viewport.y + viewport.h > ROOM_HEIGHT)
+    	viewport.y = ROOM_HEIGHT - viewport.h;
 }
 
 SDL_Rect Camera::Get_Viewport() {

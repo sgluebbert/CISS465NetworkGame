@@ -197,7 +197,7 @@ void AppStateGame::Update() {
 	                    entity->turn_rate = 30;
 		        	}
 
-	                s >> entity->x >> entity->y >> entity->angle;
+	                s >> entity->x >> entity->y >> entity->angle >> entity->health;
 	                break;
 
 	            case 'R':

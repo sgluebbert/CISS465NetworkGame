@@ -16,20 +16,20 @@ public:
     Entity(int);
     ~Entity();
     
-    bool LoadSurface(const char *, double, double);
-    void SetSurface(SDL_Surface *, double, double);
+    bool LoadSurface(const char *, float, float);
+    void SetSurface(SDL_Surface *, float, float);
 
     SDL_Rect Get_Bounding_Box();
     
-    void TurnLeft(double);
-    void TurnRight(double);
-    void CalculateSpeed(double);
-    void CalculateVelocity(double);
-    void Move(double);
+    void TurnLeft(float);
+    void TurnRight(float);
+    void CalculateSpeed(float);
+    void CalculateVelocity(float);
+    void Move(float);
     void TryFire();
 
-    void Take_Damage(double);
-    double Get_Health();
+    void Take_Damage(float);
+    float Get_Health();
     
     //virtual void Events(SDL_Event *);
     virtual void Draw();
@@ -39,21 +39,21 @@ public:
     SDL_Surface * entity_surface;
     
     int team;
-    double x, y;
-    double dx, dy;
-    double width, height;
+    float x, y;
+    float dx, dy;
+    float width, height;
     
-    double turn_rate;
-    double angle;
+    float turn_rate;
+    float angle;
     
-    double throttle;
-    double max_velocity;
-    double velocity;
-    double acceleration;
-    double deceleration;
+    float throttle;
+    float max_velocity;
+    float velocity;
+    float acceleration;
+    float deceleration;
     bool move_forward, turn_left, turn_right, shoot;
     int can_shoot, reload_rate;
-    double health, max_health;
+    float health, max_health;
 };
 
 
@@ -82,7 +82,7 @@ Entity::Entity(int _team)
 Entity::~Entity() {
 }
 
-void Entity::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
+void Entity::SetSurface(SDL_Surface * SurfSrc, float new_width, float new_height) {
     entity_surface = SurfSrc;
     width = new_width;
     height = new_height;
@@ -114,14 +114,14 @@ void Entity::Draw() {
 	Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
 }
 
-void Entity::CalculateSpeed(double delta) {
+void Entity::CalculateSpeed(float delta) {
     dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
     dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
 }
 
-void Entity::CalculateVelocity(double delta) {
-    double tempA = acceleration * delta;
-    double tempD = deceleration * delta;
+void Entity::CalculateVelocity(float delta) {
+    float tempA = acceleration * delta;
+    float tempD = deceleration * delta;
     
     if (velocity > max_velocity * throttle) {
         velocity -= tempD;
@@ -137,23 +137,23 @@ void Entity::CalculateVelocity(double delta) {
     }
 }
 
-void Entity::TurnLeft(double delta) {
+void Entity::TurnLeft(float delta) {
     angle += turn_rate * delta;
     if (angle >= 360) angle = angle - 360;
 }
 
-void Entity::TurnRight(double delta) {
+void Entity::TurnRight(float delta) {
     angle -= turn_rate * delta;
     if (angle < 0) angle = 360 + angle;
 }
 
-void Entity::Move(double delta) {
+void Entity::Move(float delta) {
     x += dx * delta;
     y -= dy * delta;
 }
 
 void Entity::Update() {
-    double delta = GetTimePerFrame();
+    float delta = GetTimePerFrame();
     
     if (move_forward)
         throttle = 1;
@@ -188,11 +188,11 @@ void Entity::TryFire()
 	}
 }
 
-void Entity::Take_Damage(double damage) {
+void Entity::Take_Damage(float damage) {
     health -= damage;
 }
 
-double Entity::Get_Health() {
+float Entity::Get_Health() {
     return health / max_health;
 }
 
