@@ -60,10 +60,6 @@ int main(int argc, char **argv)
 				{
 					entity = new Entity(recieve->address.host, recieve->address.port, next_player_id);
 					entities.push_back(entity);
-					entity->max_velocity = 50;
-					entity->acceleration = 8;
-					entity->deceleration = 6;
-					entity->turn_rate = 30;
 					entity->last_input = clock();
 					// Do something to determine new player's postion
 
@@ -108,6 +104,14 @@ int main(int argc, char **argv)
 					continue;
 
 				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle << ' ';
+
+				for (int n = 0; n < MAX_BULLETS; ++n)
+				{
+					if (entity->bullets[n] == NULL)
+						continue;
+
+					outbound_stream << "B " << entity->id << ' ' << entity->bullets[n]->x << ' ' << entity->bullets[n]->y << ' ';
+				}
 			}
 
 			outbound_stream << "# ";

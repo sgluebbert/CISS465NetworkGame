@@ -7,6 +7,8 @@
 #include "System.h"
 #include <ctime>
 
+const int MAX_BULLETS = 5;
+
 class Entity {
 public:
     Entity(Uint64, Uint32, int);
@@ -39,6 +41,10 @@ public:
     double acceleration;
     double deceleration;
     bool move_forward, turn_left, turn_right, shoot;
+
+    int can_shoot;
+    int used_bullets;
+    Bullet* bullets[MAX_BULLETS];
 };
 
 Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
@@ -50,12 +56,18 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     width = 0.0;
     height = 0.0;
     angle = 0.0;
-    turn_rate = 0.0;
-    throttle = 0.0;
+    turn_rate = 30;
+    throttle = 1;
     velocity = 0.0;
-    acceleration = 0.0;
-    deceleration = 0.0;
+    acceleration = 8;
+    deceleration = 6;
+	max_velocity = 50;
     move_forward = turn_left = turn_right = shoot = false;
+    can_shoot = 0;
+    used_bullets = 0;
+    for (int i = 0; i < MAX_BULLETS; ++i) {
+    	bullets[i] = NULL;
+    }
 }
 
 void Entity::CalculateSpeed(double delta) {
@@ -104,6 +116,22 @@ void Entity::Update() {
     else
         throttle = 0;
 
+    if (can_shoot > 0)
+    	can_shoot--;
+
+    for (int i = 0; i < MAX_BULLETS; ++i) {
+    	if (bullets[i] == NULL)
+    		continue;
+
+    	if (bullets[i]->Move(delta)) { // bullet died
+    		used_bullets--;
+    		delete bullets[i];
+    		bullets[i] = NULL;
+    	}
+    	else
+    		bullets[i]->CalculateSpeed(delta);
+    }
+
     if (turn_left)
         TurnLeft(delta);
     if (turn_right)
@@ -118,8 +146,17 @@ void Entity::Update() {
 
 void Entity::TryFire()
 {
-    // Bullet_List *bullet_list = Bullet_List::getInstance();
+	if (can_shoot != 0 || used_bullets >= MAX_BULLETS)
+		return;
 
+	can_shoot = 60;
+	used_bullets++;
+	for (int i = 0; i < MAX_BULLETS; ++i) {
+		if (bullets[i] == NULL) {
+			bullets[i] = new Bullet(id, x + width / 2, y + height / 2, velocity + 60, angle);
+			break;
+		}
+	}
     // bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
 }
 

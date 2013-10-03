@@ -238,12 +238,15 @@ void AppStateGame::Update() {
     
     //Bullet_List::getInstance()->Update();
     //player->Update();
-	SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
     if (player != NULL)   {
+	    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
         viewport.x = player->x + player->width / 2.0 - viewport.w / 2.0;
         viewport.y = player->y + player->height / 2.0 - viewport.h / 2.0;
+        Camera::getInstance()->Set_Viewport(viewport);
+        // viewport = Camera::getInstance()->Get_Viewport();
+        // std::cout << viewport.x << ' ' << player->x + player->width / 2.0 - viewport.w / 2.0 << ' ' << viewport.y << ' ' << player->y + player->height / 2.0 - viewport.h / 2.0 << '\n';
     }
-    Camera::getInstance()->Set_Viewport(viewport);
+
 
     background_rect = Camera::getInstance()->Get_Viewport();
 }

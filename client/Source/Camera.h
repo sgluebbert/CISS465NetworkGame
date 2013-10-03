@@ -48,6 +48,8 @@ Camera * Camera::getInstance() {
 }
 
 Camera::Camera() {
+    viewport.x = 0;
+    viewport.y = 0;
 	viewport.w = WINDOW_BOUNDING_BOX.w;
 	viewport.h = WINDOW_BOUNDING_BOX.h;
 }
@@ -57,7 +59,6 @@ void Camera::Map_To_Viewport(/*Camera * camera, */Entity * entity) {
     //     return;
     if (entity == NULL)
         return;
-
 
     entity->x -= viewport.x;
     entity->y -= viewport.y;
@@ -71,9 +72,8 @@ void Camera::Map_To_World(/*Camera * camera, */Entity * entity) {
 
     // entity->x += camera->Get_Viewport().x;
     // entity->y += camera->Get_Viewport().y;
-
     entity->x += viewport.x;
-    entity->x += viewport.y;
+    entity->y += viewport.y;
 }
     
 void Camera::Set_Viewport(const SDL_Rect & nviewport) {
