@@ -6,12 +6,14 @@
 #include "Bullet.h"
 #include "System.h"
 #include <ctime>
+#include <deque>
 
 const int MAX_BULLETS = 5;
 
 class Entity {
 public:
     Entity(Uint64, Uint32, int);
+    ~Entity();
     
     void TurnLeft(float);
     void TurnRight(float);
@@ -21,7 +23,7 @@ public:
     void TryFire();
     
     //virtual void Events(SDL_Event *);
-    virtual void Update();
+    virtual void Update(std::deque<Entity*> &, std::deque<Collision*> &);
     
 //protected:
     Uint64 ip;
@@ -54,21 +56,28 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     y = 0.0;
     dx = 0.0;
     dy = 0.0;
-    width = 0.0;
-    height = 0.0;
+    width = 64;
+    height = 64;
     angle = 0.0;
-    turn_rate = 30;
-    throttle = 1;
+    turn_rate = 4;
+    throttle = 4;
     velocity = 0.0;
-    acceleration = 8;
-    deceleration = 6;
-	max_velocity = 50;
+    acceleration = .4;
+    deceleration = .2;
+	max_velocity = 5;
     move_forward = turn_left = turn_right = shoot = false;
     health = 100;
     can_shoot = 0;
     used_bullets = 0;
     for (int i = 0; i < MAX_BULLETS; ++i) {
     	bullets[i] = NULL;
+    }
+}
+
+Entity::~Entity() {
+    for (int i = 0; i < MAX_BULLETS; ++i) {
+        if (bullets[i] != NULL)
+            delete bullets[i];
     }
 }
 
@@ -110,7 +119,7 @@ void Entity::Move(float delta) {
     y -= dy * delta;
 }
 
-void Entity::Update() {
+void Entity::Update(std::deque<Entity*> &entities, std::deque<Collision*> &collisions) {
     float delta = 1.0 / 30.0;
     
     if (move_forward)
@@ -121,18 +130,39 @@ void Entity::Update() {
     if (can_shoot > 0)
     	can_shoot--;
 
-    for (int i = 0; i < MAX_BULLETS; ++i) {
-    	if (bullets[i] == NULL)
-    		continue;
+    // for (int i = 0; i < MAX_BULLETS; ++i) {
+    // 	if (bullets[i] == NULL)
+    // 		continue;
 
-    	if (bullets[i]->Move(delta)) { // bullet died
-    		used_bullets--;
-    		delete bullets[i];
-    		bullets[i] = NULL;
-    	}
-    	else
-    		bullets[i]->CalculateSpeed(delta);
-    }
+    // 	if (bullets[i]->Move(delta)) { // bullet died
+    // 		used_bullets--;
+    // 		delete bullets[i];
+    // 		bullets[i] = NULL;
+    // 	}
+    // 	else
+    // 		bullets[i]->CalculateSpeed(delta);
+    // }
+
+    // for (int i = 0; i < entities.size(); i++) {
+    //     Entity *entity = entities[i];
+    //     if (entity == NULL || entity == this)
+    //         continue;
+
+    //     for (int n = 0; n < MAX_BULLETS; n++) {
+    //         Bullet *bullet = entity->bullets[i];
+    //         if (bullet == NULL)
+    //             continue;
+
+    //         if (point_in_rect(bullet->x, bullet->y, x - width / 2, y - height / 2, x + width / 2, y + height / 2))
+    //         {
+    //             entity->used_bullets -= 1;
+    //             collisions.push_back(new Collision(bullet->x, bullet->y));
+    //             delete entity->bullets[i];
+    //             entity->bullets[i] = NULL;
+    //             health -= 10;
+    //         }
+    //     }
+    // }
 
     if (turn_left)
         TurnLeft(delta);
@@ -155,7 +185,9 @@ void Entity::TryFire()
 	used_bullets++;
 	for (int i = 0; i < MAX_BULLETS; ++i) {
 		if (bullets[i] == NULL) {
-			bullets[i] = new Bullet(id, x + width / 2, y + height / 2, velocity + 60, angle);
+            int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
+            int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
+			bullets[i] = new Bullet(id, x + offset_x, y + offset_y, velocity + 60, angle);
 			break;
 		}
 	}

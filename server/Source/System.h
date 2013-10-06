@@ -60,4 +60,21 @@ void Build_Key_Array() {
 double GetTimePerFrame() {
     return 1.0 / FPS_LIMIT;//return either FPS_LIMIT or FrameTime if FrameTime is greater (when program is running slower than it should)
 }
+
+bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
+	if(y < y1 || y > y2 || x < x1 || x > x2)
+		return false;
+
+    return true;
+}
+
+enum Collision_Type { NORMAL };
+
+struct Collision {
+	Collision(float _x, float _y, Collision_Type _type = NORMAL)
+		: x(_x), y(_y), type(_type)
+	{}
+	float x, y;
+	Collision_Type type;
+};
 #endif

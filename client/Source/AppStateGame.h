@@ -15,6 +15,8 @@
 #include "Sound.h"
 #include "SurfaceManager.h"
 #include "System.h"
+
+enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
  
 class AppStateGame : public AppStateBase {
 private:
@@ -136,29 +138,31 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
+
     send->data = inputs;
     SDLNet_UDP_Send(sd, client_channel, send); /* This sets the p->channel */
     
     while (SDLNet_UDP_Recv(sd, recieve)) {
-        // std::cout << (char *)recieve->data << std::endl;
-
-        std::stringstream s;
-        s << recieve->data;
+        // std::cout << recieve->len << '\n';
+        unsigned char *buffer = recieve->data;
+        // for (int i = 0; i < recieve->len; i ++)
+        //     std::cout << (int)buffer[i] << ' ';
+        // std::cout << '\n';
+        // break;
 
         bool reading = true;
+        unsigned int index = 0;
 
         while (reading)
         {
-	        char type;
-	        s >> type;
+	        NetworkType type = (NetworkType)buffer[index++];
 	        int team;
 
 	        SurfaceManager *surfaceManager = SurfaceManager::getInstance();;
 	        Entity *entity = NULL;
-	        switch (type)
-	        {
-	            case 'N':
-	                s >> team;
+	        switch (type) {
+	            case NEW_PLAYER:
+                    team = SDLNet_Read32(buffer + index); index += 4;
 	                if (player == NULL)
 	                {
 	                    player = new Entity(team);
@@ -172,8 +176,8 @@ void AppStateGame::Update() {
 	                }
 	                break;
 
-	            case 'P':
-	                s >> team;
+	            case PLAYER:
+                    team = SDLNet_Read32(buffer + index); index += 4;
 
 	                for (int i = 0; i < entities.size(); i++)
 	                {
@@ -197,11 +201,14 @@ void AppStateGame::Update() {
 	                    entity->turn_rate = 30;
 		        	}
 
-	                s >> entity->x >> entity->y >> entity->angle >> entity->health;
+                    entity->x = SDLNet_Read32(buffer + index); index += 4;
+                    entity->y = SDLNet_Read32(buffer + index); index += 4;
+                    entity->angle = SDLNet_Read32(buffer + index); index += 4;
+                    entity->health = SDLNet_Read32(buffer + index); index += 4;
 	                break;
 
-	            case 'R':
-	                s >> team;
+	            case REMOVE_PLAYER:
+                    team = SDLNet_Read32(buffer + index); index += 4;
                     player_chat.Player_Disconnected(team);
 	                for (int i = 0; i < entities.size(); i++)
 	                {
@@ -215,9 +222,29 @@ void AppStateGame::Update() {
 	                	}
 	                }
 
-	            case '#':
+                case BULLET:
+                    team = SDLNet_Read32(buffer + index); index += 4;
+                    { // {} used to avoid switch scope complaining for now.
+                        int x = SDLNet_Read32(buffer + index); index += 4;
+                        int y = SDLNet_Read32(buffer + index); index += 4;
+                    }
+                    break;
+
+                case COLLISION:
+                    { // {} used to avoid switch scope complaining for now.
+                        int type = SDLNet_Read32(buffer + index); index += 4;
+                        int x = SDLNet_Read32(buffer + index); index += 4;
+                        int y = SDLNet_Read32(buffer + index); index += 4;
+                    }
+                    break;
+
+	            case END:
 	            	reading = false;
 	            	break;
+
+                default:
+                    reading = false;
+                    break;
 	        }
 	    }
     }

@@ -15,12 +15,20 @@ UDPpacket * send;       /* Pointer to packet memory */
 Uint16 server_port = 8080;
 void init();
 int get_next_free(std::bitset<32> &);
+inline void strcpy(unsigned char *dst, unsigned char *src, int size);
+
+enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
+		
+const int ENTITY_STREAM_SIZE = 21;
+const int BULLET_STREAM_SIZE = 13;
+const int COLLISION_STREAM_SIZE = 13;
 
 int main(int argc, char **argv)
 {
     char * buffer[255];
 
 	std::deque<Entity*> entities;
+	std::deque<Collision*> collisions;
 	std::bitset<32> taken_ids;
     
 	Uint8 inputs[4];
@@ -63,13 +71,15 @@ int main(int argc, char **argv)
 					entity->last_input = clock();
 					// Do something to determine new player's postion
 
-					std::stringstream outbound_stream;
-					outbound_stream << "N " << next_player_id << " # ";
-					const char * outbound_data = outbound_stream.str().c_str();
+					unsigned char buffer[6];
+					buffer[0] = NEW_PLAYER;
+					SDLNet_Write32(next_player_id, buffer + 1);
+					buffer[5] = END;
+
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
-					send->data = (unsigned char *) outbound_data;
-				    send->len = strlen((char *)send->data) + 1;
+					send->data = buffer;
+				    send->len = 6;
 
 					SDLNet_UDP_Send(sd, -1, send);
 
@@ -88,46 +98,126 @@ int main(int argc, char **argv)
 	            entity->move_forward = inputs[2];
 	            entity->shoot = inputs[3];
 	            entity->last_input = clock();
-	                
-	            entity->Update();
 			}
 		}		
-		
+
 		if (entities.size() > 0)
 		{
-			std::stringstream outbound_stream;
-
+			int entity_buffer_index = 0;
+			unsigned char *entity_buffer = NULL;
 			for (int i = 0; i < entities.size(); i++)
 			{
 				Entity *entity = entities[i];
 				if (entity == NULL)
 					continue;
+	                
+	            entity->Update(entities, collisions);
 
-				outbound_stream << "P " << entity->id << ' ' << entity->x << ' ' << entity->y << ' ' << entity->angle << ' ' << entity->health << ' ';
+				if (entity_buffer == NULL)
+					entity_buffer = new unsigned char[ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE];
+				else
+				{
+					unsigned char *temp = new unsigned char[entity_buffer_index + ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE];
+					strcpy(temp, entity_buffer, entity_buffer_index);
+					delete entity_buffer;
+					entity_buffer = temp;
+				}
 
+				entity_buffer[entity_buffer_index] = PLAYER;
+				SDLNet_Write32(entity->id, entity_buffer + entity_buffer_index + 1);
+				SDLNet_Write32(entity->x, entity_buffer + entity_buffer_index + 5);
+				SDLNet_Write32(entity->y, entity_buffer + entity_buffer_index + 9);
+				SDLNet_Write32(entity->angle, entity_buffer + entity_buffer_index + 13);
+				SDLNet_Write32(entity->health, entity_buffer + entity_buffer_index + 17);
+
+				// Stream the bullets over
+				int bullets_buffer_index = entity_buffer_index + ENTITY_STREAM_SIZE;
 				for (int n = 0; n < MAX_BULLETS; ++n)
 				{
 					if (entity->bullets[n] == NULL)
 						continue;
 
-					outbound_stream << "B " << entity->id << ' ' << entity->bullets[n]->x << ' ' << entity->bullets[n]->y << ' ';
+					entity_buffer[bullets_buffer_index] = BULLET;
+					SDLNet_Write32(entity->id, entity_buffer + bullets_buffer_index + 1);
+					SDLNet_Write32(entity->bullets[n]->x, entity_buffer + bullets_buffer_index + 5);
+					SDLNet_Write32(entity->bullets[n]->y, entity_buffer + bullets_buffer_index + 9);
+					bullets_buffer_index += BULLET_STREAM_SIZE;
 				}
+
+				entity_buffer_index += ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE;
 			}
 
-			outbound_stream << "# ";
-			const char * outbound_data = outbound_stream.str().c_str();
-			send->address.host = recieve->address.host;
-			send->address.port = recieve->address.port;
-			send->data = (unsigned char *) outbound_data;
-		    send->len = strlen((char *)send->data) + 1;
-		    std::cout << send->len << '\n';
-			
-			SDLNet_UDP_Send(sd, -1, send);
+			if (entity_buffer != NULL)
+			{
+				unsigned char *temp = new unsigned char[entity_buffer_index + 1];
+				strcpy(temp, entity_buffer, entity_buffer_index);
+				temp[entity_buffer_index] = END;
+				delete entity_buffer;
+
+				send->address.host = recieve->address.host;
+				send->address.port = recieve->address.port;
+				send->data = temp;
+			    send->len = entity_buffer_index + 1;
+
+				// for (int i = 0; i < send->len; i ++)
+				// 	std::cout << (int)temp[i] << ' ';
+				// std::cout << '\n';
+				
+				SDLNet_UDP_Send(sd, -1, send);
+			    delete temp;
+			}
+		}
+
+		if (collisions.size() > 0)
+		{
+			int collision_buffer_index = 0;
+			unsigned char *collision_buffer = NULL;
+			for (int i = 0; i < collisions.size(); i++)
+			{
+				Collision *collision = collisions[i];
+				if (collision == NULL)
+					continue;
+
+				if (collision_buffer == NULL)
+					collision_buffer = new unsigned char[COLLISION_STREAM_SIZE];
+				else
+				{
+					unsigned char *temp = new unsigned char[collision_buffer_index + COLLISION_STREAM_SIZE];
+					strcpy(temp, collision_buffer, collision_buffer_index);
+					delete collision_buffer;
+					collision_buffer = temp;
+				}
+
+				collision_buffer[collision_buffer_index] = COLLISION;
+				SDLNet_Write32(collision->type, collision_buffer + collision_buffer_index + 1);
+				SDLNet_Write32(collision->x, collision_buffer + collision_buffer_index + 5);
+				SDLNet_Write32(collision->y, collision_buffer + collision_buffer_index + 9);
+
+				collision_buffer_index += COLLISION_STREAM_SIZE;
+				delete collisions[i]; // collisions only last one iteration
+				collisions[i] = NULL;
+			}
+
+			if (collision_buffer != NULL)
+			{
+				unsigned char *temp = new unsigned char[collision_buffer_index + 1];
+				strcpy(temp, collision_buffer, collision_buffer_index);
+				temp[collision_buffer_index] = END;
+				delete collision_buffer;
+
+				send->address.host = recieve->address.host;
+				send->address.port = recieve->address.port;
+				send->data = temp;
+			    send->len = collision_buffer_index + 1;
+
+				SDLNet_UDP_Send(sd, -1, send);
+			    delete temp;
+			}
 		}
 
 		if (check_inactivity_timer-- == 0)
 		{
-			check_inactivity_timer = 100;
+			check_inactivity_timer = 10;
 			clock_t diff, now = clock();
 			for (int i = 0; i < entities.size(); i++)
 			{
@@ -135,17 +225,19 @@ int main(int argc, char **argv)
 					continue;
 
 				diff = now - entities[i]->last_input;
-				if (diff > 50000)
+				if ((float)diff / CLOCKS_PER_SEC > .4)
 				{
 					std::cout << "Kicking player " << entities[i]->id << " because of inactivity.\n";
 
-					std::stringstream outbound_stream;
-					outbound_stream << "R " << entities[i]->id << " # ";
-					const char * outbound_data = outbound_stream.str().c_str();
+					unsigned char buffer[6];
+					buffer[0] = REMOVE_PLAYER;
+					SDLNet_Write32(entities[i]->id, buffer + 1);
+					buffer[5] = END;
+
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
-					send->data = (unsigned char *) outbound_data;
-				    send->len = strlen((char *)send->data) + 1;
+					send->data = buffer;
+					send->len = 6;
 					SDLNet_UDP_Send(sd, -1, send);
 
 					taken_ids[entities[i]->id] = false;
@@ -158,9 +250,14 @@ int main(int argc, char **argv)
 				entities.pop_front();
 			if (entities.size() > 0 && entities.back() == NULL)
 				entities.pop_back();
+
+			if (collisions.size() > 0 && collisions.front() == NULL)
+				collisions.pop_front();
+			if (collisions.size() > 0 && collisions.back() == NULL)
+				collisions.pop_back();
 		}
 
-        SDL_Delay(50);
+        SDL_Delay(1);
 	}
  
 	/* Clean and exit */
@@ -214,4 +311,10 @@ int get_next_free(std::bitset<32> &taken_ids)
 	}
 
 	return -1;
+}
+
+inline void strcpy(unsigned char *dst, unsigned char *src, int size)
+{
+	for (int i = 0; i < size; i++)
+		dst[i] = src[i];
 }
