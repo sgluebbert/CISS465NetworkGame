@@ -6,8 +6,8 @@
 #include <SDL.h>
 
 #include "Bullet.h"
-#include "FPS.h"
 #include "System.h"
+#include "Timer.h"
 
 
 
@@ -111,7 +111,7 @@ void Entity::Draw() {
 	if (index >= 72) index = 71;
     if (index < 0) index = 0;
 
-	Surface::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
+	Surface_Manager::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
 }
 
 void Entity::CalculateSpeed(float delta) {
@@ -153,7 +153,7 @@ void Entity::Move(float delta) {
 }
 
 void Entity::Update() {
-    float delta = GetTimePerFrame();
+    float delta = Timer::Frame_Control.Get_Time_Per_Frame();
     
     if (move_forward)
         throttle = 1;

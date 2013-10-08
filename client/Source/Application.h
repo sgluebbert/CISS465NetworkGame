@@ -1,18 +1,19 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+
+
 #include <SDL.h>
 #include <iostream>
 
 #include "AppStateManager.h"
 #include "EventHandler.h"
-#include "FPS.h"
-#include "SurfaceManager.h"
+#include "Timer.h"
+#include "Surface_Manager.h"
 
 //Inludes for Compiling/Debugging Purposes
-#include "Animation.h"
-#include "Camera.h"
-#include "Menu.h"
+
+
 
 class Application : public EventHandler {
 public:
@@ -64,22 +65,8 @@ bool Application::Execute() {
 }
 
 bool Application::Initialize() {
-    // if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
-    //     return false;
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (!Initialize_System())
         return false;
-        
-	SDL_WM_SetCaption(WINDOW_TITLE, NULL);
-	SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
-    WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
-
-    if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
-        return false;
-
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-    
-    Build_Trig_Table();
-    Build_Key_Array();
     
     AppStateManager::Initialize();
     
@@ -103,14 +90,16 @@ void Application::Draw() {
 void Application::Update() {
     AppStateManager::Update();
 
-    FPS::FPSControl.Update();
+    Timer::Frame_Control.Update();
 
     char Buffer[255];
-    sprintf(Buffer, "FPS: %d", FPS::FPSControl.GetFPS());
+    sprintf(Buffer, "FPS: %d", Timer::Frame_Control.Get_FPS());
     SDL_WM_SetCaption(WINDOW_TITLE, Buffer);
 }
 
 void Application::Cleanup() {
+    Cleanup_System();
+
     AppStateManager::Cleanup();
 
     SDL_FreeSurface(WINDOW);
@@ -147,7 +136,7 @@ void Application::OnRestore() {
 void Application::OnResize(int w, int h) {
     WINDOW_BOUNDING_BOX.w = w;
     WINDOW_BOUNDING_BOX.h = h;
-    WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF);
+    Reset_Window(WINDOW_BOUNDING_BOX);
 }
 
 void Application::OnExpose() {

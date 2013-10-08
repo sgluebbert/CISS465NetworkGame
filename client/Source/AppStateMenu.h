@@ -1,12 +1,14 @@
 #ifndef APPSTATEMENU_H
 #define APPSTATEMENU_H
 
+
+
 #include "AppStateBase.h"
 #include "Menu.h"
-#include "Sound.h"
-#include "SurfaceManager.h"
 #include "System.h"
  
+
+
 class AppStateMenu : public AppStateBase {
 private:
         static AppStateBase * instance;
@@ -39,16 +41,17 @@ AppStateBase * AppStateMenu::instance = NULL;
 
 const char * AppStateMenu::MUSIC_FILENAME = "./Sound/Music/Main_Menu.ogg";
 
+
+
 AppStateMenu::AppStateMenu() {
 }
 
 void AppStateMenu::Initialize() {
-	SurfaceManager * surfaceManager = SurfaceManager::getInstance();
-    background_surf = surfaceManager->background_main_menu01;
+    background_surf = surface_manager->background_main_menu;
     //background_rect;
     
-    MUSIC_STREAM.load(MUSIC_FILENAME);
-    MUSIC_STREAM.play();
+    sound_manager->Load_Music(MUSIC_FILENAME);
+    sound_manager->Play_Music();
     
     main_menu.Add_Option("Play");
     main_menu.Add_Option("Exit");
@@ -64,12 +67,12 @@ void AppStateMenu::Update() {
 }
 
 void AppStateMenu::Draw() {
-	Surface::Blit(WINDOW, background_surf, 0, 0);
+	Surface_Manager::Blit(WINDOW, background_surf, 0, 0);
     main_menu.Draw();
 }
 
 void AppStateMenu::Cleanup() {
-    MUSIC_STREAM.stop();
+    sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateMenu::GetInstance() {
@@ -101,5 +104,7 @@ void AppStateMenu::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
         break;
     }
 }
+
+
 
 #endif

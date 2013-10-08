@@ -1,28 +1,36 @@
 #ifndef BULLET_H
 #define BULLET_H
 
+
+
 #include <deque>
 
-struct Bullet
-{
+#include "Timer.h"
+
+
+
+struct Bullet {
 	Bullet(double, double, double, double);
 	double x, y, velocity, angle, dx, dy;
 	void CalculateSpeed(double);
 	bool Move(double);
 	void Draw();
     void SetSurface(SDL_Surface *, double, double);
+
 private:
     SDL_Surface * surface;
     int width, height;
 };
 
-struct Bullet_List
-{
+
+
+struct Bullet_List {
 	static Bullet_List* getInstance();
 
 	void Update();
 	void Draw();
 	void AddBullet(double, double, double, double);
+
 private:
 	Bullet_List();
 	std::deque<Bullet *> bullets;
@@ -30,6 +38,8 @@ private:
 	static bool instanceFlag;
 	static Bullet_List *single;
 };
+
+
 
 Bullet::Bullet(double _x, double _y, double _velocity, double _angle)
 	: x(_x), y(_y), velocity(_velocity), angle(_angle), dx(0), dy(0)
@@ -59,7 +69,7 @@ void Bullet::Draw() {
     if (index >= 72) index = 71;
     if (index < 0) index = 0;
 
-    Surface::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
+    Surface_Manager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
 }
 
 void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
@@ -68,8 +78,12 @@ void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_heig
     height = new_height;
 }
 
+
+
 bool Bullet_List::instanceFlag = false;
 Bullet_List* Bullet_List::single = NULL;
+
+
 
 Bullet_List::Bullet_List()
 {}
@@ -84,19 +98,16 @@ Bullet_List* Bullet_List::getInstance() {
 		return single;
 }
 
-void Bullet_List::Update()
-{
-    double delta = GetTimePerFrame();
+void Bullet_List::Update() {
+    double delta = Timer::Frame_Control.Get_Time_Per_Frame();
 
-    for (int i = 0; i < bullets.size(); i++)
-    {
+    for (int i = 0; i < bullets.size(); i++) {
     	Bullet *bullet = bullets[i];
     	if (bullet == NULL)
     		continue;
 
     	bullet->CalculateSpeed(delta);
-    	if (bullet->Move(delta))
-    	{
+    	if (bullet->Move(delta)) {
     		bullets[i] = NULL;
     		continue;
     	}
@@ -108,10 +119,8 @@ void Bullet_List::Update()
     	bullets.pop_back();
 }
 
-void Bullet_List::Draw()
-{
-    for (int i = 0; i < bullets.size(); i++)
-    {
+void Bullet_List::Draw() {
+    for (int i = 0; i < bullets.size(); i++) {
     	Bullet * bullet = bullets[i];
         
     	if (bullet == NULL)
@@ -121,11 +130,12 @@ void Bullet_List::Draw()
     }
 }
 
-void Bullet_List::AddBullet(double x, double y, double velocity, double angle)
-{
-	Bullet *bullet = new Bullet(x, y, velocity, angle);
-	bullet->SetSurface(SurfaceManager::getInstance()->bullet01, 4, 4);
+void Bullet_List::AddBullet(double x, double y, double velocity, double angle) {
+	Bullet * bullet = new Bullet(x, y, velocity, angle);
+	bullet->SetSurface(surface_manager->bullet, 4, 4);
 	bullets.push_back(bullet);
 }
+
+
 
 #endif

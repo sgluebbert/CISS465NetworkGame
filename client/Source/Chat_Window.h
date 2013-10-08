@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 
-#include "Font.h"
+#include "Font_Manager.h"
 #include "System.h"
 
 
@@ -29,7 +29,6 @@ private:
 	SDL_Rect chat_bounding_box;
 	SDL_Surface * surface;
 	std::queue<std::string> messages;
-	FontManager * font_manager;
 
 	static const int MAX_NUMBER_OF_MESSAGES;
 	static const int FONT_HEIGHT;
@@ -56,8 +55,6 @@ Chat_Window::Chat_Window() {
 	chat_bounding_box.y = bounding_box.y + 2;
 	chat_bounding_box.w = bounding_box.w - 2 * 2;
 	chat_bounding_box.h = bounding_box.h - 2 * 2;
-
-	font_manager = FontManager::getInstance();
 
 	surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
 }

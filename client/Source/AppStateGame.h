@@ -1,6 +1,8 @@
 #ifndef APPSTATEGAME_H
 #define APPSTATEGAME_H
 
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sstream>
@@ -12,12 +14,14 @@
 #include "Chat_Window.h"
 #include "Health_Bar.h"
 #include "Radar.h"
-#include "Sound.h"
-#include "SurfaceManager.h"
 #include "System.h"
+
+
 
 enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
  
+
+
 class AppStateGame : public AppStateBase {
 private:
         static AppStateBase * instance;
@@ -26,7 +30,6 @@ private:
         SDL_Surface * background_surf;
         SDL_Rect background_rect;
         
-        static const char * BACKGROUND_FILENAME;
         static const char * MUSIC_FILENAME;
         
         Entity * player;
@@ -35,10 +38,7 @@ private:
         Chat_Window player_chat;
         Health_Bar player_health;
         Radar player_radar;
-		
-	    UDPsocket sd;	/* Socket Descriptor */
-	    UDPpacket * recieve;	/* Pointer to packet memory */
-	    UDPpacket * send;	/* Pointer to packet memory */
+
 	    Uint8 inputs[4];
 	
 	    IPaddress server_address;
@@ -64,15 +64,15 @@ public:
 
 AppStateBase * AppStateGame::instance = NULL;
 
-const char * AppStateGame::BACKGROUND_FILENAME = "./Art/Background.bmp";
 const char * AppStateGame::MUSIC_FILENAME = "./Sound/Music/Battle.ogg";
+
+
 
 AppStateGame::AppStateGame() {
 }
 
 void AppStateGame::Initialize() {
-    SurfaceManager * surfaceManager = SurfaceManager::getInstance();
-    background_surf = background_surf = surfaceManager->background_game01;
+    background_surf = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
     
     host_address = NULL;
@@ -82,36 +82,12 @@ void AppStateGame::Initialize() {
 	    
 	for (int i = 0; i < 4; i++)
 	    inputs[i] = 0;
-    
-    /* Initialize SDL_net */
-	if (SDLNet_Init() < 0) {
-		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		AppStateEvent::New_Event(APPSTATE_MENU);
-	}
- 
-	/* Open a socket on random port */
-	if (!(sd = SDLNet_UDP_Open(0))) {
-		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-		AppStateEvent::New_Event(APPSTATE_MENU);
-	}
  
 	/* Resolve server name  */
 	if (SDLNet_ResolveHost(&server_address, host_address, server_port) == -1) {
 		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
 		AppStateEvent::New_Event(APPSTATE_MENU);
 	}
- 
-	/* Allocate memory for the packet */
-	if (!(send = SDLNet_AllocPacket(512))) {
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		AppStateEvent::New_Event(APPSTATE_MENU);
-    }
- 
-	/* Allocate memory for the packet */
-	if (!(recieve = SDLNet_AllocPacket(512))) {
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		AppStateEvent::New_Event(APPSTATE_MENU);
-    }
     
     //p->address.host = server_address.host;	/* Set the destination host */
     //p->address.port = server_address.port;	/* And destination port */
@@ -129,8 +105,8 @@ void AppStateGame::Initialize() {
     send->address.port = server_address.port;	/* And destination port */
     send->len = 4;
     
-    MUSIC_STREAM.load(MUSIC_FILENAME);
-    MUSIC_STREAM.play();
+    sound_manager->Load_Music(MUSIC_FILENAME);
+    sound_manager->Play_Music();
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -140,9 +116,9 @@ void AppStateGame::Events(SDL_Event * Event) {
 void AppStateGame::Update() {
 
     send->data = inputs;
-    SDLNet_UDP_Send(sd, client_channel, send); /* This sets the p->channel */
+    SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
     
-    while (SDLNet_UDP_Recv(sd, recieve)) {
+    while (SDLNet_UDP_Recv(socket, recieve)) {
         // std::cout << recieve->len << '\n';
         unsigned char *buffer = recieve->data;
         // for (int i = 0; i < recieve->len; i ++)
@@ -158,7 +134,6 @@ void AppStateGame::Update() {
 	        NetworkType type = (NetworkType)buffer[index++];
 	        int team;
 
-	        SurfaceManager *surfaceManager = SurfaceManager::getInstance();;
 	        Entity *entity = NULL;
 	        switch (type) {
 	            case NEW_PLAYER:
@@ -166,7 +141,7 @@ void AppStateGame::Update() {
 	                if (player == NULL)
 	                {
 	                    player = new Entity(team);
-	                    player->SetSurface(surfaceManager->ship01, 64, 64);
+	                    player->SetSurface(surface_manager->ship, 64, 64);
 		        		entities.push_back(player);
 	                    player->max_velocity = 50;
 	                    player->acceleration = 8;
@@ -194,7 +169,7 @@ void AppStateGame::Update() {
 		        	{
 		        		entity = new Entity(team);
 		        		entities.push_back(entity);
-	                    entity->SetSurface(surfaceManager->ship01, 64, 64);
+	                    entity->SetSurface(surface_manager->ship, 64, 64);
 	                    entity->max_velocity = 50;
 	                    entity->acceleration = 8;
 	                    entity->deceleration = 6;
@@ -301,10 +276,7 @@ void AppStateGame::Draw() {
 }
 
 void AppStateGame::Cleanup() {
-    MUSIC_STREAM.stop();
-	SDLNet_FreePacket(recieve);
-	// SDLNet_FreePacket(send);
-	SDLNet_Quit();
+    sound_manager->Stop_Music();
 
 	for (int i = 0; i < entities.size(); i++)
     {

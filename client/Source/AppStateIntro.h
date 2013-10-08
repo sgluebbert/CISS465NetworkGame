@@ -1,10 +1,13 @@
 #ifndef APPSTATEINTRO_H
 #define APPSTATEINTRO_H
 
+
+
 #include "AppStateBase.h"
-#include "Font.h"
-#include "Sound.h"
 #include "System.h"
+#include "Timer.h"
+
+
  
 class AppStateIntro : public AppStateBase {
 private:
@@ -23,8 +26,6 @@ private:
 
         const double color_change_rate;
         double current_color;
-        
-        // Font title_font;
         
         AppStateIntro();
 public:
@@ -47,6 +48,8 @@ AppStateBase * AppStateIntro::instance = NULL;
 
 const char * AppStateIntro::MUSIC_FILENAME = "./Sound/Music/Intro.ogg";
 
+
+
 AppStateIntro::AppStateIntro()
     :number_of_bumpers(3), bumber_length(32.0),
      bumper_duration(bumber_length / 3.0), transition_point(bumber_length / 6.0),
@@ -60,10 +63,9 @@ void AppStateIntro::Initialize() {
     current_bumper = 0;
     bumper_timer = 0.0;
     current_color = 0.0;
-    // title_font = Font("./Font/microsbe.ttf", 50);
     
-    MUSIC_STREAM.load(MUSIC_FILENAME);
-    MUSIC_STREAM.play();
+    sound_manager->Load_Music(MUSIC_FILENAME);
+    sound_manager->Play_Music();
 }
 
 void AppStateIntro::Events(SDL_Event * Event) {
@@ -71,40 +73,40 @@ void AppStateIntro::Events(SDL_Event * Event) {
 }
 
 void AppStateIntro::Update() {
-        bumper_timer += GetTimePerFrame();
+    double delta = Timer::Frame_Control.Get_Time_Per_Frame();
 
-        if (bumper_timer > bumper_duration) {
-            current_bumper += 1;
-            bumper_timer = 0.0;
-        }
+    bumper_timer += delta;
 
-        if (current_bumper >= number_of_bumpers)
-            AppStateEvent::New_Event(APPSTATE_MENU);
+    if (bumper_timer > bumper_duration) {
+        current_bumper += 1;
+        bumper_timer = 0.0;
+    }
 
-        if (bumper_timer < transition_point)
-            current_color += color_change_rate * GetTimePerFrame();
-        else
-            current_color -= color_change_rate * GetTimePerFrame();
+    if (current_bumper >= number_of_bumpers)
+        AppStateEvent::New_Event(APPSTATE_MENU);
 
-        if (current_color > 255)
-            current_color = 255;
-        else if (current_color < 0)
-            current_color = 0;
+    if (bumper_timer < transition_point)
+        current_color += color_change_rate * delta;
+    else
+        current_color -= color_change_rate * delta;
+
+    if (current_color > 255)
+        current_color = 255;
+    else if (current_color < 0)
+        current_color = 0;
 }
 
 void AppStateIntro::Draw() {
-    FontManager * fontManger = FontManager::getInstance();
-
     SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
-    SDL_Surface * temp_surf = fontManger->Render(fontManger->title_font_48, bumper_titles[current_bumper], color);
+    SDL_Surface * temp_surf = font_manager->Render(font_manager->bumper_font, bumper_titles[current_bumper], color);
     SDL_Rect temp_rect = temp_surf->clip_rect;
 
-    Surface::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0, (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0);
+    Surface_Manager::Blit(WINDOW, temp_surf, (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0, (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0);
     SDL_FreeSurface(temp_surf);
 }
 
 void AppStateIntro::Cleanup() {
-    MUSIC_STREAM.stop();
+    sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateIntro::GetInstance() {

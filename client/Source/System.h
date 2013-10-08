@@ -1,35 +1,22 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <SDL.h>
-#include <SDL_net.h>
+
+
 #include <string>
 #include <cmath>
 
-#include "Sound.h"
-#include "Surface.h"
+#include "SDL_net.h"
+#include "Pallete.h"
+#include "Font_Manager.h"
+#include "Sound_Manager.h"
+#include "Surface_Manager.h"
+
+
 
 /*DEFAULT VARIABLES*/
 static const SDL_Rect DEFAULT_WINDOW_BOUNDING_BOX = {0, 0, 800, 600};
 static const double DEFAULT_FPS_LIMIT = 30.0;
-
-static const std::string DEFAULT_SERVER_IP = "127.0.0.1";
-static const Uint16 DEFAULT_SERVER_PORT = 8080;
-
-static const SDL_Color BLACK    = {  0,   0,   0, 0};
-static const SDL_Color DARKGRAY = { 64,  64,  64, 0};
-static const SDL_Color GRAY     = {128, 128, 128, 0};
-static const SDL_Color LGHTGRAY = {192, 192, 192, 0};
-static const SDL_Color WHITE    = {255, 255, 255, 0};
-static const SDL_Color RED      = {255,   0,   0, 0};
-static const SDL_Color ORANGE   = {255, 128,   0, 0};
-static const SDL_Color YELLOW   = {255, 255,   0, 0};
-static const SDL_Color GREEN    = {  0, 255,   0, 0};
-static const SDL_Color TEAL     = {  0, 255, 128, 0};
-static const SDL_Color CYAN     = {  0, 255, 255, 0};
-static const SDL_Color BLUE     = {  0,   0, 255, 0};
-static const SDL_Color INDIGO   = {128,   0, 255, 0};
-static const SDL_Color PURPLE   = {255,   0, 255, 0};
 
 
 
@@ -37,21 +24,27 @@ static const SDL_Color PURPLE   = {255,   0, 255, 0};
 static SDL_Surface * WINDOW;
 static SDL_Rect WINDOW_BOUNDING_BOX;
 static double FPS_LIMIT = DEFAULT_FPS_LIMIT;
-static const char * WINDOW_TITLE = "Game API Demo";
+static const char * WINDOW_TITLE = "CISS465 Project";
 static const char * WINDOW_ICON_FILEPATH = "./Art/Icon.bmp";
-
-static std::string SERVER_IP = DEFAULT_SERVER_IP;
-static Uint16 SERVER_PORT = DEFAULT_SERVER_PORT;
 
 static const char * APPLICATION_VERSION = "0.0.0.0";
 
 static bool IS_KEY_PRESSED[SDLK_LAST];
 
-static Music MUSIC_STREAM;
-
 static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
+
+static UDPsocket socket;
+static UDPpacket * recieve;
+static UDPpacket * send;
+
+static IPaddress server_address;
+static IPaddress client_address;
+
+static Font_Manager * font_manager;
+static Sound_Manager * sound_manager;
+static Surface_Manager * surface_manager;
 
 const int ROOM_WIDTH = 2000;
 const int ROOM_HEIGHT = 2000;
@@ -59,23 +52,132 @@ const int ROOM_HEIGHT = 2000;
 
 
 /*System Functions*/
-static void Reset_To_Default();
+static void Reset_Window(SDL_Rect);
 
-static void Build_Trig_Table();
-static void Build_Key_Array();
+//static void Map_To_Viewport(Camera *, Entity *);
+//static void Map_To_Viewport(Camera *, Bullet *);
+//static void Map_To_World(Camera *, Entity *);
+//static void Map_To_World(Camera *, Bullet *);
 
-static double GetTimePerFrame();
+static bool Initialize_SDL();
+static bool Initialize_SDL_Modules();
+static void Initialize_Managers();
+static bool Initialize_UDP_Network();
 
+static void Initialize_Trig_Table();
+static void Initialize_Key_Array();
+
+static bool Initialize_System();
+
+static void Cleanup_SDL();
+static void Cleanup_SDL_Modules();
+static void Cleanup_Managers();
+static void Cleanup_UDP_Network();
+
+static void Cleanup_System();
+
+static void Clear_Window();
 static SDL_Color Random_Color();
 
 
 
-void Reset_To_Default() {
-    WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
+/*
+void Map_To_Viewport(Camera * camera, Entity * entity) {
+    if (camera == NULL)
+         return;
+    if (entity == NULL)
+        return;
+
+    entity->x -= camera->Get_Viewport().x;
+    entity->y -= camera->Get_Viewport().y;
+}
+
+void Map_To_Viewport(Camera * camera, Bullet * bullet) {
+    if (camera == NULL)
+         return;
+    if (entity == NULL)
+        return;
+
+    entity->x -= camera->Get_Viewport().x;
+    entity->y -= camera->Get_Viewport().y;
+}
+
+void Map_To_World(Camera * camera, Entity * entity) {
+     if (camera == NULL)
+         return;
+    if (entity == NULL)
+        return;
+
+    entity->x += camera->Get_Viewport().x;
+    entity->y += camera->Get_Viewport().y;
+}
+
+void Map_To_World(Camera * camera, Bullet * bullet) {
+     if (camera == NULL)
+         return;
+    if (entity == NULL)
+        return;
+
+    entity->x += camera->Get_Viewport().x;
+    entity->y += camera->Get_Viewport().y;
+}
+*/
+
+void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
+    WINDOW_BOUNDING_BOX = new_bounding_box;
     WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF);
 }
 
-void Build_Trig_Table() {
+
+
+bool Initialize_SDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        return false;
+
+    if (!Initialize_SDL_Modules())
+        return false;
+
+    return true;
+}
+
+bool Initialize_SDL_Modules() {
+    if (TTF_Init() < 0 )
+        return false;
+
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+        return false;
+
+    if (SDLNet_Init() < 0)
+        return false;
+
+    return true;
+}
+
+void Initialize_Managers() {
+    font_manager = Font_Manager::Get_Instance();
+    sound_manager = Sound_Manager::Get_Instance();
+    surface_manager = Surface_Manager::Get_Instance();
+}
+
+bool Initialize_UDP_Network() {
+    //client_address.address = 082304324;
+    client_address.port = 0;
+
+    if (!(socket = SDLNet_UDP_Open(client_address.port)))
+        return false;
+ 
+    /* Make space for the packet */
+    if (!(recieve = SDLNet_AllocPacket(512)))
+        return false;
+ 
+    /* Make space for the packet */
+    if (!(send = SDLNet_AllocPacket(512)))
+        return false;
+
+    return true;
+}
+
+void Initialize_Trig_Table() {
     for (int i = 0; i < 72; i++) {
         double temp = 2 * PI * i / 72;
         TRIG_TABLE[i][0] = sin(temp);
@@ -83,17 +185,64 @@ void Build_Trig_Table() {
     }
 }
 
-void Build_Key_Array() {
+void Initialize_Key_Array() {
     for (int i = SDLK_FIRST; i < SDLK_LAST; i++)
         IS_KEY_PRESSED[i] = false;
 }
 
-void Clear_Window() {
-	SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
+bool Initialize_System() {
+    if (!Initialize_SDL())
+        return false;
+
+    if (!Initialize_UDP_Network())
+        return false;
+
+    Initialize_Managers();
+
+    SDL_WM_SetCaption(WINDOW_TITLE, NULL);
+    SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
+
+    if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+        return false;
+    
+    Initialize_Trig_Table();
+    Initialize_Key_Array();
+
+    return true;
 }
 
-double GetTimePerFrame() {
-    return 1.0 / FPS_LIMIT;//return either FPS_LIMIT or FrameTime if FrameTime is greater (when program is running slower than it should)
+void Cleanup_SDL() {
+    Cleanup_SDL_Modules();
+
+    SDL_FreeSurface(WINDOW);
+    SDL_Quit();
+}
+
+void Cleanup_SDL_Modules() {
+    SDLNet_Quit();
+}
+
+void Cleanup_Managers() {
+    Font_Manager::Delete_Instance();
+    Sound_Manager::Delete_Instance();
+    Surface_Manager::Delete_Instance();
+}
+
+void Cleanup_UDP_Network() {
+    SDLNet_FreePacket(recieve);
+    SDLNet_FreePacket(send);
+}
+
+void Cleanup_System() {
+    Cleanup_Managers();
+    Cleanup_UDP_Network();
+    Cleanup_SDL();
+}
+
+
+
+void Clear_Window() {
+    SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
 }
 
 SDL_Color Random_Color() {

@@ -7,7 +7,7 @@
 #include <SDL.h>
 
 #include "Entity.h"
-#include "Surface.h"
+#include "Surface_Manager.h"
 
 
 
