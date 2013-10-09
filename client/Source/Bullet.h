@@ -3,40 +3,24 @@
 
 
 
-#include <deque>
-
 #include "Timer.h"
 
 
 
 struct Bullet {
+    double x, y, velocity, angle, dx, dy;
+
 	Bullet(double, double, double, double);
-	double x, y, velocity, angle, dx, dy;
+
 	void CalculateSpeed(double);
 	bool Move(double);
 	void Draw();
     void SetSurface(SDL_Surface *, double, double);
+    SDL_Rect Get_Bounding_Box();
 
 private:
     SDL_Surface * surface;
     int width, height;
-};
-
-
-
-struct Bullet_List {
-	static Bullet_List* getInstance();
-
-	void Update();
-	void Draw();
-	void AddBullet(double, double, double, double);
-
-private:
-	Bullet_List();
-	std::deque<Bullet *> bullets;
-
-	static bool instanceFlag;
-	static Bullet_List *single;
 };
 
 
@@ -78,62 +62,15 @@ void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_heig
     height = new_height;
 }
 
+SDL_Rect Bullet::Get_Bounding_Box() {
+    SDL_Rect temp;
+    
+    temp.x = x;
+    temp.y = y;
+    temp.w = width;
+    temp.h = height;
 
-
-bool Bullet_List::instanceFlag = false;
-Bullet_List* Bullet_List::single = NULL;
-
-
-
-Bullet_List::Bullet_List()
-{}
-
-Bullet_List* Bullet_List::getInstance() {
-	if (!instanceFlag) {
-		single = new Bullet_List();
-		instanceFlag = true;
-		return single;
-	}
-	else
-		return single;
-}
-
-void Bullet_List::Update() {
-    double delta = Timer::Frame_Control.Get_Time_Per_Frame();
-
-    for (int i = 0; i < bullets.size(); i++) {
-    	Bullet *bullet = bullets[i];
-    	if (bullet == NULL)
-    		continue;
-
-    	bullet->CalculateSpeed(delta);
-    	if (bullet->Move(delta)) {
-    		bullets[i] = NULL;
-    		continue;
-    	}
-    }
-
-    if (bullets.size() > 0 && bullets.front() == NULL)
-    	bullets.pop_front();
-    if (bullets.size() > 0 && bullets.back() == NULL)
-    	bullets.pop_back();
-}
-
-void Bullet_List::Draw() {
-    for (int i = 0; i < bullets.size(); i++) {
-    	Bullet * bullet = bullets[i];
-        
-    	if (bullet == NULL)
-    		continue;
-
-    	bullet->Draw();
-    }
-}
-
-void Bullet_List::AddBullet(double x, double y, double velocity, double angle) {
-	Bullet * bullet = new Bullet(x, y, velocity, angle);
-	bullet->SetSurface(surface_manager->bullet, 4, 4);
-	bullets.push_back(bullet);
+    return temp;
 }
 
 

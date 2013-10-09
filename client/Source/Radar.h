@@ -5,7 +5,7 @@
 
 #include <deque>
 
-#include "Entity.h"
+#include "Ship.h"
 
 
 
@@ -13,8 +13,8 @@ class Radar {
 public:
 	Radar();
 
-	void Notify(std::deque<Entity * > &);
-	void Notify(Entity *);
+	void Notify(std::deque<Ship * > &);
+	void Notify(Ship *);
 	void Draw();
 
 private:
@@ -46,7 +46,7 @@ Radar::Radar() {
 	surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
 }
 
-void Radar::Notify(std::deque<Entity * > & entities) {
+void Radar::Notify(std::deque<Ship * > & entities) {
 	SDL_FillRect(surface, &bounding_box, 0x808080);
 	SDL_FillRect(surface, &radar_bounds, 0x000000);
 
@@ -65,11 +65,11 @@ void Radar::Notify(std::deque<Entity * > & entities) {
     }
 }
 
-void Radar::Notify(Entity * entity) {
-	if (entity == NULL)
+void Radar::Notify(Ship * Ship) {
+	if (Ship == NULL)
 		return;
 
-	SDL_Rect temp = entity->Get_Bounding_Box();
+	SDL_Rect temp = Ship->Get_Bounding_Box();
 	temp.x = (temp.x / double(ROOM_WIDTH)) * radar_bounds.w + 2;
 	temp.y = (temp.y / double(ROOM_HEIGHT)) * radar_bounds.h + 2;
 	temp.w = 4;

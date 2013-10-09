@@ -54,11 +54,6 @@ const int ROOM_HEIGHT = 2000;
 /*System Functions*/
 static void Reset_Window(SDL_Rect);
 
-//static void Map_To_Viewport(Camera *, Entity *);
-//static void Map_To_Viewport(Camera *, Bullet *);
-//static void Map_To_World(Camera *, Entity *);
-//static void Map_To_World(Camera *, Bullet *);
-
 static bool Initialize_SDL();
 static bool Initialize_SDL_Modules();
 static void Initialize_Managers();
@@ -80,48 +75,6 @@ static void Clear_Window();
 static SDL_Color Random_Color();
 
 
-
-/*
-void Map_To_Viewport(Camera * camera, Entity * entity) {
-    if (camera == NULL)
-         return;
-    if (entity == NULL)
-        return;
-
-    entity->x -= camera->Get_Viewport().x;
-    entity->y -= camera->Get_Viewport().y;
-}
-
-void Map_To_Viewport(Camera * camera, Bullet * bullet) {
-    if (camera == NULL)
-         return;
-    if (entity == NULL)
-        return;
-
-    entity->x -= camera->Get_Viewport().x;
-    entity->y -= camera->Get_Viewport().y;
-}
-
-void Map_To_World(Camera * camera, Entity * entity) {
-     if (camera == NULL)
-         return;
-    if (entity == NULL)
-        return;
-
-    entity->x += camera->Get_Viewport().x;
-    entity->y += camera->Get_Viewport().y;
-}
-
-void Map_To_World(Camera * camera, Bullet * bullet) {
-     if (camera == NULL)
-         return;
-    if (entity == NULL)
-        return;
-
-    entity->x += camera->Get_Viewport().x;
-    entity->y += camera->Get_Viewport().y;
-}
-*/
 
 void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
     WINDOW_BOUNDING_BOX = new_bounding_box;
@@ -230,7 +183,7 @@ void Cleanup_Managers() {
 
 void Cleanup_UDP_Network() {
     SDLNet_FreePacket(recieve);
-    SDLNet_FreePacket(send);
+    //SDLNet_FreePacket(send);
 }
 
 void Cleanup_System() {

@@ -3,7 +3,7 @@
 
 
 
-#include "Entity.h"
+#include "Ship.h"
 
 
 
@@ -11,7 +11,7 @@ class Health_Bar {
 public:
 	Health_Bar();
 
-	void Notify(Entity *);
+	void Notify(Ship *);
 	void Draw();
 
 private:
@@ -42,7 +42,7 @@ Health_Bar::Health_Bar() {
 	progress = 1.0;
 }
 
-void Health_Bar::Notify(Entity * player) {
+void Health_Bar::Notify(Ship * player) {
 	if (player == NULL)
 		return;
 	

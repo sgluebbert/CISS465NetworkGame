@@ -1,20 +1,20 @@
-#ifndef ENTITY_H
-#define ENTITY_H
+#ifndef SHIP_H
+#define SHIP_H
 
 
 
 #include <SDL.h>
 
-#include "Bullet.h"
+#include "Bullet_List.h"
 #include "System.h"
 #include "Timer.h"
 
 
 
-class Entity {
+class Ship {
 public:
-    Entity(int);
-    ~Entity();
+    Ship(int);
+    ~Ship();
     
     bool LoadSurface(const char *, float, float);
     void SetSurface(SDL_Surface *, float, float);
@@ -31,12 +31,11 @@ public:
     void Take_Damage(float);
     float Get_Health();
     
-    //virtual void Events(SDL_Event *);
     virtual void Draw();
     virtual void Update();
     
 //protected:
-    SDL_Surface * entity_surface;
+    SDL_Surface * Ship_surface;
     
     int team;
     float x, y;
@@ -58,9 +57,9 @@ public:
 
 
 
-Entity::Entity(int _team) 
+Ship::Ship(int _team) 
     : team(_team) {
-    entity_surface = NULL;
+    Ship_surface = NULL;
     x = 0.0;
     y = 0.0;
     dx = 0.0;
@@ -79,26 +78,28 @@ Entity::Entity(int _team)
     health = max_health = 100;
 }
 
-Entity::~Entity() {
+Ship::~Ship() {
 }
 
-void Entity::SetSurface(SDL_Surface * SurfSrc, float new_width, float new_height) {
-    entity_surface = SurfSrc;
+void Ship::SetSurface(SDL_Surface * SurfSrc, float new_width, float new_height) {
+    Ship_surface = SurfSrc;
     width = new_width;
     height = new_height;
 }
 
-SDL_Rect Entity::Get_Bounding_Box() {
+SDL_Rect Ship::Get_Bounding_Box() {
     SDL_Rect temp;
+
     temp.x = x;
     temp.y = y;
     temp.w = width;
     temp.h = height;
+
     return temp;
 }
 
-void Entity::Draw() {
-    if (entity_surface == NULL)
+void Ship::Draw() {
+    if (Ship_surface == NULL)
         return;
 
     if (x < 0 || x + width > WINDOW->w)
@@ -111,15 +112,15 @@ void Entity::Draw() {
 	if (index >= 72) index = 71;
     if (index < 0) index = 0;
 
-	Surface_Manager::Blit(WINDOW, entity_surface, x, y, index * width, 0, width, height);
+	Surface_Manager::Blit(WINDOW, Ship_surface, x, y, index * width, 0, width, height);
 }
 
-void Entity::CalculateSpeed(float delta) {
+void Ship::CalculateSpeed(float delta) {
     dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
     dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
 }
 
-void Entity::CalculateVelocity(float delta) {
+void Ship::CalculateVelocity(float delta) {
     float tempA = acceleration * delta;
     float tempD = deceleration * delta;
     
@@ -137,22 +138,22 @@ void Entity::CalculateVelocity(float delta) {
     }
 }
 
-void Entity::TurnLeft(float delta) {
+void Ship::TurnLeft(float delta) {
     angle += turn_rate * delta;
     if (angle >= 360) angle = angle - 360;
 }
 
-void Entity::TurnRight(float delta) {
+void Ship::TurnRight(float delta) {
     angle -= turn_rate * delta;
     if (angle < 0) angle = 360 + angle;
 }
 
-void Entity::Move(float delta) {
+void Ship::Move(float delta) {
     x += dx * delta;
     y -= dy * delta;
 }
 
-void Entity::Update() {
+void Ship::Update() {
     float delta = Timer::Frame_Control.Get_Time_Per_Frame();
     
     if (move_forward)
@@ -175,24 +176,23 @@ void Entity::Update() {
     	TryFire();
 }
 
-void Entity::TryFire()
+void Ship::TryFire()
 {
-	if (can_shoot == 0)
-	{
-	    Bullet_List *bullet_list = Bullet_List::getInstance();
+	if (can_shoot == 0) {
+	    //Bullet_List * bullet_list = Bullet_List::getInstance();
 
 	    int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
-    	int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
-	    bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
+    	    int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
+	    //bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
 	    can_shoot = reload_rate;
 	}
 }
 
-void Entity::Take_Damage(float damage) {
+void Ship::Take_Damage(float damage) {
     health -= damage;
 }
 
-float Entity::Get_Health() {
+float Ship::Get_Health() {
     return health / max_health;
 }
 

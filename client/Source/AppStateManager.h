@@ -1,14 +1,19 @@
 #ifndef APPSTATEMANAGER_H
 #define APPSTATEMANAGER_H
  
+
+
+#include "Application_Event.h"
 #include "AppStateIntro.h"
 #include "AppStateMenu.h"
 #include "AppStateGame.h"
  
+ 
+ 
 class AppStateManager {
     private:
-        static AppStateBase * ActiveAppInstance;
-        static AppState ActiveAppState;
+        static AppStateBase * instance;
+        static AppState active_state;
  
     public:
         static void Initialize();
@@ -17,69 +22,76 @@ class AppStateManager {
         static void Draw();
         static void Cleanup();
  
-        static void SetActiveAppState(AppState);
+        static void Set_Active_State(AppState);
 };
 
-AppState AppStateManager::ActiveAppState = APPSTATE_NONE;
-AppStateBase * AppStateManager::ActiveAppInstance = NULL;
+
+
+AppState AppStateManager::active_state = APPSTATE_NONE;
+AppStateBase * AppStateManager::instance = NULL;
+ 
+ 
  
 void AppStateManager::Initialize() {
-    SetActiveAppState(APPSTATE_INTRO);
+    Set_Active_State(APPSTATE_INTRO);
 }
  
 void AppStateManager::Events(SDL_Event * Event) {
-    if(ActiveAppInstance != NULL)
-        ActiveAppInstance->Events(Event);
+    if(instance != NULL)
+        instance->Events(Event);
 }
  
 void AppStateManager::Update() {
-    if(ActiveAppInstance != NULL)
-        ActiveAppInstance->Update();
+    if(instance != NULL)
+        instance->Update();
         
     AppStateEvent * appEvent = AppStateEvent::Poll_Event();
     
     if (appEvent != NULL)
-        SetActiveAppState(appEvent->Get_Event_Code());
+        Set_Active_State(appEvent->Get_Event_Code());
 }
  
 void AppStateManager::Draw() {
-    if(ActiveAppInstance != NULL)
-        ActiveAppInstance->Draw();
+    if(instance != NULL)
+        instance->Draw();
 }
  
-void AppStateManager::SetActiveAppState(AppState NewStateID) {
-    if (ActiveAppInstance != NULL)
-        ActiveAppInstance->Cleanup();
+void AppStateManager::Set_Active_State(AppState NewStateID) {
+    if (instance != NULL)
+        instance->Cleanup();
     
-    ActiveAppState = NewStateID;
+    active_state = NewStateID;
     
-    switch(ActiveAppState) {
+    switch(active_state) {
     case APPSTATE_INTRO:
-        ActiveAppInstance = AppStateIntro::GetInstance();
+        instance = AppStateIntro::GetInstance();
         break;
     case APPSTATE_MENU:
-        ActiveAppInstance = AppStateMenu::GetInstance();
+        instance = AppStateMenu::GetInstance();
         break;
     case APPSTATE_GAME:
-        ActiveAppInstance = AppStateGame::GetInstance();
+        instance = AppStateGame::GetInstance();
         break;
     default:
-        delete ActiveAppInstance;
-        ActiveAppInstance = NULL;
+        delete instance;
+        instance = NULL;
+        Application_Event::New_Event(EXIT_FLAG);
         
         break;
     }
  
-    if(ActiveAppInstance != NULL)
-        ActiveAppInstance->Initialize();
+    if(instance != NULL)
+        instance->Initialize();
 }
  
 void AppStateManager::Cleanup() {
-    if (ActiveAppInstance != NULL)
-        ActiveAppInstance->Cleanup();
+    if (instance != NULL)
+        instance->Cleanup();
         
-    delete ActiveAppInstance;
-    ActiveAppInstance = NULL;
+    delete instance;
+    instance = NULL;
 }
+
+
 
 #endif

@@ -34,7 +34,7 @@ public:
     void Move_Previous();
     int Select();
     
-protected:
+private:
     std::vector<std::string> menu_options;
     int selected_option;
     
@@ -158,14 +158,14 @@ void Menu::Draw() {
         else
             option_background = surface_manager->button;
         
-	    Surface_Manager::Blit(WINDOW, option_background, option_rect.x, option_rect.y);
+        SDL_BlitSurface(option_background, NULL, WINDOW, &option_rect);
 
         SDL_Surface * temp_surf = font_manager->Render(font_manager->menu_font, menu_options[i], BLACK);
         SDL_Rect temp_rect = temp_surf->clip_rect;
         temp_rect.x = (option_rect.w - temp_rect.w) / 2.0 + option_rect.x;
         temp_rect.y = (option_rect.h - temp_rect.h) / 2.0 + option_rect.y;
 
-        Surface_Manager::Blit(WINDOW, temp_surf, temp_rect.x, temp_rect.y);
+        SDL_BlitSurface(temp_surf, NULL, WINDOW, &temp_rect);
         SDL_FreeSurface(temp_surf);
         
         if (vertically_oriented) {

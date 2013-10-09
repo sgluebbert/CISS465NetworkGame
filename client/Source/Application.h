@@ -88,6 +88,11 @@ void Application::Draw() {
 }
 
 void Application::Update() {
+    Application_Event * appFlag = Application_Event::Poll_Event();
+    
+    if (appFlag != NULL)
+        is_running = false;
+
     AppStateManager::Update();
 
     Timer::Frame_Control.Update();
@@ -107,24 +112,11 @@ void Application::Cleanup() {
 }
 
 void Application::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
-    //Updates the Key Pressed Table
     EventHandler::OnKeyDown(sym, mod, unicode);
-    
-    //Prints debugging on any key press
-    switch(sym) {
-    default:
-        break;
-    }
 }
 
 void Application::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
-    //Updates the Key Pressed Table
     EventHandler::OnKeyUp(sym, mod, unicode);
-    
-    switch(sym) {
-    default:
-        break;
-    }
 }
 
 void Application::OnMinimize() {

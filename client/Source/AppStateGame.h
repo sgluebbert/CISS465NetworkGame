@@ -9,7 +9,7 @@
 #include <deque>
 
 #include "AppStateBase.h"
-#include "Bullet.h"
+#include "Bullet_List.h"
 #include "Camera.h"
 #include "Chat_Window.h"
 #include "Health_Bar.h"
@@ -32,8 +32,8 @@ private:
         
         static const char * MUSIC_FILENAME;
         
-        Entity * player;
-        std::deque<Entity * > entities;
+        Ship * player;
+        std::deque<Ship * > ships;
 
         Chat_Window player_chat;
         Health_Bar player_health;
@@ -114,7 +114,6 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-
     send->data = inputs;
     SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
     
@@ -128,21 +127,23 @@ void AppStateGame::Update() {
 
         bool reading = true;
         unsigned int index = 0;
+        unsigned int packets_read = 0;
 
         while (reading)
         {
 	        NetworkType type = (NetworkType)buffer[index++];
 	        int team;
 
-	        Entity *entity = NULL;
+	        Ship * ship = NULL;
+
 	        switch (type) {
 	            case NEW_PLAYER:
                     team = SDLNet_Read32(buffer + index); index += 4;
 	                if (player == NULL)
 	                {
-	                    player = new Entity(team);
+	                    player = new Ship(team);
 	                    player->SetSurface(surface_manager->ship, 64, 64);
-		        		entities.push_back(player);
+		        		ships.push_back(player);
 	                    player->max_velocity = 50;
 	                    player->acceleration = 8;
 	                    player->deceleration = 6;
@@ -154,45 +155,45 @@ void AppStateGame::Update() {
 	            case PLAYER:
                     team = SDLNet_Read32(buffer + index); index += 4;
 
-	                for (int i = 0; i < entities.size(); i++)
+	                for (int i = 0; i < ships.size(); i++)
 	                {
-	                	if (entities[i] == NULL)
+	                	if (ships[i] == NULL)
 	                		continue;
-	                	if (entities[i]->team == team)
+	                	if (ships[i]->team == team)
 	                	{
-	                		entity = entities[i];
+	                		ship = ships[i];
 	                		break;
 	                	}
 	                }
 
-		        	if (entity == NULL) // New player
+		        	if (ship == NULL) // New player
 		        	{
-		        		entity = new Entity(team);
-		        		entities.push_back(entity);
-	                    entity->SetSurface(surface_manager->ship, 64, 64);
-	                    entity->max_velocity = 50;
-	                    entity->acceleration = 8;
-	                    entity->deceleration = 6;
-	                    entity->turn_rate = 30;
+		        		ship = new Ship(team);
+		        		ships.push_back(ship);
+	                    ship->SetSurface(surface_manager->ship, 64, 64);
+	                    ship->max_velocity = 50;
+	                    ship->acceleration = 8;
+	                    ship->deceleration = 6;
+	                    ship->turn_rate = 30;
 		        	}
 
-                    entity->x = SDLNet_Read32(buffer + index); index += 4;
-                    entity->y = SDLNet_Read32(buffer + index); index += 4;
-                    entity->angle = SDLNet_Read32(buffer + index); index += 4;
-                    entity->health = SDLNet_Read32(buffer + index); index += 4;
+                    ship->x = SDLNet_Read32(buffer + index); index += 4;
+                    ship->y = SDLNet_Read32(buffer + index); index += 4;
+                    ship->angle = SDLNet_Read32(buffer + index); index += 4;
+                    ship->health = SDLNet_Read32(buffer + index); index += 4;
 	                break;
 
 	            case REMOVE_PLAYER:
                     team = SDLNet_Read32(buffer + index); index += 4;
                     player_chat.Player_Disconnected(team);
-	                for (int i = 0; i < entities.size(); i++)
+	                for (int i = 0; i < ships.size(); i++)
 	                {
-	                	if (entities[i] == NULL)
+	                	if (ships[i] == NULL)
 	                		continue;
-	                	if (entities[i]->team == team)
+	                	if (ships[i]->team == team)
 	                	{
-	                		delete entities[i];
-	                		entities[i] = NULL;
+	                		delete ships[i];
+	                		ships[i] = NULL;
 	                		break;
 	                	}
 	                }
@@ -221,32 +222,39 @@ void AppStateGame::Update() {
                     reading = false;
                     break;
 	        }
+
+            packets_read++;
+
 	    }
+
+        if (packets_read == 0 && player != NULL) {
+            player->turn_left = inputs[0];
+            player->turn_right = inputs[1];
+            player->move_forward = inputs[2];
+            player->shoot = inputs[3];
+        }
+
     }
 
-    if (entities.size() > 0 && entities.front() == NULL) {
-    	entities.pop_front();
+    if (ships.size() > 0 && ships.front() == NULL) {
+    	ships.pop_front();
     }
 
-    if (entities.size() > 0 && entities.back() == NULL) {
-    	entities.pop_back();
+    if (ships.size() > 0 && ships.back() == NULL) {
+    	ships.pop_back();
     }
-
-    inputs[3] = 0;
+    
+    Bullet_List::getInstance()->Update();
 
     player_health.Notify(player);
-    player_radar.Notify(entities);
+    player_radar.Notify(ships);
     player_radar.Notify(player);
-    
-    //Bullet_List::getInstance()->Update();
-    //player->Update();
+
     if (player != NULL)   {
 	    SDL_Rect viewport = Camera::getInstance()->Get_Viewport();
         viewport.x = player->x + player->width / 2.0 - viewport.w / 2.0;
         viewport.y = player->y + player->height / 2.0 - viewport.h / 2.0;
         Camera::getInstance()->Set_Viewport(viewport);
-        // viewport = Camera::getInstance()->Get_Viewport();
-        // std::cout << viewport.x << ' ' << player->x + player->width / 2.0 - viewport.w / 2.0 << ' ' << viewport.y << ' ' << player->y + player->height / 2.0 - viewport.h / 2.0 << '\n';
     }
 
 
@@ -256,34 +264,25 @@ void AppStateGame::Update() {
 void AppStateGame::Draw() {
     SDL_BlitSurface(background_surf, &background_rect, WINDOW, NULL);
 
-    Camera * temp = Camera::getInstance();
+    Camera * temp_camera = Camera::getInstance();
 
-    for (int i = 0; i < entities.size(); i++)
-    {
-    	if (entities[i] == NULL)
-    		continue;
-
-        temp->Map_To_Viewport(entities[i]);
-    	entities[i]->Draw();
-        temp->Map_To_World(entities[i]);
-    }
+    temp_camera->Draw_Ships(ships);
+    temp_camera->Draw_Bullets(Bullet_List::getInstance());
 
     player_chat.Draw();
     player_health.Draw();
     player_radar.Draw();
-
-    //Bullet_List::getInstance()->Draw();
 }
 
 void AppStateGame::Cleanup() {
     sound_manager->Stop_Music();
 
-	for (int i = 0; i < entities.size(); i++)
+	for (int i = 0; i < ships.size(); i++)
     {
-    	if (entities[i] == NULL)
+    	if (ships[i] == NULL)
     		continue;
-    	delete entities[i];
-    	entities[i] = NULL;
+    	delete ships[i];
+    	ships[i] = NULL;
     }
 }
 
@@ -304,11 +303,6 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_j:        player_chat.Player_Joined(5);               break;
     case SDLK_l:        player_chat.Player_Disconnected(5);         break;
     case SDLK_d:        player_chat.Player_Died(5);                 break;
-    case SDLK_t:        
-        if (player != NULL)
-            player->Take_Damage(10);
-
-        break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:
@@ -321,7 +315,7 @@ void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_LEFT:     inputs[0] = 0;                              break;
     case SDLK_RIGHT:    inputs[1] = 0;                              break;
     case SDLK_UP:       inputs[2] = 0;                              break;
-        break;
+    case SDLK_SPACE:    inputs[3] = 0;                              break;
     default:
         break;
     }

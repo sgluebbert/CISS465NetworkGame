@@ -3,10 +3,12 @@
 
 
 
-#include <list>
+#include <deque>
 #include <SDL.h>
 
-#include "Entity.h"
+#include "Bullet.h"
+#include "Bullet_List.h"
+#include "Ship.h"
 #include "Surface_Manager.h"
 
 
@@ -15,8 +17,12 @@ class Camera {
 public:
 	static Camera* getInstance();
 
-    void Map_To_Viewport(Entity *);
-    void Map_To_World(Entity *);
+    void Map_To_Viewport(Ship *);
+    void Map_To_World(Ship *);
+    void Map_To_Viewport(Bullet *);
+    void Map_To_World(Bullet *);
+    void Draw_Ships(std::deque<Ship *>);
+    void Draw_Bullets(Bullet_List *);
     
     void Set_Viewport(const SDL_Rect &);
     void Set_Viewport(double, double, double, double);
@@ -54,26 +60,72 @@ Camera::Camera() {
 	viewport.h = WINDOW_BOUNDING_BOX.h;
 }
 
-void Camera::Map_To_Viewport(/*Camera * camera, */Entity * entity) {
-    // if (camera == NULL)
-    //     return;
-    if (entity == NULL)
+void Camera::Map_To_Viewport(Ship * ship) {
+    if (ship == NULL)
         return;
 
-    entity->x -= viewport.x;
-    entity->y -= viewport.y;
+    ship->x -= viewport.x;
+    ship->y -= viewport.y;
 }
 
-void Camera::Map_To_World(/*Camera * camera, */Entity * entity) {
-    // if (camera == NULL)
-    //     return;
-    if (entity == NULL)
+void Camera::Map_To_World(Ship * ship) {
+    if (ship == NULL)
         return;
 
-    // entity->x += camera->Get_Viewport().x;
-    // entity->y += camera->Get_Viewport().y;
-    entity->x += viewport.x;
-    entity->y += viewport.y;
+    ship->x += viewport.x;
+    ship->y += viewport.y;
+}
+
+void Camera::Map_To_Viewport(Bullet * bullet) {
+    if (bullet == NULL)
+        return;
+
+    bullet->x -= viewport.x;
+    bullet->y -= viewport.y;
+}
+
+void Camera::Map_To_World(Bullet * bullet) {
+    if (bullet == NULL)
+        return;
+
+    bullet->x += viewport.x;
+    bullet->y += viewport.y;
+}
+
+void Camera::Draw_Ships(std::deque<Ship *>  ships) {
+    for (int i = 0; i < ships.size(); i++) {
+        if (ships[i] == NULL)
+            continue;
+
+        Map_To_Viewport(ships[i]);
+
+        SDL_Rect temp_rect = ships[i]->Get_Bounding_Box();
+        if (temp_rect.x >= 0 &&
+            temp_rect.x + temp_rect.w <= WINDOW_BOUNDING_BOX.w &&
+            temp_rect.y >= 0 &&
+            temp_rect.y + temp_rect.h <= WINDOW_BOUNDING_BOX.h)
+           ships[i]->Draw();
+
+        Map_To_World(ships[i]);
+    }
+}
+
+void Camera::Draw_Bullets(Bullet_List * temp_list) {
+    for (int i = 0; i < temp_list->bullets.size(); i++) {
+        if (temp_list->bullets[i] == NULL)
+            continue;
+
+        Map_To_Viewport(temp_list->bullets[i]);
+
+        SDL_Rect temp_rect = temp_list->bullets[i]->Get_Bounding_Box();
+        if (temp_rect.x >= 0 &&
+            temp_rect.x + temp_rect.w <= WINDOW_BOUNDING_BOX.w &&
+            temp_rect.y >= 0 &&
+            temp_rect.y + temp_rect.h <= WINDOW_BOUNDING_BOX.h)
+           temp_list->bullets[i]->Draw();
+
+        Map_To_World(temp_list->bullets[i]);
+    }
 }
     
 void Camera::Set_Viewport(const SDL_Rect & nviewport) {
