@@ -10,7 +10,7 @@
 struct Bullet {
     double x, y, velocity, angle, dx, dy;
 
-	Bullet(double, double, double, double);
+	Bullet(int, double, double, double, double);
 
 	void CalculateSpeed(double);
 	bool Move(double);
@@ -18,6 +18,7 @@ struct Bullet {
     void SetSurface(SDL_Surface *, double, double);
     SDL_Rect Get_Bounding_Box();
 
+    int team;
 private:
     SDL_Surface * surface;
     int width, height;
@@ -25,8 +26,8 @@ private:
 
 
 
-Bullet::Bullet(double _x, double _y, double _velocity, double _angle)
-	: x(_x), y(_y), velocity(_velocity), angle(_angle), dx(0), dy(0)
+Bullet::Bullet(int _team, double _x, double _y, double _velocity, double _angle)
+	: x(_x), y(_y), velocity(_velocity), angle(_angle), dx(0), dy(0), team(_team)
 {}
 
 void Bullet::CalculateSpeed(double delta) {
@@ -43,17 +44,12 @@ bool Bullet::Move(double delta) {
 }
 
 void Bullet::Draw() {
-    if (x < 0 || x > WINDOW->w)
-        return;
+    // int index = round(angle / (360 / 72));
+    // if (index >= 72) index = 71;
+    // if (index < 0) index = 0;
 
-    if (y < 0 || y > WINDOW->h)
-        return;
-
-    int index = round(angle / (360 / 72));
-    if (index >= 72) index = 71;
-    if (index < 0) index = 0;
-
-    Surface_Manager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
+    // Surface_Manager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
+    Surface_Manager::Blit(WINDOW, surface, x, y, 0, 0, width, height);
 }
 
 void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {

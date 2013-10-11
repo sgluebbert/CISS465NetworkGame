@@ -102,17 +102,11 @@ void Ship::Draw() {
     if (Ship_surface == NULL)
         return;
 
-    if (x < 0 || x + width > WINDOW->w)
-        return;
-
-    if (y < 0 || y + height > WINDOW->h)
-        return;
-
     int index = round(angle / (360 / 72));
 	if (index >= 72) index = 71;
     if (index < 0) index = 0;
 
-	Surface_Manager::Blit(WINDOW, Ship_surface, x, y, index * width, 0, width, height);
+	Surface_Manager::Blit(WINDOW, Ship_surface, x - width / 2, y - height / 2, index * width, 0, width, height);
 }
 
 void Ship::CalculateSpeed(float delta) {
@@ -169,6 +163,20 @@ void Ship::Update() {
     CalculateVelocity(delta);
     CalculateSpeed(delta);
     Move(delta);
+
+    Bullet_List *bullet_list = Bullet_List::getInstance();
+    for (int i = 0; i < bullet_list->bullets.size(); i++)
+    {
+        Bullet *bullet = bullet_list->bullets[i];
+        if (bullet == NULL || bullet->team == team)
+            continue;
+
+        if (point_in_rect(bullet->x, bullet->y, x - width / 3, y - height / 3, x + width / 3, y + height / 3))
+        {
+            delete bullet;
+            bullet_list->bullets[i] = NULL;
+        }
+    }
 
     if (can_shoot > 0)
     	can_shoot--;

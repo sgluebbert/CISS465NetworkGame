@@ -68,6 +68,11 @@ bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
     return true;
 }
 
+inline unsigned int min(unsigned int x, unsigned int y)
+{
+    return (x < y ? x : y);
+}
+
 enum Collision_Type { NORMAL };
 
 struct Collision {

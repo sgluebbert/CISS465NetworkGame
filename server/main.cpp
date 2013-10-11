@@ -16,10 +16,11 @@ Uint16 server_port = 8080;
 void init();
 int get_next_free(std::bitset<32> &);
 inline void strcpy(unsigned char *dst, unsigned char *src, int size);
+inline void write_float(float value, unsigned char *buffer);
 
 enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
 		
-const int ENTITY_STREAM_SIZE = 21;
+const int ENTITY_STREAM_SIZE = 19;
 const int BULLET_STREAM_SIZE = 13;
 const int COLLISION_STREAM_SIZE = 13;
 
@@ -71,15 +72,15 @@ int main(int argc, char **argv)
 					entity->last_input = clock();
 					// Do something to determine new player's postion
 
-					unsigned char buffer[6];
+					unsigned char buffer[3];
 					buffer[0] = NEW_PLAYER;
-					SDLNet_Write32(next_player_id, buffer + 1);
-					buffer[5] = END;
+					buffer[1] = next_player_id;
+					buffer[2] = END;
 
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
 					send->data = buffer;
-				    send->len = 6;
+				    send->len = 3;
 
 					SDLNet_UDP_Send(sd, -1, send);
 
@@ -99,7 +100,9 @@ int main(int argc, char **argv)
 	            entity->shoot = inputs[3];
 	            entity->last_input = clock();
 			}
-		}		
+		}
+
+		Bullet_List::getInstance()->Update();
 
 		if (entities.size() > 0)
 		{
@@ -111,40 +114,41 @@ int main(int argc, char **argv)
 				if (entity == NULL)
 					continue;
 	                
-	            entity->Update(entities, collisions);
+	            entity->Update();
 
 				if (entity_buffer == NULL)
-					entity_buffer = new unsigned char[ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE];
+					entity_buffer = new unsigned char[ENTITY_STREAM_SIZE];// + entity->used_bullets * BULLET_STREAM_SIZE];
 				else
 				{
-					unsigned char *temp = new unsigned char[entity_buffer_index + ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE];
+					unsigned char *temp = new unsigned char[entity_buffer_index + ENTITY_STREAM_SIZE];// + entity->used_bullets * BULLET_STREAM_SIZE];
 					strcpy(temp, entity_buffer, entity_buffer_index);
 					delete entity_buffer;
 					entity_buffer = temp;
 				}
 
 				entity_buffer[entity_buffer_index] = PLAYER;
-				SDLNet_Write32(entity->id, entity_buffer + entity_buffer_index + 1);
-				SDLNet_Write32(entity->x, entity_buffer + entity_buffer_index + 5);
-				SDLNet_Write32(entity->y, entity_buffer + entity_buffer_index + 9);
-				SDLNet_Write32(entity->angle, entity_buffer + entity_buffer_index + 13);
-				SDLNet_Write32(entity->health, entity_buffer + entity_buffer_index + 17);
+				entity_buffer[entity_buffer_index + 1] = entity->id;
+				write_float(entity->x, entity_buffer + entity_buffer_index + 2);
+				write_float(entity->y, entity_buffer + entity_buffer_index + 6);
+				write_float(entity->angle, entity_buffer + entity_buffer_index + 10);
+				write_float(entity->health, entity_buffer + entity_buffer_index + 14);
+				entity_buffer[entity_buffer_index + 18] = entity->did_shoot;
 
-				// Stream the bullets over
-				int bullets_buffer_index = entity_buffer_index + ENTITY_STREAM_SIZE;
-				for (int n = 0; n < MAX_BULLETS; ++n)
-				{
-					if (entity->bullets[n] == NULL)
-						continue;
+				// // Stream the bullets over
+				// int bullets_buffer_index = entity_buffer_index + ENTITY_STREAM_SIZE;
+				// for (int n = 0; n < MAX_BULLETS; ++n)
+				// {
+				// 	if (entity->bullets[n] == NULL)
+				// 		continue;
 
-					entity_buffer[bullets_buffer_index] = BULLET;
-					SDLNet_Write32(entity->id, entity_buffer + bullets_buffer_index + 1);
-					SDLNet_Write32(entity->bullets[n]->x, entity_buffer + bullets_buffer_index + 5);
-					SDLNet_Write32(entity->bullets[n]->y, entity_buffer + bullets_buffer_index + 9);
-					bullets_buffer_index += BULLET_STREAM_SIZE;
-				}
+				// 	entity_buffer[bullets_buffer_index] = BULLET;
+				// 	SDLNet_Write32(entity->id, entity_buffer + bullets_buffer_index + 1);
+				// 	write_float(entity->bullets[n]->x, entity_buffer + bullets_buffer_index + 5);
+				// 	write_float(entity->bullets[n]->y, entity_buffer + bullets_buffer_index + 9);
+				// 	bullets_buffer_index += BULLET_STREAM_SIZE;
+				// }
 
-				entity_buffer_index += ENTITY_STREAM_SIZE + entity->used_bullets * BULLET_STREAM_SIZE;
+				entity_buffer_index += ENTITY_STREAM_SIZE;// + entity->used_bullets * BULLET_STREAM_SIZE;
 			}
 
 			if (entity_buffer != NULL)
@@ -168,52 +172,52 @@ int main(int argc, char **argv)
 			}
 		}
 
-		if (collisions.size() > 0)
-		{
-			int collision_buffer_index = 0;
-			unsigned char *collision_buffer = NULL;
-			for (int i = 0; i < collisions.size(); i++)
-			{
-				Collision *collision = collisions[i];
-				if (collision == NULL)
-					continue;
+		// if (collisions.size() > 0)
+		// {
+		// 	int collision_buffer_index = 0;
+		// 	unsigned char *collision_buffer = NULL;
+		// 	for (int i = 0; i < collisions.size(); i++)
+		// 	{
+		// 		Collision *collision = collisions[i];
+		// 		if (collision == NULL)
+		// 			continue;
 
-				if (collision_buffer == NULL)
-					collision_buffer = new unsigned char[COLLISION_STREAM_SIZE];
-				else
-				{
-					unsigned char *temp = new unsigned char[collision_buffer_index + COLLISION_STREAM_SIZE];
-					strcpy(temp, collision_buffer, collision_buffer_index);
-					delete collision_buffer;
-					collision_buffer = temp;
-				}
+		// 		if (collision_buffer == NULL)
+		// 			collision_buffer = new unsigned char[COLLISION_STREAM_SIZE];
+		// 		else
+		// 		{
+		// 			unsigned char *temp = new unsigned char[collision_buffer_index + COLLISION_STREAM_SIZE];
+		// 			strcpy(temp, collision_buffer, collision_buffer_index);
+		// 			delete collision_buffer;
+		// 			collision_buffer = temp;
+		// 		}
 
-				collision_buffer[collision_buffer_index] = COLLISION;
-				SDLNet_Write32(collision->type, collision_buffer + collision_buffer_index + 1);
-				SDLNet_Write32(collision->x, collision_buffer + collision_buffer_index + 5);
-				SDLNet_Write32(collision->y, collision_buffer + collision_buffer_index + 9);
+		// 		collision_buffer[collision_buffer_index] = COLLISION;
+		// 		SDLNet_Write32(collision->type, collision_buffer + collision_buffer_index + 1);
+		// 		write_float(collision->x, collision_buffer + collision_buffer_index + 5);
+		// 		write_float(collision->y, collision_buffer + collision_buffer_index + 9);
 
-				collision_buffer_index += COLLISION_STREAM_SIZE;
-				delete collisions[i]; // collisions only last one iteration
-				collisions[i] = NULL;
-			}
+		// 		collision_buffer_index += COLLISION_STREAM_SIZE;
+		// 		delete collisions[i]; // collisions only last one iteration
+		// 		collisions[i] = NULL;
+		// 	}
 
-			if (collision_buffer != NULL)
-			{
-				unsigned char *temp = new unsigned char[collision_buffer_index + 1];
-				strcpy(temp, collision_buffer, collision_buffer_index);
-				temp[collision_buffer_index] = END;
-				delete collision_buffer;
+		// 	if (collision_buffer != NULL)
+		// 	{
+		// 		unsigned char *temp = new unsigned char[collision_buffer_index + 1];
+		// 		strcpy(temp, collision_buffer, collision_buffer_index);
+		// 		temp[collision_buffer_index] = END;
+		// 		delete collision_buffer;
 
-				send->address.host = recieve->address.host;
-				send->address.port = recieve->address.port;
-				send->data = temp;
-			    send->len = collision_buffer_index + 1;
+		// 		send->address.host = recieve->address.host;
+		// 		send->address.port = recieve->address.port;
+		// 		send->data = temp;
+		// 	    send->len = collision_buffer_index + 1;
 
-				SDLNet_UDP_Send(sd, -1, send);
-			    delete temp;
-			}
-		}
+		// 		SDLNet_UDP_Send(sd, -1, send);
+		// 	    delete temp;
+		// 	}
+		// }
 
 		if (check_inactivity_timer-- == 0)
 		{
@@ -225,19 +229,19 @@ int main(int argc, char **argv)
 					continue;
 
 				diff = now - entities[i]->last_input;
-				if ((float)diff / CLOCKS_PER_SEC > .4)
+				if ((float)diff / CLOCKS_PER_SEC > .02)
 				{
 					std::cout << "Kicking player " << entities[i]->id << " because of inactivity.\n";
 
 					unsigned char buffer[6];
 					buffer[0] = REMOVE_PLAYER;
-					SDLNet_Write32(entities[i]->id, buffer + 1);
-					buffer[5] = END;
+					buffer[1] = entities[i]->id;
+					buffer[2] = END;
 
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
 					send->data = buffer;
-					send->len = 6;
+					send->len = 3;
 					SDLNet_UDP_Send(sd, -1, send);
 
 					taken_ids[entities[i]->id] = false;
@@ -257,7 +261,7 @@ int main(int argc, char **argv)
 				collisions.pop_back();
 		}
 
-        SDL_Delay(1);
+        Timer::Frame_Control.Update();
 	}
  
 	/* Clean and exit */
@@ -265,6 +269,13 @@ int main(int argc, char **argv)
 	SDLNet_FreePacket(send);
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
+}
+
+inline void write_float(float value, unsigned char *buffer)
+{
+	unsigned int temp;
+	memcpy(&temp, &value, min(sizeof(float), sizeof(unsigned int)));
+	SDLNet_Write32(temp, buffer);
 }
 
 void init()

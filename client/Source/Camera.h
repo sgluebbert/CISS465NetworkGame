@@ -100,10 +100,11 @@ void Camera::Draw_Ships(std::deque<Ship *>  ships) {
         Map_To_Viewport(ships[i]);
 
         SDL_Rect temp_rect = ships[i]->Get_Bounding_Box();
-        if (temp_rect.x >= 0 &&
-            temp_rect.x + temp_rect.w <= WINDOW_BOUNDING_BOX.w &&
-            temp_rect.y >= 0 &&
-            temp_rect.y + temp_rect.h <= WINDOW_BOUNDING_BOX.h)
+        // std::cout << temp_rect.x << ' ' << temp_rect.y << '\n';
+        if (temp_rect.x >= -temp_rect.w / 2 &&
+            temp_rect.x - temp_rect.w / 2 <= WINDOW_BOUNDING_BOX.w &&
+            temp_rect.y >= -temp_rect.h / 2 &&
+            temp_rect.y - temp_rect.h / 2 <= WINDOW_BOUNDING_BOX.h)
            ships[i]->Draw();
 
         Map_To_World(ships[i]);
@@ -118,10 +119,10 @@ void Camera::Draw_Bullets(Bullet_List * temp_list) {
         Map_To_Viewport(temp_list->bullets[i]);
 
         SDL_Rect temp_rect = temp_list->bullets[i]->Get_Bounding_Box();
-        if (temp_rect.x >= 0 &&
-            temp_rect.x + temp_rect.w <= WINDOW_BOUNDING_BOX.w &&
-            temp_rect.y >= 0 &&
-            temp_rect.y + temp_rect.h <= WINDOW_BOUNDING_BOX.h)
+        if (temp_rect.x >= -temp_rect.w / 2 &&
+            temp_rect.x - temp_rect.w / 2 <= WINDOW_BOUNDING_BOX.w &&
+            temp_rect.y >= -temp_rect.h / 2 &&
+            temp_rect.y - temp_rect.h / 2 <= WINDOW_BOUNDING_BOX.h)
            temp_list->bullets[i]->Draw();
 
         Map_To_World(temp_list->bullets[i]);

@@ -1,8 +1,6 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-
-
 #include <string>
 #include <cmath>
 
@@ -192,7 +190,20 @@ void Cleanup_System() {
     Cleanup_SDL();
 }
 
+inline float read_float(unsigned char *buffer)
+{
+    float temp;
+    unsigned int temp2 = SDLNet_Read32(buffer);
+    memcpy(&temp, &temp2, sizeof(float));
+    return temp;
+}
 
+bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
+    if(y < y1 || y > y2 || x < x1 || x > x2)
+        return false;
+
+    return true;
+}
 
 void Clear_Window() {
     SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
