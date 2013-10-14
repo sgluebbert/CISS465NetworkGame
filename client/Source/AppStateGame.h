@@ -114,7 +114,7 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-	if (player == NULL || (player != NULL && player->team == 0))
+	// if (player == NULL || (player != NULL && player->team == 0))
 	{
 	    send->data = inputs;
 	    SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
@@ -145,6 +145,11 @@ void AppStateGame::Update() {
                     team = buffer[index++];
 	                if (player == NULL)
 	                {
+	        			client_channel = team;
+	        			std::cout << "New Channel: " << team << '\n';
+	        			SDLNet_UDP_Bind(socket, team, &recieve->address);
+	    				// send->channel = client_channel;
+
 	                    player = new Ship(team);
 	                    player->SetSurface(surface_manager->ship, 64, 64);
 		        		ships.push_back(player);

@@ -85,6 +85,7 @@ int main(int argc, char **argv)
 				    send->len = 3;
 
 					SDLNet_UDP_Send(sd, -1, send);
+	       			SDLNet_UDP_Bind(sd, next_player_id, &recieve->address);
 
 					std::cout << "New Player Joined\n";
 					std::cout << "    id: " << next_player_id << '\n';
@@ -169,7 +170,13 @@ int main(int argc, char **argv)
 				// 	std::cout << (int)temp[i] << ' ';
 				// std::cout << '\n';
 				
-				SDLNet_UDP_Send(sd, -1, send);
+				for (int i = 0; i < entities.size(); i++)
+				{
+					Entity *entity = entities[i];
+					if (entity == NULL)
+						continue;
+					SDLNet_UDP_Send(sd, entity->id, send);
+				}
 			    delete temp;
 			}
 		}
