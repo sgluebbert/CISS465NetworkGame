@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 		{
 			bool exists = false;
 			Entity *entity;
+			int entity_index = 0;
 
 			for (int i = 0; i < entities.size(); i++)
 			{
@@ -58,6 +59,7 @@ int main(int argc, char **argv)
 				{
 					entity = entities[i];
 					exists = true;
+					entity_index = i;
 					break;
 				}
 			}
@@ -255,10 +257,10 @@ int main(int argc, char **argv)
 			if (entities.size() > 0 && entities.back() == NULL)
 				entities.pop_back();
 
-			if (collisions.size() > 0 && collisions.front() == NULL)
-				collisions.pop_front();
-			if (collisions.size() > 0 && collisions.back() == NULL)
-				collisions.pop_back();
+			// if (collisions.size() > 0 && collisions.front() == NULL)
+			// 	collisions.pop_front();
+			// if (collisions.size() > 0 && collisions.back() == NULL)
+			// 	collisions.pop_back();
 		}
 
         Timer::Frame_Control.Update();

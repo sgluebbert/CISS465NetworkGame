@@ -114,8 +114,11 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-    send->data = inputs;
-    SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
+	if (player == NULL || (player != NULL && player->team == 0))
+	{
+	    send->data = inputs;
+	    SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
+	}
     
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
@@ -177,6 +180,7 @@ void AppStateGame::Update() {
 		                    ship->acceleration = 8;
 		                    ship->deceleration = 6;
 		                    ship->turn_rate = 30;
+                    		player_chat.Player_Joined(team);
 			        	}
 
 			        	ship->x = read_float(buffer + index); index += 4;
@@ -207,6 +211,13 @@ void AppStateGame::Update() {
 	                		ships[i] = NULL;
 	                		break;
 	                	}
+	                }
+
+	                if (player != NULL &&  player->team == team)
+	                {
+	                	Cleanup();
+	                	AppStateEvent::New_Event(APPSTATE_MENU);
+	                	return;
 	                }
 
                 // case BULLET:
@@ -254,6 +265,13 @@ void AppStateGame::Update() {
 
     if (ships.size() > 0 && ships.back() == NULL) {
     	ships.pop_back();
+    }
+
+    for (int i = 0; i < ships.size(); i++)
+    {
+    	if (ships[i] == NULL)
+    		continue;
+    	ships[i]->Update();
     }
     
     bullet_list->Update();

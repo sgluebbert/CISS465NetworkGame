@@ -110,59 +110,59 @@ void Ship::Draw() {
 }
 
 void Ship::CalculateSpeed(float delta) {
-    dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
-    dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
+    // dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
+    // dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
 }
 
 void Ship::CalculateVelocity(float delta) {
-    float tempA = acceleration * delta;
-    float tempD = deceleration * delta;
+    // float tempA = acceleration * delta;
+    // float tempD = deceleration * delta;
     
-    if (velocity > max_velocity * throttle) {
-        velocity -= tempD;
+    // if (velocity > max_velocity * throttle) {
+    //     velocity -= tempD;
         
-        if (velocity < max_velocity * throttle)
-            velocity = max_velocity * throttle;
-    }
-    else if (velocity < max_velocity * throttle) {
-        velocity += tempA;
+    //     if (velocity < max_velocity * throttle)
+    //         velocity = max_velocity * throttle;
+    // }
+    // else if (velocity < max_velocity * throttle) {
+    //     velocity += tempA;
         
-        if (velocity > max_velocity * throttle)
-            velocity = max_velocity * throttle;
-    }
+    //     if (velocity > max_velocity * throttle)
+    //         velocity = max_velocity * throttle;
+    // }
 }
 
 void Ship::TurnLeft(float delta) {
-    angle += turn_rate * delta;
-    if (angle >= 360) angle = angle - 360;
+    // angle += turn_rate * delta;
+    // if (angle >= 360) angle = angle - 360;
 }
 
 void Ship::TurnRight(float delta) {
-    angle -= turn_rate * delta;
-    if (angle < 0) angle = 360 + angle;
+    // angle -= turn_rate * delta;
+    // if (angle < 0) angle = 360 + angle;
 }
 
 void Ship::Move(float delta) {
-    x += dx * delta;
-    y -= dy * delta;
+    // x += dx * delta;
+    // y -= dy * delta;
 }
 
 void Ship::Update() {
-    float delta = Timer::Frame_Control.Get_Time_Per_Frame();
+    // float delta = Timer::Frame_Control.Get_Time_Per_Frame();
     
-    if (move_forward)
-        throttle = 1;
-    else
-        throttle = 0;
+    // if (move_forward)
+    //     throttle = 1;
+    // else
+    //     throttle = 0;
 
-    if (turn_left)
-        TurnLeft(delta);
-    if (turn_right)
-        TurnRight(delta);
+    // if (turn_left)
+    //     TurnLeft(delta);
+    // if (turn_right)
+    //     TurnRight(delta);
 
-    CalculateVelocity(delta);
-    CalculateSpeed(delta);
-    Move(delta);
+    // CalculateVelocity(delta);
+    // CalculateSpeed(delta);
+    // Move(delta);
 
     Bullet_List *bullet_list = Bullet_List::getInstance();
     for (int i = 0; i < bullet_list->bullets.size(); i++)
@@ -178,26 +178,26 @@ void Ship::Update() {
         }
     }
 
-    if (can_shoot > 0)
-    	can_shoot--;
-    if (shoot)
-    	TryFire();
+    // if (can_shoot > 0)
+    // 	can_shoot--;
+    // if (shoot)
+    // 	TryFire();
 }
 
 void Ship::TryFire()
 {
-	if (can_shoot == 0) {
-	    //Bullet_List * bullet_list = Bullet_List::getInstance();
+	// if (can_shoot == 0) {
+	//     //Bullet_List * bullet_list = Bullet_List::getInstance();
 
-	    int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
-    	    int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
-	    //bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
-	    can_shoot = reload_rate;
-	}
+	//     int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
+ //    	    int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
+	//     //bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
+	//     can_shoot = reload_rate;
+	// }
 }
 
 void Ship::Take_Damage(float damage) {
-    health -= damage;
+    // health -= damage;
 }
 
 float Ship::Get_Health() {
