@@ -31,7 +31,7 @@ public:
 //protected:
     Uint64 ip;
     Uint32 port;
-    clock_t last_input;
+    time_t last_input, death_time;
     int id;
     float x, y;
     float dx, dy;
@@ -54,6 +54,7 @@ public:
 
 Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     : ip(_ip), port(_port), id(_id) {
+    death_time = 0;
     x = 0.0;
     y = 0.0;
     dx = 0.0;
@@ -185,7 +186,7 @@ int GetSpawnPoint(std::deque<Entity*> &entities)
         {
             if (entities[n] == NULL)
                 continue;
-            if (point_distance(spawn_points[i][0], spawn_points[i][1], entities[n]->x, entities[n]->y) < 100)
+            if (point_distance(spawn_points[i][0], spawn_points[i][1], entities[n]->x, entities[n]->y) < 200)
             {
                 empty = false;
                 break;
