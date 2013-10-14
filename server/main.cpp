@@ -72,7 +72,9 @@ int main(int argc, char **argv)
 					entity = new Entity(recieve->address.host, recieve->address.port, next_player_id);
 					entities.push_back(entity);
 					entity->last_input = clock();
-					// Do something to determine new player's postion
+					int spawn_point = GetSpawnPoint(entities);
+					entity->x = spawn_points[spawn_point][0];
+					entity->y = spawn_points[spawn_point][1];
 
 					unsigned char buffer[3];
 					buffer[0] = NEW_PLAYER;

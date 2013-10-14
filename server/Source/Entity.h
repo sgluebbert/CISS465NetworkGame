@@ -10,6 +10,10 @@
 
 const int MAX_BULLETS = 5;
 
+const float spawn_points[][2] = { {60, 60}, {ROOM_WIDTH - 60, ROOM_HEIGHT - 60}, {ROOM_WIDTH / 2, ROOM_HEIGHT / 2}, {ROOM_WIDTH / 3, 60}, {ROOM_WIDTH * .75, 60},
+                                  {60, ROOM_HEIGHT / 3}, {60, ROOM_HEIGHT * .75}, {ROOM_WIDTH / 3, ROOM_WIDTH - 60}, {ROOM_WIDTH * .75, ROOM_WIDTH - 60},
+                                  {ROOM_HEIGHT - 60, ROOM_HEIGHT / 3}, {ROOM_HEIGHT - 60, ROOM_HEIGHT * .75} };
+
 class Entity {
 public:
     Entity(Uint64, Uint32, int);
@@ -22,7 +26,6 @@ public:
     void Move(float);
     void TryFire();
     
-    //virtual void Events(SDL_Event *);
     virtual void Update();
     
 //protected:
@@ -47,7 +50,6 @@ public:
 
     int can_shoot;
     int used_bullets;
-    // Bullet* bullets[MAX_BULLETS];
 };
 
 Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
@@ -69,16 +71,9 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     health = 100;
     can_shoot = 0;
     used_bullets = 0;
-    // for (int i = 0; i < MAX_BULLETS; ++i) {
-    // 	bullets[i] = NULL;
-    // }
 }
 
 Entity::~Entity() {
-    // for (int i = 0; i < MAX_BULLETS; ++i) {
-    //     if (bullets[i] != NULL)
-    //         delete bullets[i];
-    // }
 }
 
 void Entity::CalculateSpeed(float delta) {
@@ -147,40 +142,6 @@ void Entity::Update() {
         }
     }
 
-    // for (int i = 0; i < MAX_BULLETS; ++i) {
-    // 	if (bullets[i] == NULL)
-    // 		continue;
-
-    // 	if (bullets[i]->Move(delta)) { // bullet died
-    // 		used_bullets--;
-    // 		delete bullets[i];
-    // 		bullets[i] = NULL;
-    // 	}
-    // 	else
-    // 		bullets[i]->CalculateSpeed(delta);
-    // }
-
-    // for (int i = 0; i < entities.size(); i++) {
-    //     Entity *entity = entities[i];
-    //     if (entity == NULL || entity == this)
-    //         continue;
-
-    //     for (int n = 0; n < MAX_BULLETS; n++) {
-    //         Bullet *bullet = entity->bullets[i];
-    //         if (bullet == NULL)
-    //             continue;
-
-    //         if (point_in_rect(bullet->x, bullet->y, x - width / 2, y - height / 2, x + width / 2, y + height / 2))
-    //         {
-    //             entity->used_bullets -= 1;
-    //             collisions.push_back(new Collision(bullet->x, bullet->y));
-    //             delete entity->bullets[i];
-    //             entity->bullets[i] = NULL;
-    //             health -= 10;
-    //         }
-    //     }
-    // }
-
     if (x < width) x = width;
     if (y < height) y = height;
     if (x > ROOM_WIDTH - width) x = ROOM_WIDTH - width;
@@ -211,16 +172,31 @@ void Entity::TryFire()
     Bullet_List::getInstance()->AddBullet(id, x + offset_x, y + offset_y, velocity + 120, angle);
 	can_shoot = 60;
     did_shoot = true;
- //    used_bullets++;
-	// for (int i = 0; i < MAX_BULLETS; ++i) {
-	// 	if (bullets[i] == NULL) {
- //            int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
- //            int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
-	// 		bullets[i] = new Bullet(id, x + offset_x, y + offset_y, velocity + 60, angle);
-	// 		break;
-	// 	}
-	// }
-    // bullet_list->AddBullet(x + width / 2, y + height / 2, velocity + 60, angle);
+}
+
+int GetSpawnPoint(std::deque<Entity*> &entities)
+{
+    int spawn_points_size = (sizeof(spawn_points) / 8);
+    for (int i = 0; i < spawn_points_size; i++)
+    {
+        bool empty = true;
+
+        for (int n = 0; n < entities.size(); n++)
+        {
+            if (entities[n] == NULL)
+                continue;
+            if (point_distance(spawn_points[i][0], spawn_points[i][1], entities[n]->x, entities[n]->y) < 100)
+            {
+                empty = false;
+                break;
+            }
+        }
+
+        if (empty)
+            return i;
+    }
+
+    return rand() % spawn_points_size;
 }
 
 #endif
