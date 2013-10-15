@@ -99,10 +99,13 @@ int main(int argc, char **argv)
 				for (int i = 0; i < 4; i++)
 				    inputs[i] = recieve->data[i];
 				
-	            entity->turn_left = inputs[0];
-	            entity->turn_right = inputs[1];
-	            entity->move_forward = inputs[2];
-	            entity->shoot = inputs[3];
+				if (entity->health > 0) {
+		            entity->turn_left = inputs[0];
+		            entity->turn_right = inputs[1];
+		            entity->move_forward = inputs[2];
+		            entity->shoot = inputs[3];
+		        }
+		        
 	            time(&entity->last_input);
 
 	            if (entity->health == 0) {

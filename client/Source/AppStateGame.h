@@ -196,7 +196,6 @@ void AppStateGame::Update() {
 	                    	int offset_x = 20 * TRIG_TABLE[int(ship->angle / 5.0)][1];
             				int offset_y = -20 * TRIG_TABLE[int(ship->angle / 5.0)][0];
 	                    	bullet_list->AddBullet(ship->team, ship->x + offset_x, ship->y + offset_y, ship->velocity + 120, ship->angle);
-	                    	std::cout << "Shot\n";
 	                    }
 		                break;
 		            }
