@@ -98,14 +98,14 @@ int main(int argc, char **argv)
 			{
 				for (int i = 0; i < 4; i++)
 				    inputs[i] = recieve->data[i];
-				
+					
 				if (entity->health > 0) {
-		            entity->turn_left = inputs[0];
-		            entity->turn_right = inputs[1];
-		            entity->move_forward = inputs[2];
-		            entity->shoot = inputs[3];
-		        }
-		        
+					entity->turn_left = inputs[0];
+					entity->turn_right = inputs[1];
+					entity->move_forward = inputs[2];
+					entity->shoot = inputs[3];
+				}
+				
 	            time(&entity->last_input);
 
 	            if (entity->health == 0) {
@@ -188,7 +188,7 @@ int main(int argc, char **argv)
 
 		if (check_inactivity_timer-- == 0)
 		{
-			check_inactivity_timer = 10;
+			check_inactivity_timer = 2000;
 			time_t now;
 			time(&now);
 			for (int i = 0; i < entities.size(); i++)

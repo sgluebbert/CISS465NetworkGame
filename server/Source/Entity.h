@@ -25,6 +25,7 @@ public:
     void CalculateVelocity(float);
     void Move(float);
     void TryFire();
+    void Respawn();
     
     virtual void Update();
     
@@ -46,11 +47,20 @@ public:
     float acceleration;
     float deceleration;
     bool move_forward, turn_left, turn_right, shoot, did_shoot;
-    float health;
+    float health, max_health;
+
+    float respawn_timer;
+    static float respawn_time;
 
     int can_shoot;
     int used_bullets;
 };
+
+
+
+float Entity::respawn_time = 5.0;
+
+
 
 Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     : ip(_ip), port(_port), id(_id) {
@@ -69,9 +79,10 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
     deceleration = 10;
 	max_velocity = 40;
     move_forward = turn_left = turn_right = shoot = did_shoot = false;
-    health = 100;
+    health = max_health = 100;
     can_shoot = 0;
     used_bullets = 0;
+    respawn_timer = respawn_time;
 }
 
 Entity::~Entity() {
@@ -117,6 +128,15 @@ void Entity::Move(float delta) {
 
 void Entity::Update() {
     double delta = Timer::Frame_Control.Get_Time_Per_Frame();
+
+    if (health <= 0) {
+        respawn_timer += delta;
+
+        if (respawn_timer >= respawn_time)
+            Respawn();
+
+        return;
+    }
     
     did_shoot = false;
 
@@ -198,6 +218,16 @@ int GetSpawnPoint(std::deque<Entity*> &entities)
     }
 
     return rand() % spawn_points_size;
+}
+
+void Entity::Respawn() {
+    x = spawn_points[id][0];
+    y = spawn_points[id][1];
+    angle = 0.0;
+    throttle = 0.0;
+    move_forward = turn_left = turn_right = shoot = false;
+    can_shoot = 0;
+    health = max_health;
 }
 
 #endif

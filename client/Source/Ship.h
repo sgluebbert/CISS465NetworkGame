@@ -30,6 +30,7 @@ public:
 
     void Take_Damage(float);
     float Get_Health();
+    void Respawn();
     
     virtual void Draw();
     virtual void Update();
@@ -101,6 +102,8 @@ SDL_Rect Ship::Get_Bounding_Box() {
 void Ship::Draw() {
     if (Ship_surface == NULL)
         return;
+    if (health <= 0)
+        return;
 
     int index = round(angle / (360 / 72));
 	if (index >= 72) index = 71;
@@ -163,6 +166,9 @@ void Ship::Update() {
     // CalculateVelocity(delta);
     // CalculateSpeed(delta);
     // Move(delta);
+
+    if (health <= 0)
+        return;
 
     Bullet_List *bullet_list = Bullet_List::getInstance();
     for (int i = 0; i < bullet_list->bullets.size(); i++)
