@@ -72,7 +72,7 @@ static void Cleanup_System();
 static void Clear_Window();
 static SDL_Color Random_Color();
 
-
+const char *server_ipaddress = NULL;
 
 void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
     WINDOW_BOUNDING_BOX = new_bounding_box;

@@ -42,7 +42,6 @@ private:
 	    Uint8 inputs[4];
 	
 	    IPaddress server_address;
-	    char * host_address;
 	    Uint16 server_port;
 	    Uint16 host_port;
 	    int client_channel;
@@ -75,7 +74,6 @@ void AppStateGame::Initialize() {
     background_surf = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
     
-    host_address = NULL;
     client_channel = -1;
     host_port = 8080;
     server_port = 8080;
@@ -84,7 +82,7 @@ void AppStateGame::Initialize() {
 	    inputs[i] = 0;
  
 	/* Resolve server name  */
-	if (SDLNet_ResolveHost(&server_address, host_address, server_port) == -1) {
+	if (SDLNet_ResolveHost(&server_address, server_ipaddress, server_port) == -1) {
 		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
 		AppStateEvent::New_Event(APPSTATE_MENU);
 	}
