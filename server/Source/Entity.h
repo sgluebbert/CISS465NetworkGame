@@ -128,15 +128,6 @@ void Entity::Move(float delta) {
 
 void Entity::Update() {
     double delta = Timer::Frame_Control.Get_Time_Per_Frame();
-
-    if (health <= 0) {
-        respawn_timer += delta;
-
-        if (respawn_timer >= respawn_time)
-            Respawn();
-
-        return;
-    }
     
     did_shoot = false;
 
@@ -218,16 +209,6 @@ int GetSpawnPoint(std::deque<Entity*> &entities)
     }
 
     return rand() % spawn_points_size;
-}
-
-void Entity::Respawn() {
-    x = spawn_points[id][0];
-    y = spawn_points[id][1];
-    angle = 0.0;
-    throttle = 0.0;
-    move_forward = turn_left = turn_right = shoot = false;
-    can_shoot = 0;
-    health = max_health;
 }
 
 #endif
