@@ -2,12 +2,21 @@
 #define RADAR_H
 
 
-
+#include <vector>
 #include <deque>
 
 #include "Ship.h"
 
+template <class T>
+struct Vector
+{
+	Vector(T _x, T _y)
+		: x(_x), y(_y)
+	{}
 
+	T x;
+	T y;
+};
 
 class Radar {
 public:
@@ -21,6 +30,9 @@ private:
 	SDL_Surface * surface;
 	SDL_Rect bounding_box;
 	SDL_Rect radar_bounds;
+
+	std::vector< Vector<float> > enemy_points;
+	std::vector< Vector<float> > friendly_points;
 
 	static const int X_OFFSET;
 	static const int Y_OFFSET;
@@ -43,25 +55,20 @@ Radar::Radar() {
 	radar_bounds.w = bounding_box.w - 4;
 	radar_bounds.h = bounding_box.h - 4;
 
-	surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
+	// surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
 }
 
 void Radar::Notify(std::deque<Ship * > & entities) {
-	SDL_FillRect(surface, &bounding_box, 0x808080);
-	SDL_FillRect(surface, &radar_bounds, 0x000000);
-
-	SDL_Rect temp;
+	enemy_points.clear();
 
     for (int i = 0; i < entities.size(); i++) {
     	if (entities[i] == NULL)
     		continue;
 
-		temp = entities[i]->Get_Bounding_Box();
-		temp.x = (temp.x / double(ROOM_WIDTH)) * radar_bounds.w + 2;
-		temp.y = (temp.y / double(ROOM_HEIGHT)) * radar_bounds.h + 2;
-		temp.w = 4;
-		temp.h = 4;
-		SDL_FillRect(surface, &temp, 0xFF0000);
+    	Vector<float> v(entities[i]->x, entities[i]->y);
+		v.x = X_OFFSET + (v.x / double(ROOM_WIDTH)) * radar_bounds.w;
+		v.y = Y_OFFSET + (v.y / double(ROOM_HEIGHT)) * radar_bounds.h;
+		enemy_points.push_back(v);
     }
 }
 
@@ -69,19 +76,30 @@ void Radar::Notify(Ship * Ship) {
 	if (Ship == NULL)
 		return;
 
-	SDL_Rect temp = Ship->Get_Bounding_Box();
-	temp.x = (temp.x / double(ROOM_WIDTH)) * radar_bounds.w + 2;
-	temp.y = (temp.y / double(ROOM_HEIGHT)) * radar_bounds.h + 2;
-	temp.w = 4;
-	temp.h = 4;
-	SDL_FillRect(surface, &temp, 0x00FF00);
+	friendly_points.clear();
+	Vector<float> v(Ship->x, Ship->y);
+	v.x = X_OFFSET + (v.x / double(ROOM_WIDTH)) * radar_bounds.w;
+	v.y = Y_OFFSET + (v.y / double(ROOM_HEIGHT)) * radar_bounds.h;
+	friendly_points.push_back(v);
 }
 
 void Radar::Draw() {
 	bounding_box.x += X_OFFSET;
 	bounding_box.y += Y_OFFSET;
 
-	SDL_BlitSurface(surface, NULL, WINDOW, &bounding_box);
+	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
+
+	for (int i = 0; i < enemy_points.size(); i++)
+	{
+		SurfaceManager::DrawRect(enemy_points[i].x - 2, enemy_points[i].y - 2, enemy_points[i].x + 2, enemy_points[i].y + 2, true, &RED);
+	}
+
+	for (int i = 0; i < friendly_points.size(); i++)
+	{
+		SurfaceManager::DrawRect(friendly_points[i].x - 2, friendly_points[i].y - 2, friendly_points[i].x + 2, friendly_points[i].y + 2, true, &GREEN);
+	}
+	
+	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
 
 	bounding_box.x -= X_OFFSET;
 	bounding_box.y -= Y_OFFSET;

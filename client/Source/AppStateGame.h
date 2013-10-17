@@ -27,7 +27,7 @@ private:
         static AppStateBase * instance;
         AppStateGame();
         
-        SDL_Surface * background_surf;
+        GLuint * background_texture;
         SDL_Rect background_rect;
         
         static const char * MUSIC_FILENAME;
@@ -71,7 +71,7 @@ AppStateGame::AppStateGame() {
 }
 
 void AppStateGame::Initialize() {
-    background_surf = surface_manager->background_game;
+    background_texture = &surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
     
     client_channel = -1;
@@ -86,16 +86,6 @@ void AppStateGame::Initialize() {
 		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
 		AppStateEvent::New_Event(APPSTATE_MENU);
 	}
-    
-    //p->address.host = server_address.host;	/* Set the destination host */
-    //p->address.port = server_address.port;	/* And destination port */
-    //p->data = "Hello!";
-    //p->len = 7;
-    //SDLNet_UDP_Send(sd, -1, p); /* This sets the p->channel */
-    
-    //Hangs the program until it has communicated with the server
-    //To get id for player array
-    //while (!SDLNet_UDP_Recv(sd, p)) {}
 
    	player = NULL;
     
@@ -149,7 +139,7 @@ void AppStateGame::Update() {
 	    				// send->channel = client_channel;
 
 	                    player = new Ship(team);
-	                    player->SetSurface(surface_manager->ship, 64, 64);
+	                    player->SetTexture(&surface_manager->ship, 64, 64);
 		        		ships.push_back(player);
 	                    player->max_velocity = 50;
 	                    player->acceleration = 8;
@@ -178,7 +168,7 @@ void AppStateGame::Update() {
 			        	{
 			        		ship = new Ship(team);
 			        		ships.push_back(ship);
-		                    ship->SetSurface(surface_manager->ship, 64, 64);
+		                    ship->SetTexture(&surface_manager->ship, 64, 64);
 		                    ship->max_velocity = 50;
 		                    ship->acceleration = 8;
 		                    ship->deceleration = 6;
@@ -221,15 +211,6 @@ void AppStateGame::Update() {
 	                	AppStateEvent::New_Event(APPSTATE_MENU);
 	                	return;
 	                }
-
-                // case BULLET:
-                //     team = SDLNet_Read32(buffer + index); index += 4;
-                //     { // {} used to avoid switch scope complaining for now.
-                //         float x = read_float(buffer + index); index += 4;
-                //         float y = read_float(buffer + index); index += 4;
-                //         // bullet_list.AddBullet(x, y, velocity, angle);
-                //     }
-                //     break;
 
                 case COLLISION:
                     { // {} used to avoid switch scope complaining for now.
@@ -294,7 +275,8 @@ void AppStateGame::Update() {
 }
 
 void AppStateGame::Draw() {
-    SDL_BlitSurface(background_surf, &background_rect, WINDOW, NULL);
+    // SDL_BlitSurface(background_surf, &background_rect, WINDOW, NULL);
+
 
     Camera * temp_camera = Camera::getInstance();
 

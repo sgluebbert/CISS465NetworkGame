@@ -66,7 +66,7 @@ void Bullet_List::Update() {
 
 void Bullet_List::AddBullet(int team, double x, double y, double velocity, double angle) {
     Bullet * bullet = new Bullet(team, x, y, velocity, angle);
-    bullet->SetSurface(surface_manager->bullet, 8, 8);
+    bullet->SetTexture(&surface_manager->bullet, 8, 8);
     bullets.push_back(bullet);
 }
 

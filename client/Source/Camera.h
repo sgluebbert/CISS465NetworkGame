@@ -9,7 +9,7 @@
 #include "Bullet.h"
 #include "Bullet_List.h"
 #include "Ship.h"
-#include "Surface_Manager.h"
+#include "SurfaceManager.h"
 
 
 
@@ -100,7 +100,6 @@ void Camera::Draw_Ships(std::deque<Ship *>  ships) {
         Map_To_Viewport(ships[i]);
 
         SDL_Rect temp_rect = ships[i]->Get_Bounding_Box();
-        // std::cout << temp_rect.x << ' ' << temp_rect.y << '\n';
         if (temp_rect.x >= -temp_rect.w / 2 &&
             temp_rect.x - temp_rect.w / 2 <= WINDOW_BOUNDING_BOX.w &&
             temp_rect.y >= -temp_rect.h / 2 &&

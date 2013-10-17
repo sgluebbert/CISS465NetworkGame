@@ -94,16 +94,17 @@ void AppStateIntro::Update() {
 }
 
 void AppStateIntro::Draw() {
-    SDL_Color color = {int(current_color), int(current_color), int(current_color), 0};
+    Color color(current_color / 255, current_color / 255, current_color / 255, 1);
 
-    SDL_Surface * temp_surf = Font_Manager::Render(font_manager->bumper_font, bumper_titles[current_bumper], color);
-
-    SDL_Rect temp_rect = temp_surf->clip_rect;
+    Text temp(bumper_titles[current_bumper].c_str(), SurfaceManager::GetInstance()->fonts.font_Impact_20, color);
+    SDL_Rect temp_rect;
+    temp_rect.w = temp.width;
+    temp_rect.h = temp.height;
     temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
     temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
 
-    SDL_BlitSurface(temp_surf, NULL, WINDOW, &temp_rect);
-    SDL_FreeSurface(temp_surf);
+    SurfaceManager::DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
+    glColor4f(1, 1, 1, 1);
 }
 
 void AppStateIntro::Cleanup() {

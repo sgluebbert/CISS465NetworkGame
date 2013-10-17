@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 
-#include "Font_Manager.h"
 #include "System.h"
 
 
@@ -56,7 +55,7 @@ Chat_Window::Chat_Window() {
 	chat_bounding_box.w = bounding_box.w - 2 * 2;
 	chat_bounding_box.h = bounding_box.h - 2 * 2;
 
-	surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
+	// surface = SDL_CreateRGBSurface(SDL_HWSURFACE, bounding_box.w, bounding_box.h, 32, 0, 0, 0, 0);
 }
 
 Chat_Window::~Chat_Window() {
@@ -101,8 +100,25 @@ void Chat_Window::Message_Cleanup() {
 }
 
 void Chat_Window::Notify() {
-	SDL_FillRect(surface, &bounding_box, 0x808080);
-	SDL_FillRect(surface, &chat_bounding_box, 0x000000);
+	// SDL_FillRect(surface, &bounding_box, 0x808080);
+	// SDL_FillRect(surface, &chat_bounding_box, 0x000000);
+
+	// std::queue<std::string> temp_queue = messages;
+	// SDL_Rect temp_rect;
+	// temp_rect.x = 2;
+	// temp_rect.y = 2;
+
+	// while (!temp_queue.empty()) {
+	// 	// SDL_BlitSurface(font_manager->Render(font_manager->chat_window_font, temp_queue.front(), GRAY), NULL, surface, &temp_rect);
+	// 	temp_queue.pop();
+	// 	temp_rect.y += FONT_HEIGHT;
+	// }
+}
+
+void Chat_Window::Draw() {
+	bounding_box.x += X_OFFSET;
+
+	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
 
 	std::queue<std::string> temp_queue = messages;
 	SDL_Rect temp_rect;
@@ -110,16 +126,12 @@ void Chat_Window::Notify() {
 	temp_rect.y = 2;
 
 	while (!temp_queue.empty()) {
-		SDL_BlitSurface(font_manager->Render(font_manager->chat_window_font, temp_queue.front(), GRAY), NULL, surface, &temp_rect);
+		SurfaceManager::DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, temp_queue.front().c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_10, &WHITE);
 		temp_queue.pop();
 		temp_rect.y += FONT_HEIGHT;
 	}
-}
 
-void Chat_Window::Draw() {
-	bounding_box.x += X_OFFSET;
-
-	SDL_BlitSurface(surface, NULL, WINDOW, &bounding_box);
+	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
 
 	bounding_box.x -= X_OFFSET;
 }

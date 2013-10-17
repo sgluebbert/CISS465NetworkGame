@@ -16,8 +16,7 @@ public:
     Ship(int);
     ~Ship();
     
-    bool LoadSurface(const char *, float, float);
-    void SetSurface(SDL_Surface *, float, float);
+    void SetTexture(GLuint *, float, float);
 
     SDL_Rect Get_Bounding_Box();
     
@@ -36,7 +35,7 @@ public:
     virtual void Update();
     
 //protected:
-    SDL_Surface * Ship_surface;
+    GLuint * texture;
     
     int team;
     float x, y;
@@ -60,7 +59,7 @@ public:
 
 Ship::Ship(int _team) 
     : team(_team) {
-    Ship_surface = NULL;
+    texture = NULL;
     x = 0.0;
     y = 0.0;
     dx = 0.0;
@@ -82,8 +81,8 @@ Ship::Ship(int _team)
 Ship::~Ship() {
 }
 
-void Ship::SetSurface(SDL_Surface * SurfSrc, float new_width, float new_height) {
-    Ship_surface = SurfSrc;
+void Ship::SetTexture(GLuint * tex, float new_width, float new_height) {
+    texture = tex;
     width = new_width;
     height = new_height;
 }
@@ -100,16 +99,12 @@ SDL_Rect Ship::Get_Bounding_Box() {
 }
 
 void Ship::Draw() {
-    if (Ship_surface == NULL)
+    if (texture == NULL)
         return;
     if (health <= 0)
         return;
 
-    int index = round(angle / (360 / 72));
-	if (index >= 72) index = 71;
-    if (index < 0) index = 0;
-
-	Surface_Manager::Blit(WINDOW, Ship_surface, x - width / 2, y - height / 2, index * width, 0, width, height);
+    SurfaceManager::DrawImage(*texture, x, y, -angle, 48);
 }
 
 void Ship::CalculateSpeed(float delta) {

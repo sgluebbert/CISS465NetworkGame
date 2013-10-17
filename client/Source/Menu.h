@@ -6,9 +6,7 @@
 #include <SDL.h>
 #include <vector>
 
-#include "Font_Manager.h"
-#include "Surface_Manager.h"
-#include "System.h"
+#include "SurfaceManager.h"
 
 
 
@@ -26,7 +24,7 @@ public:
     void Set_Size(int, int);
     void Set_Offset(int, int);
     void Set_Orientation(bool);
-    void Set_Background(SDL_Surface *);
+    void Set_Background(GLuint *);
     
     void Draw();
         
@@ -44,7 +42,7 @@ private:
     
     bool vertically_oriented;
     
-    SDL_Surface * option_background;
+    GLuint * option_background;
     SDL_Rect option_rect;
 };
 
@@ -132,11 +130,8 @@ void Menu::Set_Offset(int newoffset_x, int newoffset_y) {
     offset_y = newoffset_y;
 }
 
-void Menu::Set_Background(SDL_Surface * SurfSrc) {
-    if (option_background != NULL)
-        delete option_background;
-        
-    option_background = SurfSrc;
+void Menu::Set_Background(GLuint * texture) {
+    option_background = texture;
 }
 
 void Menu::Set_Orientation(bool newFlag) {
@@ -144,7 +139,7 @@ void Menu::Set_Orientation(bool newFlag) {
 }
 
 void Menu::Draw() {
-    SDL_Surface * temp_surf = NULL;
+    // SDL_Surface * temp_surf = NULL;
     SDL_Rect temp_rect;
     int tempX = menu_x;
     int tempY = menu_y;
@@ -154,19 +149,18 @@ void Menu::Draw() {
         option_rect.y = tempY;
         
         if (i == selected_option)
-            option_background = surface_manager->highlightedbutton;
+            option_background = &surface_manager->highlightedbutton;
         else
-            option_background = surface_manager->button;
+            option_background = &surface_manager->button;
         
-        SDL_BlitSurface(option_background, NULL, WINDOW, &option_rect);
+        SurfaceManager::DrawImageRect(*option_background, option_rect.x, option_rect.y);
 
-        SDL_Surface * temp_surf = font_manager->Render(font_manager->menu_font, menu_options[i], BLACK);
-        SDL_Rect temp_rect = temp_surf->clip_rect;
-        temp_rect.x = (option_rect.w - temp_rect.w) / 2.0 + option_rect.x;
-        temp_rect.y = (option_rect.h - temp_rect.h) / 2.0 + option_rect.y;
+        Text temp(menu_options[i].c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_16, BLACK);
+        temp_rect.x = (option_rect.w - temp.width) / 2.0 + option_rect.x;
+        temp_rect.y = (option_rect.h - temp.height) / 2.0 + option_rect.y;
+        SurfaceManager::DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
 
-        SDL_BlitSurface(temp_surf, NULL, WINDOW, &temp_rect);
-        SDL_FreeSurface(temp_surf);
+        glColor4f(1, 1, 1, 1);
         
         if (vertically_oriented) {
             tempX += offset_x;

@@ -1,8 +1,20 @@
-exe: Main.cpp
-	clang++ *.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -Iincludes#./Source/*.cpp 
+CC = g++
+CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
-debug:
-	g++ -g *.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -Iincludes#./Source/*.cpp 
+all: Source/SurfaceManager.o
+	g++ -g Main.cpp Source/SurfaceManager.o $(CPPFLAGS)
+
+# Others.o: Main.cpp
+# 	$(CC) $(CPPFLAGS) Main.cpp
+
+ApplicationEvent.o: Source/ApplicationEvent
+
+FontManager.o: Source/FontManager.h
+
+SurfaceManager.o: Source/SurfaceManager.cpp Source/SurfaceManager.h
+
+# all: Main.cpp
+# 	clang++ Main.cpp `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 run:
 	./a.out
@@ -11,8 +23,8 @@ r:
 	./a.out
 
 clean:
-	#rm a.out *.cpp~ ./Source/*.h~ ./Source/*.cpp~ Makefile~
+	rm a.out Source/*.o
 
 c:
-	#rm a.out *.cpp~ ./Source/*.h~ ./Source/*.cpp~
+	#rm a.out *.cpp~ ./*.h~ ./*.cpp~
 

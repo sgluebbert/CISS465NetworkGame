@@ -9,7 +9,7 @@
 #include "AppStateManager.h"
 #include "EventHandler.h"
 #include "Timer.h"
-#include "Surface_Manager.h"
+#include "System.h"
 
 //Inludes for Compiling/Debugging Purposes
 
@@ -80,11 +80,11 @@ void Application::Events(SDL_Event * Event) {
 }
 
 void Application::Draw() {
-    Clear_Window();
-	
+    SurfaceManager::Clear();
+
     AppStateManager::Draw();
 
-    SDL_Flip(WINDOW);
+    SurfaceManager::Flip();
 }
 
 void Application::Update() {
@@ -107,8 +107,7 @@ void Application::Cleanup() {
 
     AppStateManager::Cleanup();
 
-    SDL_FreeSurface(WINDOW);
-    SDL_Quit();
+    // SDL_FreeSurface(WINDOW);
 }
 
 void Application::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
@@ -126,9 +125,7 @@ void Application::OnRestore() {
 }
 
 void Application::OnResize(int w, int h) {
-    WINDOW_BOUNDING_BOX.w = w;
-    WINDOW_BOUNDING_BOX.h = h;
-    Reset_Window(WINDOW_BOUNDING_BOX);
+    surface_manager->Resize(w, h);
 }
 
 void Application::OnExpose() {

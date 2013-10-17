@@ -6,21 +6,17 @@
 
 #include "SDL_net.h"
 #include "Pallete.h"
-#include "Font_Manager.h"
-#include "Sound_Manager.h"
-#include "Surface_Manager.h"
-
+#include "SoundManager.h"
+#include "SurfaceManager.h"
 
 
 /*DEFAULT VARIABLES*/
-static const SDL_Rect DEFAULT_WINDOW_BOUNDING_BOX = {0, 0, 800, 600};
 static const double DEFAULT_FPS_LIMIT = 30.0;
 
 
 
 /*System Variables*/
 static SDL_Surface * WINDOW;
-static SDL_Rect WINDOW_BOUNDING_BOX;
 static double FPS_LIMIT = DEFAULT_FPS_LIMIT;
 static const char * WINDOW_TITLE = "CISS465 Project";
 static const char * WINDOW_ICON_FILEPATH = "./Art/Icon.bmp";
@@ -40,9 +36,7 @@ static UDPpacket * send;
 static IPaddress server_address;
 static IPaddress client_address;
 
-static Font_Manager * font_manager;
 static Sound_Manager * sound_manager;
-static Surface_Manager * surface_manager;
 
 const int ROOM_WIDTH = 2000;
 const int ROOM_HEIGHT = 2000;
@@ -81,33 +75,31 @@ void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
 
 
 
-bool Initialize_SDL() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        return false;
+// bool Initialize_SDL() {
+//     if (SDL_Init(SDL_INIT_VIDEO) < 0)
+//         return false;
 
-    if (!Initialize_SDL_Modules())
-        return false;
+//     if (!Initialize_SDL_Modules())
+//         return false;
 
-    return true;
-}
+//     return true;
+// }
 
-bool Initialize_SDL_Modules() {
-    if (TTF_Init() < 0 )
-        return false;
+// bool Initialize_SDL_Modules() {
+//     if (TTF_Init() < 0 )
+//         return false;
 
-    if (SDL_Init(SDL_INIT_AUDIO) < 0)
-        return false;
+//     if (SDL_Init(SDL_INIT_AUDIO) < 0)
+//         return false;
 
-    if (SDLNet_Init() < 0)
-        return false;
+//     if (SDLNet_Init() < 0)
+//         return false;
 
-    return true;
-}
+//     return true;
+// }
 
 void Initialize_Managers() {
-    font_manager = Font_Manager::Get_Instance();
     sound_manager = Sound_Manager::Get_Instance();
-    surface_manager = Surface_Manager::Get_Instance();
 }
 
 bool Initialize_UDP_Network() {
@@ -142,8 +134,8 @@ void Initialize_Key_Array() {
 }
 
 bool Initialize_System() {
-    if (!Initialize_SDL())
-        return false;
+    // if (!Initialize_SDL())
+    //     return false;
 
     if (!Initialize_UDP_Network())
         return false;
@@ -153,8 +145,8 @@ bool Initialize_System() {
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
 
-    if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
-        return false;
+    // if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+    //     return false;
     
     Initialize_Trig_Table();
     Initialize_Key_Array();
@@ -165,8 +157,8 @@ bool Initialize_System() {
 void Cleanup_SDL() {
     Cleanup_SDL_Modules();
 
-    SDL_FreeSurface(WINDOW);
-    SDL_Quit();
+    // SDL_FreeSurface(WINDOW);
+    // SDL_Quit();
 }
 
 void Cleanup_SDL_Modules() {
@@ -174,9 +166,7 @@ void Cleanup_SDL_Modules() {
 }
 
 void Cleanup_Managers() {
-    Font_Manager::Delete_Instance();
     Sound_Manager::Delete_Instance();
-    Surface_Manager::Delete_Instance();
 }
 
 void Cleanup_UDP_Network() {
@@ -205,9 +195,9 @@ bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
     return true;
 }
 
-void Clear_Window() {
-    SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
-}
+// void Clear_Window() {
+//     SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
+// }
 
 SDL_Color Random_Color() {
   SDL_Color c = {rand() % 256, rand() % 256, rand() % 256, 0};

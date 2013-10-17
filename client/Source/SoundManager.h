@@ -17,7 +17,7 @@ public:
 	void Load_Music(const char *);
 	
 	Mix_Music * Music_Stream;
-	Mix_Chunk * Laser_Sound;
+	// Mix_Chunk * Laser_Sound;
 	
 	void Play_Sound(Mix_Chunk *);
 	void Play_Music();
@@ -37,13 +37,14 @@ Sound_Manager * Sound_Manager::instance = NULL;
 
 
 Sound_Manager::Sound_Manager() {
-    Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 512);
+    // Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 512);
+    Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 );
 }
 
 Sound_Manager::~Sound_Manager() {
 	Mix_HaltChannel(-1);
     Mix_CloseAudio();
-	Mix_FreeChunk(Laser_Sound);
+	// Mix_FreeChunk(Laser_Sound);
 	Mix_FreeMusic(Music_Stream);
 }
 

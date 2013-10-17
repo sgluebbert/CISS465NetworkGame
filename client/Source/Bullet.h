@@ -15,12 +15,12 @@ struct Bullet {
 	void CalculateSpeed(double);
 	bool Move(double);
 	void Draw();
-    void SetSurface(SDL_Surface *, double, double);
+    void SetTexture(GLuint *, double, double);
     SDL_Rect Get_Bounding_Box();
 
     int team;
 private:
-    SDL_Surface * surface;
+    GLuint * texture;
     int width, height;
 };
 
@@ -48,12 +48,13 @@ void Bullet::Draw() {
     // if (index >= 72) index = 71;
     // if (index < 0) index = 0;
 
-    // Surface_Manager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
-    Surface_Manager::Blit(WINDOW, surface, x, y, 0, 0, width, height);
+    // SurfaceManager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
+    // SurfaceManager::Blit(WINDOW, surface, x, y, 0, 0, width, height);
+    SurfaceManager::DrawImage(*texture, x, y, angle, 8);
 }
 
-void Bullet::SetSurface(SDL_Surface * SurfSrc, double new_width, double new_height) {
-    surface = SurfSrc;
+void Bullet::SetTexture(GLuint * tex, double new_width, double new_height) {
+    texture = tex;
     width = new_width;
     height = new_height;
 }

@@ -13,7 +13,7 @@ class AppStateMenu : public AppStateBase {
 private:
         static AppStateBase * instance;
         
-        SDL_Surface * background_surf;
+        GLuint * background_surf;
         SDL_Rect background_rect;
         
         Menu main_menu;
@@ -47,7 +47,7 @@ AppStateMenu::AppStateMenu() {
 }
 
 void AppStateMenu::Initialize() {
-    background_surf = surface_manager->background_main_menu;
+    background_surf = &surface_manager->background_main_menu;
     //background_rect;
     
     sound_manager->Load_Music(MUSIC_FILENAME);
@@ -67,7 +67,7 @@ void AppStateMenu::Update() {
 }
 
 void AppStateMenu::Draw() {
-	Surface_Manager::Blit(WINDOW, background_surf, 0, 0);
+    SurfaceManager::DrawImageRect(*background_surf, 0, 0, WINDOW_BOUNDING_BOX.w + 400, WINDOW_BOUNDING_BOX.h + 400);
     main_menu.Draw();
 }
 
