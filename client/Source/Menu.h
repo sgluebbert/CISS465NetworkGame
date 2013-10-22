@@ -153,12 +153,12 @@ void Menu::Draw() {
         else
             option_background = &surface_manager->button;
         
-        SurfaceManager::DrawImageRect(*option_background, option_rect.x, option_rect.y);
+        DrawImageRect(*option_background, option_rect.x, option_rect.y);
 
         Text temp(menu_options[i].c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_16, BLACK);
         temp_rect.x = (option_rect.w - temp.width) / 2.0 + option_rect.x;
         temp_rect.y = (option_rect.h - temp.height) / 2.0 + option_rect.y;
-        SurfaceManager::DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
+        DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
 
         glColor4f(1, 1, 1, 1);
         

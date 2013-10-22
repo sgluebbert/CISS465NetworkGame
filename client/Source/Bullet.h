@@ -50,7 +50,7 @@ void Bullet::Draw() {
 
     // SurfaceManager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
     // SurfaceManager::Blit(WINDOW, surface, x, y, 0, 0, width, height);
-    SurfaceManager::DrawImage(*texture, x, y, angle, 8);
+    DrawImage(*texture, x, y, angle, 8);
 }
 
 void Bullet::SetTexture(GLuint * tex, double new_width, double new_height) {

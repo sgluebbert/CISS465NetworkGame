@@ -80,11 +80,12 @@ void Application::Events(SDL_Event * Event) {
 }
 
 void Application::Draw() {
-    SurfaceManager::Clear();
+    glClear( GL_COLOR_BUFFER_BIT );
+    glLoadIdentity();
 
     AppStateManager::Draw();
 
-    SurfaceManager::Flip();
+    SDL_GL_SwapBuffers();
 }
 
 void Application::Update() {

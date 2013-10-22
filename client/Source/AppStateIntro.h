@@ -103,7 +103,7 @@ void AppStateIntro::Draw() {
     temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
     temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
 
-    SurfaceManager::DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
+    DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
     glColor4f(1, 1, 1, 1);
 }
 

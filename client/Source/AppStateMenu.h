@@ -67,7 +67,7 @@ void AppStateMenu::Update() {
 }
 
 void AppStateMenu::Draw() {
-    SurfaceManager::DrawImageRect(*background_surf, 0, 0, WINDOW_BOUNDING_BOX.w + 400, WINDOW_BOUNDING_BOX.h + 400);
+    DrawImageRect(*background_surf, 0, 0, WINDOW_BOUNDING_BOX.w + 400, WINDOW_BOUNDING_BOX.h + 400);
     main_menu.Draw();
 }
 

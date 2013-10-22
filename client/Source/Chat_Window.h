@@ -118,7 +118,7 @@ void Chat_Window::Notify() {
 void Chat_Window::Draw() {
 	bounding_box.x += X_OFFSET;
 
-	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
+	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
 
 	std::queue<std::string> temp_queue = messages;
 	SDL_Rect temp_rect;
@@ -126,12 +126,12 @@ void Chat_Window::Draw() {
 	temp_rect.y = 2;
 
 	while (!temp_queue.empty()) {
-		SurfaceManager::DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, temp_queue.front().c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_10, &WHITE);
+		DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, temp_queue.front().c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_10, &WHITE);
 		temp_queue.pop();
 		temp_rect.y += FONT_HEIGHT;
 	}
 
-	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
+	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
 
 	bounding_box.x -= X_OFFSET;
 }

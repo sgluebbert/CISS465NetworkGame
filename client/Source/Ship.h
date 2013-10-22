@@ -104,7 +104,7 @@ void Ship::Draw() {
     if (health <= 0)
         return;
 
-    SurfaceManager::DrawImage(*texture, x, y, -angle, 48);
+    DrawImage(*texture, x, y, -angle, 48);
 }
 
 void Ship::CalculateSpeed(float delta) {

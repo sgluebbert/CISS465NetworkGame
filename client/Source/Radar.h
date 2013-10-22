@@ -87,19 +87,19 @@ void Radar::Draw() {
 	bounding_box.x += X_OFFSET;
 	bounding_box.y += Y_OFFSET;
 
-	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
+	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &BLACK);
 
 	for (int i = 0; i < enemy_points.size(); i++)
 	{
-		SurfaceManager::DrawRect(enemy_points[i].x - 2, enemy_points[i].y - 2, enemy_points[i].x + 2, enemy_points[i].y + 2, true, &RED);
+		DrawRect(enemy_points[i].x - 2, enemy_points[i].y - 2, enemy_points[i].x + 2, enemy_points[i].y + 2, true, &RED);
 	}
 
 	for (int i = 0; i < friendly_points.size(); i++)
 	{
-		SurfaceManager::DrawRect(friendly_points[i].x - 2, friendly_points[i].y - 2, friendly_points[i].x + 2, friendly_points[i].y + 2, true, &GREEN);
+		DrawRect(friendly_points[i].x - 2, friendly_points[i].y - 2, friendly_points[i].x + 2, friendly_points[i].y + 2, true, &GREEN);
 	}
 	
-	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
+	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, false, &WHITE);
 
 	bounding_box.x -= X_OFFSET;
 	bounding_box.y -= Y_OFFSET;

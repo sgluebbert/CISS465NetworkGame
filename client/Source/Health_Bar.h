@@ -56,8 +56,8 @@ void Health_Bar::Notify(Ship * player) {
 
 void Health_Bar::Draw() {
 	// SDL_BlitSurface(surface, NULL, WINDOW, &bounding_box);
-	SurfaceManager::DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &WHITE);
-	SurfaceManager::DrawRect(progress_box.x, progress_box.y, progress_box.x + progress_box.w, progress_box.y + progress_box.h, true, &RED);
+	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &WHITE);
+	DrawRect(progress_box.x, progress_box.y, progress_box.x + progress_box.w, progress_box.y + progress_box.h, true, &RED);
 }
 
 

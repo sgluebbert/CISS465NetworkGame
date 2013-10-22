@@ -137,6 +137,58 @@ bool Initialize_System() {
     // if (!Initialize_SDL())
     //     return false;
 
+    // if ( SDL_Init(SDL_INIT_VIDEO) != 0 )
+    // {
+    //     printf("Unable to initialize SDL: %s\n", SDL_GetError());
+    //     exit(1);
+    // }
+
+    // if (TTF_Init() != 0 )
+    // {
+    //     printf("Unable to initialize TTF: %s\n", TTF_GetError());
+    //     exit(1);
+    // }
+
+    // WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
+
+    // // SDL_ShowCursor(false);
+    // SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+    // SDL_WM_SetCaption("Not Named", NULL);
+    // surface_manager->surface = SDL_SetVideoMode ( WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_RESIZABLE );// | SDL_FULLSCREEN);
+
+    // if ( surface_manager->surface == NULL ) 
+    // {
+    //     std::cerr << "Unable to set " << WINDOW_BOUNDING_BOX.w << "x" << WINDOW_BOUNDING_BOX.h << " video: " << SDL_GetError() << std::endl;
+    //     exit(1);
+    // }
+
+    // atexit(TTF_Quit);
+    // atexit(SDL_Quit);
+
+    // glClearColor(0.f, 0.f, 0.f, 0.f);
+    // glViewport(0, 0, WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h);
+
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_POINT_SMOOTH);
+
+    // // Antialiasing on and amount
+    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 3);
+
+    // //Check for error
+    // GLenum error = glGetError();
+    // if( error != GL_NO_ERROR )
+    // {
+    //     std::cerr << "Error initializing OpenGL: " << gluErrorString(error) << std::endl;
+    //     exit(1);
+    // }
+    InitWindow();
+
+    // std::cout << "Ready\n";
+    surface_manager->Load();
+
     if (!Initialize_UDP_Network())
         return false;
 
