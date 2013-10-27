@@ -26,7 +26,6 @@ public:
 private:
 	SDL_Rect bounding_box;
 	SDL_Rect chat_bounding_box;
-	SDL_Surface * surface;
 	std::queue<std::string> messages;
 
 	static const int MAX_NUMBER_OF_MESSAGES;
@@ -126,7 +125,7 @@ void Chat_Window::Draw() {
 	temp_rect.y = 2;
 
 	while (!temp_queue.empty()) {
-		DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, temp_queue.front().c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_10, &WHITE);
+		DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, temp_queue.front().c_str(), TextureManager::GetInstance()->fonts.font_FreeMono_10, &WHITE);
 		temp_queue.pop();
 		temp_rect.y += FONT_HEIGHT;
 	}

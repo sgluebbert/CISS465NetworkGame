@@ -6,7 +6,7 @@
 #include <SDL.h>
 #include <vector>
 
-#include "SurfaceManager.h"
+#include "TextureManager.h"
 
 
 
@@ -24,7 +24,7 @@ public:
     void Set_Size(int, int);
     void Set_Offset(int, int);
     void Set_Orientation(bool);
-    void Set_Background(GLuint *);
+    void Set_Background(Texture *);
     
     void Draw();
         
@@ -42,7 +42,7 @@ private:
     
     bool vertically_oriented;
     
-    GLuint * option_background;
+    Texture *option_background;
     SDL_Rect option_rect;
 };
 
@@ -74,7 +74,6 @@ void Menu::Set_Defaults() {
     option_rect.w = 100;
     option_rect.h = 50;
     vertically_oriented = true;
-    option_background = NULL;
 }
 
 void Menu::Add_Option(std::string newOption) {
@@ -130,7 +129,7 @@ void Menu::Set_Offset(int newoffset_x, int newoffset_y) {
     offset_y = newoffset_y;
 }
 
-void Menu::Set_Background(GLuint * texture) {
+void Menu::Set_Background(Texture *texture) {
     option_background = texture;
 }
 
@@ -149,16 +148,16 @@ void Menu::Draw() {
         option_rect.y = tempY;
         
         if (i == selected_option)
-            option_background = &surface_manager->highlightedbutton;
+            option_background = surface_manager->highlightedbutton;
         else
-            option_background = &surface_manager->button;
+            option_background = surface_manager->button;
         
-        DrawImageRect(*option_background, option_rect.x, option_rect.y);
+        option_background->DrawAtRect(option_rect.x, option_rect.y);
 
-        Text temp(menu_options[i].c_str(), SurfaceManager::GetInstance()->fonts.font_FreeMono_16, BLACK);
+        Text temp(menu_options[i].c_str(), TextureManager::GetInstance()->fonts.font_FreeMono_16, BLACK);
         temp_rect.x = (option_rect.w - temp.width) / 2.0 + option_rect.x;
         temp_rect.y = (option_rect.h - temp.height) / 2.0 + option_rect.y;
-        DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
+        temp.Draw(temp_rect.x, temp_rect.y);
 
         glColor4f(1, 1, 1, 1);
         

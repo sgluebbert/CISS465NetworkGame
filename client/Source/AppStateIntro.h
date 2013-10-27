@@ -96,14 +96,14 @@ void AppStateIntro::Update() {
 void AppStateIntro::Draw() {
     Color color(current_color / 255, current_color / 255, current_color / 255, 1);
 
-    Text temp(bumper_titles[current_bumper].c_str(), SurfaceManager::GetInstance()->fonts.font_Impact_20, color);
+    Text temp(bumper_titles[current_bumper].c_str(), TextureManager::GetInstance()->fonts.font_Impact_20, color);
     SDL_Rect temp_rect;
     temp_rect.w = temp.width;
     temp_rect.h = temp.height;
     temp_rect.x = (WINDOW_BOUNDING_BOX.w - temp_rect.w) / 2.0;
     temp_rect.y = (WINDOW_BOUNDING_BOX.h - temp_rect.h) / 2.0;
 
-    DrawImageRect(temp.texture, temp_rect.x, temp_rect.y);
+    temp.Draw(temp_rect.x, temp_rect.y);
     glColor4f(1, 1, 1, 1);
 }
 

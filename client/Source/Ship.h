@@ -16,7 +16,7 @@ public:
     Ship(int);
     ~Ship();
     
-    void SetTexture(GLuint *, float, float);
+    void SetTexture(Texture *, float, float);
 
     SDL_Rect Get_Bounding_Box();
     
@@ -35,7 +35,7 @@ public:
     virtual void Update();
     
 //protected:
-    GLuint * texture;
+    Texture * texture;
     
     int team;
     float x, y;
@@ -81,7 +81,7 @@ Ship::Ship(int _team)
 Ship::~Ship() {
 }
 
-void Ship::SetTexture(GLuint * tex, float new_width, float new_height) {
+void Ship::SetTexture(Texture * tex, float new_width, float new_height) {
     texture = tex;
     width = new_width;
     height = new_height;
@@ -104,7 +104,7 @@ void Ship::Draw() {
     if (health <= 0)
         return;
 
-    DrawImage(*texture, x, y, -angle, 48);
+    texture->DrawCentered(x, y, -angle, 48);
 }
 
 void Ship::CalculateSpeed(float delta) {

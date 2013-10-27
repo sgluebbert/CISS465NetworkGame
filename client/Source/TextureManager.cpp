@@ -1,31 +1,31 @@
-#include "SurfaceManager.h"
+#include "TextureManager.h"
 
-SurfaceManager * SurfaceManager::instance = NULL;
-SurfaceManager * surface_manager = SurfaceManager::GetInstance();
+TextureManager * TextureManager::instance = NULL;
+TextureManager * surface_manager = TextureManager::GetInstance();
 
-SurfaceManager::SurfaceManager()
+TextureManager::TextureManager()
 {
 }
 
-SurfaceManager::~SurfaceManager()
+TextureManager::~TextureManager()
 {
 }
 
-void SurfaceManager::Load()
+void TextureManager::Load()
 {
 	fonts.init();
 
-	test 					= LoadTexture("./Art/Untitled.bmp");
-	bullet 					= LoadTexture("./Art/PPC_Shot.png");
-	smoke 					= LoadTexture("./Art/smoke.png");
-	ship 					= LoadTexture("./Art/ship01.png");
-	background_main_menu 	= LoadTexture("./Art/Main_Menu.png");
-	background_game 		= LoadTexture("./Art/Background.bmp");
-	button 					= LoadTexture("./Art/Button.png");
-	highlightedbutton 		= LoadTexture("./Art/HighlightedButton.png");
+	test 					= new Texture("./Art/Untitled.bmp");
+	bullet 					= new Texture("./Art/PPC_Shot.png");
+	smoke 					= new Texture("./Art/smoke.png");
+	ship 					= new Texture("./Art/ship01.png");
+	background_main_menu 	= new Texture("./Art/Main_Menu.png");
+	background_game 		= new Texture("./Art/Background.bmp");
+	button 					= new Texture("./Art/Button.png");
+	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
 }
 
-bool SurfaceManager::Resize(int new_width, int new_height)
+bool TextureManager::Resize(int new_width, int new_height)
 {
 	// if (new_width < 1024)
 	// 	new_width = 1024;
@@ -46,10 +46,10 @@ bool SurfaceManager::Resize(int new_width, int new_height)
 	return true;
 }
 
-SurfaceManager * SurfaceManager::GetInstance()
+TextureManager * TextureManager::GetInstance()
 {
 	if (instance == NULL)
-		instance = new SurfaceManager();
+		instance = new TextureManager();
 	
 	return instance;
 }

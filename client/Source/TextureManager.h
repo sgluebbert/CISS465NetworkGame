@@ -23,18 +23,18 @@ struct Fonts
 	TTF_Font *font_Impact_20;
 };
 
-class SurfaceManager {
+class TextureManager {
 public:
-	static SurfaceManager * GetInstance();
+	static TextureManager * GetInstance();
 
-	GLuint test;
-	GLuint bullet;
-	GLuint smoke;
-	GLuint ship;
-	GLuint background_main_menu;
-	GLuint background_game;
-	GLuint button;
-	GLuint highlightedbutton;
+	Texture * test;
+	Texture * bullet;
+	Texture * smoke;
+	Texture * ship;
+	Texture * background_main_menu;
+	Texture * background_game;
+	Texture * button;
+	Texture * highlightedbutton;
 	
 	void Load();
 	bool Resize(int, int);
@@ -42,12 +42,12 @@ public:
 	Fonts fonts;
 	
 private:
-	SurfaceManager();
-	~SurfaceManager();
+	TextureManager();
+	~TextureManager();
 
-	static SurfaceManager * instance;
+	static TextureManager * instance;
 };
 
-extern SurfaceManager * surface_manager;
+extern TextureManager * surface_manager;
 
 #endif

@@ -5,24 +5,34 @@
 
 struct Text
 {
-	Text(){texture = 0;}
+	Text()
+		: texture(NULL)
+	{}
+	~Text()
+	{
+		if (texture != NULL)
+			delete texture;
+	}
+
 	Text& operator=( Text rhs )
 	{
 		texture = rhs.texture;
-		rhs.texture = 0; font = rhs.font; color = rhs.color;
+		font = rhs.font; color = rhs.color;
 		return *this;
 	}
 	Text(const char *c, TTF_Font *font, Color color);
-	~Text();
 
 	void Reload(const char *c);
 	void Draw(float x, float y);
 
-	GLuint texture;
 	TTF_Font *font;
 	Color color;
 
 	unsigned short width, height;
+
+private:
+	Texture *texture;
+	Texture * LoadText(const char *c, TTF_Font *font, Color color_, unsigned short &width, unsigned short &height, GLuint texture = 0);
 };
 
 void DrawText(float x, float y, const char *c, TTF_Font *font, const Color *color);

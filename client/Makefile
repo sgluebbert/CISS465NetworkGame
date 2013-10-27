@@ -1,8 +1,8 @@
 CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
-all: Source/SurfaceManager.o Source/Text.o Source/Draw.o
-	g++ -g Main.cpp Source/SurfaceManager.o Source/Text.o Source/Draw.o $(CPPFLAGS)
+all: Source/SurfaceManager.o Source/Texture.o Source/Text.o Source/Draw.o
+	g++ -g Main.cpp Source/SurfaceManager.o Source/Texture.o Source/Text.o Source/Draw.o $(CPPFLAGS)
 
 # Others.o: Main.cpp
 # 	$(CC) $(CPPFLAGS) Main.cpp
@@ -14,6 +14,8 @@ FontManager.o: Source/FontManager.h
 SurfaceManager.o: Source/SurfaceManager.cpp Source/SurfaceManager.h
 
 Text.o: Source/Text.cpp Source/Text.h
+
+Texture.o: Source/Texture.cpp Source/Texture.h
 
 Draw.o: Source/Draw.cpp Source/Draw.h
 

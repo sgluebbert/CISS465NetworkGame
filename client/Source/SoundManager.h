@@ -22,6 +22,8 @@ public:
 	void Play_Sound(Mix_Chunk *);
 	void Play_Music();
 	void Stop_Music();
+
+	bool mute;
 	
 private:
     Sound_Manager();
@@ -38,6 +40,7 @@ Sound_Manager * Sound_Manager::instance = NULL;
 
 Sound_Manager::Sound_Manager() {
     // Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 512);
+    mute = true;
     Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 );
 }
 
@@ -77,11 +80,13 @@ void Sound_Manager::Load_Music(const char * filename) {
 }
 
 void Sound_Manager::Play_Sound(Mix_Chunk * sample) {
-    Mix_PlayChannel(-1, sample, 0);
+	if (!mute)
+    	Mix_PlayChannel(-1, sample, 0);
 }
 
 void Sound_Manager::Play_Music() {
-    Mix_PlayMusic(Music_Stream, -1);
+	if (!mute)
+    	Mix_PlayMusic(Music_Stream, -1);
 }
 
 void Sound_Manager::Stop_Music() {

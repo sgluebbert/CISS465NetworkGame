@@ -1,15 +1,7 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_ttf.h"
-#include "SDL_mixer.h"
-#include "SDL/SDL_opengl.h"
-#include <iostream>
-
-static const SDL_Rect DEFAULT_WINDOW_BOUNDING_BOX = {0, 0, 800, 600};
-static SDL_Rect WINDOW_BOUNDING_BOX;
+#include "Texture.h"
 
 struct Color
 {
@@ -60,18 +52,6 @@ const Color GREEN(0, 1, 0, 1);
 const Color WHITE(1, 1, 1, 1);
 const Color BLACK(0, 0, 0, 1);
 const Color GRAY(.5, .5, .5, 1);
-
-static SDL_Surface *window_surface;
-void InitWindow();
-
-GLuint LoadTexture(const char *);
-GLuint LoadTexture(SDL_Surface *surface, GLuint texture);
-GLuint LoadText(const char *c, TTF_Font *font, Color color_, unsigned short &width, unsigned short &height, GLuint texture = 0);
-	
-void DrawImageRect(GLuint, float x, float y, int w = 0, int h = 0);
-void DrawImage(GLuint, float x, float y);
-void DrawImage(GLuint, float x, float y, float angle);
-void DrawImage(GLuint, float x, float y, float angle, float scale);
 
 void DrawLine(float x1, float y1, float x2, float y2, const Color *color = NULL);
 void DrawRect(float x1, float y1, float x2, float y2, bool fill, const Color *color = NULL);

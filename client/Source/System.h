@@ -7,7 +7,7 @@
 #include "SDL_net.h"
 #include "Pallete.h"
 #include "SoundManager.h"
-#include "SurfaceManager.h"
+#include "TextureManager.h"
 
 
 /*DEFAULT VARIABLES*/

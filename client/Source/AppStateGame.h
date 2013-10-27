@@ -27,7 +27,7 @@ private:
         static AppStateBase * instance;
         AppStateGame();
         
-        GLuint * background_texture;
+        Texture * background_texture;
         SDL_Rect background_rect;
         
         static const char * MUSIC_FILENAME;
@@ -71,7 +71,7 @@ AppStateGame::AppStateGame() {
 }
 
 void AppStateGame::Initialize() {
-    background_texture = &surface_manager->background_game;
+    background_texture = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
     
     client_channel = -1;
@@ -139,7 +139,7 @@ void AppStateGame::Update() {
 	    				// send->channel = client_channel;
 
 	                    player = new Ship(team);
-	                    player->SetTexture(&surface_manager->ship, 64, 64);
+	                    player->SetTexture(surface_manager->ship, 64, 64);
 		        		ships.push_back(player);
 	                    player->max_velocity = 50;
 	                    player->acceleration = 8;
@@ -168,7 +168,7 @@ void AppStateGame::Update() {
 			        	{
 			        		ship = new Ship(team);
 			        		ships.push_back(ship);
-		                    ship->SetTexture(&surface_manager->ship, 64, 64);
+		                    ship->SetTexture(surface_manager->ship, 64, 64);
 		                    ship->max_velocity = 50;
 		                    ship->acceleration = 8;
 		                    ship->deceleration = 6;
@@ -275,9 +275,6 @@ void AppStateGame::Update() {
 }
 
 void AppStateGame::Draw() {
-    // SDL_BlitSurface(background_surf, &background_rect, WINDOW, NULL);
-
-
     Camera * temp_camera = Camera::getInstance();
 
     temp_camera->Draw_Ships(ships);

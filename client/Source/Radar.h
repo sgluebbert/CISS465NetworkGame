@@ -27,7 +27,6 @@ public:
 	void Draw();
 
 private:
-	SDL_Surface * surface;
 	SDL_Rect bounding_box;
 	SDL_Rect radar_bounds;
 
