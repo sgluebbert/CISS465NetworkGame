@@ -15,11 +15,10 @@
 #include "Health_Bar.h"
 #include "Radar.h"
 #include "System.h"
-
+#include "Parser.h"
 
 
 enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
- 
 
 
 class AppStateGame : public AppStateBase {
@@ -102,57 +101,48 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-	// if (player == NULL || (player != NULL && player->team == 0))
-	{
-	    send->data = inputs;
-	    SDLNet_UDP_Send(socket, client_channel, send); /* This sets the p->channel */
-	}
+    send->data = inputs;
+    SDLNet_UDP_Send(socket, client_channel, send);
     
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
     while (SDLNet_UDP_Recv(socket, recieve)) {
-        // std::cout << recieve->len << '\n';
-        unsigned char *buffer = recieve->data;
-        // for (int i = 0; i < recieve->len; i ++)
-        //     std::cout << (int)buffer[i] << ' ';
-        // std::cout << '\n';
+        Parser parser(recieve->data, recieve->len);
 
         bool reading = true;
-        unsigned int index = 0;
-        unsigned int packets_read = 0;
 
         while (reading)
         {
-	        NetworkType type = (NetworkType)buffer[index++];
-	        int team;
+	        NetworkType type;
+            unsigned char temp;
+            if (!parser.ReadUChar(temp))
+                break;
+            type = (NetworkType)temp;
 
-	        Ship * ship = NULL;
+            unsigned char team = 0;
+            Ship * ship = NULL;
 
-	        switch (type) {
-	            case NEW_PLAYER:
-                    team = buffer[index++];
-	                if (player == NULL)
-	                {
-	        			client_channel = team;
-	        			std::cout << "New Channel: " << team << '\n';
-	        			SDLNet_UDP_Bind(socket, team, &recieve->address);
-	    				// send->channel = client_channel;
+            switch (type) {
+                case NEW_PLAYER:
+                    parser.ReadUChar(team);
 
-	                    player = new Ship(team);
-	                    player->SetTexture(surface_manager->ship, 64, 64);
-		        		ships.push_back(player);
-	                    player->max_velocity = 50;
-	                    player->acceleration = 8;
-	                    player->deceleration = 6;
-	                    player->turn_rate = 30;
-	                }
+                    if (player == NULL)
+                    {
+                        client_channel = team;
+                        std::cout << "New Channel: " << (int)team << '\n';
+                        SDLNet_UDP_Bind(socket, team, &recieve->address);
+
+                        player = new Ship(team);
+                        player->SetTexture(surface_manager->ship, 64, 64);
+                        ships.push_back(player);
+                    }
                     player_chat.Player_Joined(team);
-	                break;
+                    break;
 
-	            case PLAYER:
-	            	{
-	                    team = buffer[index++];
-
+                case PLAYER:
+                    {
+                        parser.ReadUChar(team);
+                        
 		                for (int i = 0; i < ships.size(); i++)
 		                {
 		                	if (ships[i] == NULL)
@@ -169,18 +159,16 @@ void AppStateGame::Update() {
 			        		ship = new Ship(team);
 			        		ships.push_back(ship);
 		                    ship->SetTexture(surface_manager->ship, 64, 64);
-		                    ship->max_velocity = 50;
-		                    ship->acceleration = 8;
-		                    ship->deceleration = 6;
-		                    ship->turn_rate = 30;
                     		player_chat.Player_Joined(team);
 			        	}
 
-			        	ship->x = read_float(buffer + index); index += 4;
-			        	ship->y = read_float(buffer + index); index += 4;
-	                    ship->angle = read_float(buffer + index); index += 4;
-	                    ship->health = read_float(buffer + index); index += 4;
-	                    bool shot = buffer[index++];
+                        parser.ReadFloat(ship->x);
+                        parser.ReadFloat(ship->y);
+                        parser.ReadFloat(ship->angle);
+                        parser.ReadFloat(ship->health);
+                        bool shot;
+                        parser.ReadBool(shot);
+
 	                    if (shot)
 	                    {
 	                    	int offset_x = 20 * TRIG_TABLE[int(ship->angle / 5.0)][1];
@@ -191,7 +179,7 @@ void AppStateGame::Update() {
 		            }
 
 	            case REMOVE_PLAYER:
-                    team = buffer[index++];
+                    parser.ReadUChar(team);
                     player_chat.Player_Disconnected(team);
 	                for (int i = 0; i < ships.size(); i++)
 	                {
@@ -212,14 +200,6 @@ void AppStateGame::Update() {
 	                	return;
 	                }
 
-                case COLLISION:
-                    { // {} used to avoid switch scope complaining for now.
-                        int type = SDLNet_Read32(buffer + index); index += 4;
-                        float x = read_float(buffer + index); index += 4;
-                        float y = read_float(buffer + index); index += 4;
-                    }
-                    break;
-
 	            case END:
 	            	reading = false;
 	            	break;
@@ -228,18 +208,7 @@ void AppStateGame::Update() {
                     reading = false;
                     break;
 	        }
-
-            packets_read++;
-
 	    }
-
-        if (packets_read == 0 && player != NULL) {
-            player->turn_left = inputs[0];
-            player->turn_right = inputs[1];
-            player->move_forward = inputs[2];
-            player->shoot = inputs[3];
-        }
-
     }
 
     if (ships.size() > 0 && ships.front() == NULL) {

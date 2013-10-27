@@ -6,7 +6,7 @@
 #include <deque>
 #include <bitset>
  
-#include "SDL_net.h"
+#include "../Source/Parser.h"
 #include "../Source/Entity.h"
 
 UDPsocket sd;       /* Socket descriptor */
@@ -36,6 +36,7 @@ int main(int argc, char **argv)
 	int quit;
  
 	init();
+	Parser parser;
     
 	/* Main loop */
 	quit = 0;
@@ -75,15 +76,16 @@ int main(int argc, char **argv)
 					entity->x = spawn_points[spawn_point][0];
 					entity->y = spawn_points[spawn_point][1];
 
-					unsigned char buffer[3];
-					buffer[0] = NEW_PLAYER;
-					buffer[1] = next_player_id;
-					buffer[2] = END;
+					parser.ClearBuffer();
+					parser.WriteUChar(NEW_PLAYER);
+					parser.WriteUChar(next_player_id);
+					parser.WriteUChar(END);
 
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
-					send->data = buffer;
-				    send->len = 3;
+					send->data = parser.Buffer();
+				    send->len = parser.BufferLength();
+
 
 					SDLNet_UDP_Send(sd, -1, send);
 	       			SDLNet_UDP_Bind(sd, next_player_id, &recieve->address);
@@ -131,8 +133,7 @@ int main(int argc, char **argv)
 
 		if (entities.size() > 0)
 		{
-			int entity_buffer_index = 0;
-			unsigned char *entity_buffer = NULL;
+			parser.ClearBuffer();
 			for (int i = 0; i < entities.size(); i++)
 			{
 				Entity *entity = entities[i];
@@ -141,38 +142,23 @@ int main(int argc, char **argv)
 	                
 	            entity->Update();
 
-				if (entity_buffer == NULL)
-					entity_buffer = new unsigned char[ENTITY_STREAM_SIZE];
-				else
-				{
-					unsigned char *temp = new unsigned char[entity_buffer_index + ENTITY_STREAM_SIZE];
-					strcpy(temp, entity_buffer, entity_buffer_index);
-					delete entity_buffer;
-					entity_buffer = temp;
-				}
-
-				entity_buffer[entity_buffer_index] = PLAYER;
-				entity_buffer[entity_buffer_index + 1] = entity->id;
-				write_float(entity->x, entity_buffer + entity_buffer_index + 2);
-				write_float(entity->y, entity_buffer + entity_buffer_index + 6);
-				write_float(entity->angle, entity_buffer + entity_buffer_index + 10);
-				write_float(entity->health, entity_buffer + entity_buffer_index + 14);
-				entity_buffer[entity_buffer_index + 18] = entity->did_shoot;
-
-				entity_buffer_index += ENTITY_STREAM_SIZE;
+	            parser.WriteUChar(PLAYER);
+	            parser.WriteUChar(entity->id);
+	            parser.WriteFloat(entity->x);
+	            parser.WriteFloat(entity->y);
+	            parser.WriteFloat(entity->angle);
+	            parser.WriteFloat(entity->health);
+	            parser.WriteBool(entity->did_shoot);
 			}
 
-			if (entity_buffer != NULL)
+			if (parser.BufferLength() > 0)
 			{
-				unsigned char *temp = new unsigned char[entity_buffer_index + 1];
-				strcpy(temp, entity_buffer, entity_buffer_index);
-				temp[entity_buffer_index] = END;
-				delete entity_buffer;
+	            parser.WriteUChar(END);
 
 				send->address.host = recieve->address.host;
 				send->address.port = recieve->address.port;
-				send->data = temp;
-			    send->len = entity_buffer_index + 1;
+				send->data = parser.Buffer();
+			    send->len = parser.BufferLength();
 				
 				for (int i = 0; i < entities.size(); i++)
 				{
@@ -181,7 +167,6 @@ int main(int argc, char **argv)
 						continue;
 					SDLNet_UDP_Send(sd, entity->id, send);
 				}
-			    delete temp;
 			}
 		}
 
@@ -199,16 +184,22 @@ int main(int argc, char **argv)
 				{
 					std::cout << "Kicking player " << entities[i]->id << " because of inactivity.\n";
 
-					unsigned char buffer[6];
-					buffer[0] = REMOVE_PLAYER;
-					buffer[1] = entities[i]->id;
-					buffer[2] = END;
+					parser.ClearBuffer();
+					parser.WriteUChar(REMOVE_PLAYER);
+					parser.WriteUChar(entities[i]->id);
+					parser.WriteUChar(END);
 
 					send->address.host = recieve->address.host;
 					send->address.port = recieve->address.port;
-					send->data = buffer;
-					send->len = 3;
-					SDLNet_UDP_Send(sd, -1, send);
+					send->data = parser.Buffer();
+					send->len = parser.BufferLength();
+					for (int n = 0; n < entities.size(); n++)
+					{
+						Entity *entity = entities[n];
+						if (entity == NULL)
+							continue;
+						SDLNet_UDP_Send(sd, entity->id, send);
+					}
 
 					taken_ids[entities[i]->id] = false;
 					delete entities[i];
