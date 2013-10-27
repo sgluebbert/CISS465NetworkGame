@@ -7,11 +7,11 @@
 #include <bitset>
  
 #include "SDL_net.h"
-#include "./Source/Entity.h"
+#include "../Source/Entity.h"
 
 UDPsocket sd;       /* Socket descriptor */
-UDPpacket * recieve;       /* Pointer to packet memory */
-UDPpacket * send;       /* Pointer to packet memory */
+// UDPpacket * recieve;       /* Pointer to packet memory */
+// UDPpacket * send;       /* Pointer to packet memory */
 Uint16 server_port = 8080;
 void init();
 int get_next_free(std::bitset<32> &);
@@ -29,7 +29,6 @@ int main(int argc, char **argv)
     char * buffer[255];
 
 	std::deque<Entity*> entities;
-	std::deque<Collision*> collisions;
 	std::bitset<32> taken_ids;
     
 	Uint8 inputs[4];
@@ -272,7 +271,7 @@ void init()
  
 	std::cout << "Server listening on port " << server_port << '\n';
 
-    Build_Trig_Table();
+    Initialize_Trig_Table();
 }
 
 int get_next_free(std::bitset<32> &taken_ids)

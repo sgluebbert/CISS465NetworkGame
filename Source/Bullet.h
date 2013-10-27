@@ -27,7 +27,7 @@ private:
 
 
 Bullet::Bullet(int _team, double _x, double _y, double _velocity, double _angle)
-	: x(_x), y(_y), velocity(_velocity), angle(_angle), dx(0), dy(0), team(_team)
+	: x(_x), y(_y), velocity(_velocity), angle(_angle), dx(0), dy(0), team(_team), texture(NULL)
 {}
 
 void Bullet::CalculateSpeed(double delta) {
@@ -50,7 +50,8 @@ void Bullet::Draw() {
 
     // TextureManager::Blit(WINDOW, surface, x, y, index * width, 0, width, height);
     // TextureManager::Blit(WINDOW, surface, x, y, 0, 0, width, height);
-    texture->DrawCentered(x, y, angle, 8);
+    if (texture != NULL)
+        texture->DrawCentered(x, y, angle, 8);
 }
 
 void Bullet::SetTexture(Texture * tex, double new_width, double new_height) {

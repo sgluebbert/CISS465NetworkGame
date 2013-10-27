@@ -40,7 +40,7 @@ Sound_Manager * Sound_Manager::instance = NULL;
 
 Sound_Manager::Sound_Manager() {
     // Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 512);
-    mute = true;
+    mute = false;
     Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 );
 }
 

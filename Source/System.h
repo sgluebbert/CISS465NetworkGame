@@ -247,6 +247,16 @@ bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
     return true;
 }
 
+inline unsigned int min(unsigned int x, unsigned int y)
+{
+    return (x < y ? x : y);
+}
+
+inline float point_distance(float x1, float y1, float x2, float y2)
+{
+    return sqrt(pow(y2 - y1, 2) + pow(x2 - x1, 2));
+}
+
 // void Clear_Window() {
 //     SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
 // }

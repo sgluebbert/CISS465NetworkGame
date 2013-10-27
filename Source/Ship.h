@@ -36,6 +36,9 @@ public:
     
 //protected:
     Texture * texture;
+    Uint64 ip;
+    Uint32 port;
+    time_t last_input, death_time;
     
     int team;
     float x, y;
@@ -50,9 +53,12 @@ public:
     float velocity;
     float acceleration;
     float deceleration;
-    bool move_forward, turn_left, turn_right, shoot;
+    bool move_forward, turn_left, turn_right, shoot, did_shoot;
     int can_shoot, reload_rate;
     float health, max_health;
+
+    float respawn_timer;
+    static float respawn_time;
 };
 
 
