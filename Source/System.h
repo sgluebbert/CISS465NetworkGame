@@ -1,27 +1,128 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
+
 #include <string>
 #include <cmath>
 
 #include "SDL_net.h"
-#include "Pallete.h"
-#include "SoundManager.h"
-#include "TextureManager.h"
+#include "Rect.h"
 
 
-/*DEFAULT VARIABLES*/
+
+/*Default Variables*/
+static const Rect<double> DEFAULT_WINDOW_BOUNDING_BOX;
 static const double DEFAULT_FPS_LIMIT = 30.0;
+
+/*Neutral Colors*/
+static const Uint32 BLACK_PIXEL             = 0x000000;
+static const Uint32 DARKGRAY_PIXEL          = 0x404040;
+static const Uint32 GRAY_PIXEL              = 0x808080;
+static const Uint32 LIGHTGRAY_PIXEL         = 0xC0C0C0;
+static const Uint32 WHITE_PIXEL             = 0xFFFFFF;
+
+/*Shades of Red Colors*/
+static const Uint32 TRUE_RED_PIXEL          = 0xFF0000;
+static const Uint32 BRIGHT_RED_PIXEL        = 0xC00000;
+static const Uint32 RED_PIXEL               = 0x800000;
+static const Uint32 DARK_RED_PIXEL          = 0x400000;
+
+/*Shades of Yellow Colors*/
+static const Uint32 TRUE_YELLOW_PIXEL       = 0xFFFF00;
+static const Uint32 BRIGHT_YELLOW_PIXEL     = 0xC0C000;
+static const Uint32 YELLOW_PIXEL            = 0x808000;
+static const Uint32 DARK_YELLOW_PIXEL       = 0x404000;
+
+/*Shades of Green Colors*/
+static const Uint32 TRUE_GREEN_PIXEL        = 0x00FF00;
+static const Uint32 BRIGHT_GREEN_PIXEL      = 0x00C000;
+static const Uint32 GREEN_PIXEL             = 0x008000;
+static const Uint32 DARK_GREEN_PIXEL        = 0x004000;
+
+/*Shades of Teal Colors*/
+static const Uint32 CYAN_PIXEL              = 0x00FFFF;
+static const Uint32 BRIGHT_TEAL_PIXEL       = 0x00C0C0;
+static const Uint32 TEAL_PIXEL              = 0x008080;
+static const Uint32 DARK_TEAL_PIXEL         = 0x004040;
+
+/*Shades of Blue Colors*/
+static const Uint32 TRUE_BLUE_PIXEL         = 0x0000FF;
+static const Uint32 BRIGHT_BLUE_PIXEL       = 0x0000C0;
+static const Uint32 BLUE_PIXEL              = 0x000080;
+static const Uint32 DARK_BLUE_PIXEL         = 0x000040;
+
+/*Shades of Purple Colors*/
+static const Uint32 TRUE_PURPLE_PIXEL       = 0xFF00FF;
+static const Uint32 BRIGHT_PURPLE_PIXEL     = 0xC000C0;
+static const Uint32 PURPLE_PIXEL            = 0x800080;
+static const Uint32 DARK_PURPLE_PIXEL       = 0x400040;
+
+/*Transparent Colors*/
+static const SDL_Color CLEAR_BLACK      = {  0,   0,   0, 255};
+static const SDL_Color CLEAR_WHITE      = {255, 255, 255, 255};
+
+/*Neutral Colors*/
+static const SDL_Color BLACK            = {  0,   0,   0,   0};
+static const SDL_Color DARK_GRAY        = { 64,  64,  64,   0};
+static const SDL_Color GRAY             = {128, 128, 128,   0};
+static const SDL_Color LIGHT_GRAY       = {192, 192, 192,   0};
+static const SDL_Color WHITE            = {255, 255, 255,   0};
+
+/*Shades of Red Colors*/
+static const SDL_Color TRUE_RED         = {255,   0,   0,   0};
+static const SDL_Color BRIGHT_RED       = {192,   0,   0,   0};
+static const SDL_Color RED              = {128,   0,   0,   0};
+static const SDL_Color DARK_RED         = { 64,   0,   0,   0};
+
+/*Shades of Yellow Colors*/
+static const SDL_Color TRUE_YELLOW      = {255, 255,   0,   0};
+static const SDL_Color BRIGHT_YELLOW    = {192, 192,   0,   0};
+static const SDL_Color YELLOW           = {128, 128,   0,   0};
+static const SDL_Color DARK_YELLOW      = { 64,  64,   0,   0};
+
+/*Shades of Green Colors*/
+static const SDL_Color TRUE_GREEN       = {  0, 255,   0,   0};
+static const SDL_Color BRIGHT_GREEN     = {  0, 192,   0,   0};
+static const SDL_Color GREEN            = {  0, 128,   0,   0};
+static const SDL_Color DARK_GREEN       = {  0,  64,   0,   0};
+
+/*Shades of Teal Colors*/
+static const SDL_Color CYAN             = {  0, 255, 255,   0};
+static const SDL_Color BRIGHT_TEAL      = {  0, 192, 192,   0};
+static const SDL_Color TEAL             = {  0, 128, 128,   0};
+static const SDL_Color DARK_TEAL        = {  0,  64,  64,   0};
+
+/*Shades of Blue Colors*/
+static const SDL_Color TRUE_BLUE        = {  0,   0, 255,   0};
+static const SDL_Color BRIGHT_BLUE      = {  0,   0, 192,   0};
+static const SDL_Color BLUE             = {  0,   0, 128,   0};
+static const SDL_Color DARK_BLUE        = {  0,   0,  64,   0};
+
+/*Shades of Purple Colors*/
+static const SDL_Color TRUE_PURPLE      = {255,   0, 255,   0};
+static const SDL_Color BRIGHT_PURPLE    = {192,   0, 192,   0};
+static const SDL_Color PURPLE           = {128,   0, 128,   0};
+static const SDL_Color DARK_PURPLE      = { 64,   0,  64,   0};
 
 
 
 /*System Variables*/
+static Rect<double> WINDOW_BOUNDING_BOX;
 static SDL_Surface * WINDOW;
-static double FPS_LIMIT = DEFAULT_FPS_LIMIT;
-static const char * WINDOW_TITLE = "CISS465 Project";
+static const char * WINDOW_TITLE = "Game API Demo";
 static const char * WINDOW_ICON_FILEPATH = "./Art/Icon.bmp";
 
+static double FPS_LIMIT = DEFAULT_FPS_LIMIT;
+
 static const char * APPLICATION_VERSION = "0.0.0.0";
+
+static UDPsocket socket;
+static UDPpacket * recieve;
+static UDPpacket * send;
+
+static IPaddress client_address;
+static IPaddress server_address;
 
 static bool IS_KEY_PRESSED[SDLK_LAST];
 
@@ -29,22 +130,10 @@ static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
-static UDPsocket socket;
-static UDPpacket * recieve;
-static UDPpacket * send;
-
-static IPaddress server_address;
-static IPaddress client_address;
-
-static Sound_Manager * sound_manager;
-
-const int ROOM_WIDTH = 2000;
-const int ROOM_HEIGHT = 2000;
 
 
-
-/*System Functions*/
-static void Reset_Window(SDL_Rect);
+/*System Functions Prototypes*/
+static void Reset_Window(Rect<double>);
 
 static bool Initialize_SDL();
 static bool Initialize_SDL_Modules();
@@ -66,45 +155,40 @@ static void Cleanup_System();
 static void Clear_Window();
 static SDL_Color Random_Color();
 
-const char *server_ipaddress = NULL;
 
-void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
+
+/*System Function Bodies*/
+void Reset_Window(Rect<double> new_bounding_box) {
     WINDOW_BOUNDING_BOX = new_bounding_box;
     WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF);
 }
 
+bool Initialize_SDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+        return false;
 
+    if (!Initialize_SDL_Modules())
+        return false;
 
-// bool Initialize_SDL() {
-//     if (SDL_Init(SDL_INIT_VIDEO) < 0)
-//         return false;
+    return true;
+}
 
-//     if (!Initialize_SDL_Modules())
-//         return false;
+bool Initialize_SDL_Modules() {
+    /*if (TTF_Init() < 0 )
+        return false;*/
 
-//     return true;
-// }
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+        return false;
 
-// bool Initialize_SDL_Modules() {
-//     if (TTF_Init() < 0 )
-//         return false;
+    if (SDLNet_Init() < 0)
+        return false;
 
-//     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-//         return false;
-
-//     if (SDLNet_Init() < 0)
-//         return false;
-
-//     return true;
-// }
-
-void Initialize_Managers() {
-    sound_manager = Sound_Manager::Get_Instance();
+    return true;
 }
 
 bool Initialize_UDP_Network() {
     //client_address.address = 082304324;
-    client_address.port = 0;
+    client_address.port = 8080;
 
     if (!(socket = SDLNet_UDP_Open(client_address.port)))
         return false;
@@ -134,71 +218,17 @@ void Initialize_Key_Array() {
 }
 
 bool Initialize_System() {
-    // if (!Initialize_SDL())
-    //     return false;
-
-    // if ( SDL_Init(SDL_INIT_VIDEO) != 0 )
-    // {
-    //     printf("Unable to initialize SDL: %s\n", SDL_GetError());
-    //     exit(1);
-    // }
-
-    // if (TTF_Init() != 0 )
-    // {
-    //     printf("Unable to initialize TTF: %s\n", TTF_GetError());
-    //     exit(1);
-    // }
-
-    // WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
-
-    // // SDL_ShowCursor(false);
-    // SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    // SDL_WM_SetCaption("Not Named", NULL);
-    // surface_manager->surface = SDL_SetVideoMode ( WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_RESIZABLE );// | SDL_FULLSCREEN);
-
-    // if ( surface_manager->surface == NULL ) 
-    // {
-    //     std::cerr << "Unable to set " << WINDOW_BOUNDING_BOX.w << "x" << WINDOW_BOUNDING_BOX.h << " video: " << SDL_GetError() << std::endl;
-    //     exit(1);
-    // }
-
-    // atexit(TTF_Quit);
-    // atexit(SDL_Quit);
-
-    // glClearColor(0.f, 0.f, 0.f, 0.f);
-    // glViewport(0, 0, WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h);
-
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable(GL_POINT_SMOOTH);
-
-    // // Antialiasing on and amount
-    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 3);
-
-    // //Check for error
-    // GLenum error = glGetError();
-    // if( error != GL_NO_ERROR )
-    // {
-    //     std::cerr << "Error initializing OpenGL: " << gluErrorString(error) << std::endl;
-    //     exit(1);
-    // }
-    InitWindow();
-
-    // std::cout << "Ready\n";
-    surface_manager->Load();
+    if (!Initialize_SDL())
+        return false;
 
     if (!Initialize_UDP_Network())
         return false;
 
-    Initialize_Managers();
-
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
 
-    // if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
-    //     return false;
+    if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
+        return false;
     
     Initialize_Trig_Table();
     Initialize_Key_Array();
@@ -209,57 +239,29 @@ bool Initialize_System() {
 void Cleanup_SDL() {
     Cleanup_SDL_Modules();
 
-    // SDL_FreeSurface(WINDOW);
-    // SDL_Quit();
+    SDL_FreeSurface(WINDOW);
+    SDL_Quit();
 }
 
 void Cleanup_SDL_Modules() {
     SDLNet_Quit();
 }
 
-void Cleanup_Managers() {
-    Sound_Manager::Delete_Instance();
-}
-
 void Cleanup_UDP_Network() {
     SDLNet_FreePacket(recieve);
-    //SDLNet_FreePacket(send);
+    SDLNet_FreePacket(send);
 }
 
 void Cleanup_System() {
-    Cleanup_Managers();
     Cleanup_UDP_Network();
     Cleanup_SDL();
 }
 
-inline float read_float(unsigned char *buffer)
-{
-    float temp;
-    unsigned int temp2 = SDLNet_Read32(buffer);
-    memcpy(&temp, &temp2, sizeof(float));
-    return temp;
+
+
+/*Helper Functions*/
+void Clear_Window() {
 }
-
-bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
-    if(y < y1 || y > y2 || x < x1 || x > x2)
-        return false;
-
-    return true;
-}
-
-inline unsigned int min(unsigned int x, unsigned int y)
-{
-    return (x < y ? x : y);
-}
-
-inline float point_distance(float x1, float y1, float x2, float y2)
-{
-    return sqrt(pow(y2 - y1, 2) + pow(x2 - x1, 2));
-}
-
-// void Clear_Window() {
-//     SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
-// }
 
 SDL_Color Random_Color() {
   SDL_Color c = {rand() % 256, rand() % 256, rand() % 256, 0};
