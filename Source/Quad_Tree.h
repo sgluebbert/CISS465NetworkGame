@@ -3,11 +3,11 @@
 
 
 
-#include <deque>
 #include <iostream>
+#include <vector>
 
 #include "Entity.h"
-#include "Rect.h"
+//#include "Parallax.h"
 #include "System.h"
 
 
@@ -15,12 +15,13 @@
 class Quad_Tree {
 public:
     Quad_Tree();
-    Quad_Tree(int, Rect<double>);
+    Quad_Tree(int, SDL_Rect);
     ~Quad_Tree();
 
     bool Is_Within(Entity *);
+    bool Is_Within(SDL_Rect &);
     void Insert(Entity *);
-    void Get_Possibles(std::deque<Entity *> &, Rect<double> &);
+    void Get_Possibles(std::vector<Entity *> &, SDL_Rect &);
 
     void Subdivide();
     void Clear();
@@ -33,9 +34,9 @@ public:
 private:
     static int MAX_DEPTH;
     static int MAX_SIZE;
-    static Rect<double> MAX_BOUNDS;
+    static SDL_Rect MAX_BOUNDS;
 
-    Rect<double> bounds;
+    SDL_Rect bounds;
     int depth;
     
     Quad_Tree * northeast;
@@ -43,14 +44,14 @@ private:
     Quad_Tree * southeast;
     Quad_Tree * southwest;
 
-    std::deque<Entity *> items;
+    std::vector<Entity *> items;
 };
 
 
 
 int Quad_Tree::MAX_DEPTH = 4;
 int Quad_Tree::MAX_SIZE = 4;
-Rect<double> Quad_Tree::MAX_BOUNDS = WINDOW_BOUNDING_BOX;
+SDL_Rect Quad_Tree::MAX_BOUNDS = WINDOW_BOUNDING_BOX;
 
 
 
@@ -65,7 +66,7 @@ Quad_Tree::Quad_Tree() {
     southwest = NULL;
 }
 
-Quad_Tree::Quad_Tree(int ndepth, Rect<double> nbounds) {
+Quad_Tree::Quad_Tree(int ndepth, SDL_Rect nbounds) {
     bounds = nbounds;
     depth = ndepth;
     
@@ -84,9 +85,19 @@ Quad_Tree::~Quad_Tree() {
 }
 
 bool Quad_Tree::Is_Within(Entity * item) {
-    Rect<double> temp = item->Get_Bounding_Box();
+    SDL_Rect temp = item->Get_Bounding_Box();
 
-    return bounds.Within(temp);
+    return (temp.x >= bounds.x &&
+            temp.x + temp.w <= bounds.x + bounds.w &&
+            temp.y >= bounds.y &&
+            temp.y + temp.h <= bounds.y + bounds.h);
+}
+
+bool Quad_Tree::Is_Within(SDL_Rect & temp) {
+    return (temp.x >= bounds.x &&
+            temp.x + temp.w <= bounds.x + bounds.w &&
+            temp.y >= bounds.y &&
+            temp.y + temp.h <= bounds.y + bounds.h);
 }
 
 void Quad_Tree::Insert(Entity * item) {
@@ -106,7 +117,7 @@ void Quad_Tree::Insert(Entity * item) {
     if (items.size() > MAX_SIZE && northeast == NULL) {
         Subdivide();
 
-        std::deque<Entity *> temp = items;
+        std::vector<Entity *> temp = items;
         items.clear();
 
         for (int i = temp.size() - 1; i >= 0; i--) {
@@ -118,18 +129,18 @@ void Quad_Tree::Insert(Entity * item) {
     }
 }
 
-void Quad_Tree::Get_Possibles(std::deque<Entity *> & possibles, Rect<double> & item) {
+void Quad_Tree::Get_Possibles(std::vector<Entity *> & possibles, SDL_Rect & item) {
     if (northeast == NULL) {
         for (int i = 0; i < items.size(); i++)
             possibles.push_back(items[i]);
     }
-    else if (northeast->bounds.Within(item))
+    else if (northeast->Is_Within(item))
         northeast->Get_Possibles(possibles, item);
-    else if (northwest->bounds.Within(item))
+    else if (northwest->Is_Within(item))
         northwest->Get_Possibles(possibles, item);
-    else if (southeast->bounds.Within(item))
+    else if (southeast->Is_Within(item))
         southeast->Get_Possibles(possibles, item);
-    else if (southwest->bounds.Within(item))
+    else if (southwest->Is_Within(item))
         southwest->Get_Possibles(possibles, item);
     else {
         for (int i = 0; i < items.size(); i++)
@@ -146,7 +157,7 @@ void Quad_Tree::Subdivide() {
     if (depth > MAX_DEPTH)
         return;
 
-    Rect<double> temp;
+    SDL_Rect temp;
     temp.w = bounds.w / 2.0;
     temp.h = bounds.h / 2.0;
     
@@ -182,27 +193,27 @@ void Quad_Tree::Update(double delta) {
 }
 
 void Quad_Tree::Draw() {
-    Rect<double> temp;
+    SDL_Rect temp;
 
     temp.x = bounds.x;
     temp.y = bounds.y;
     temp.w = bounds.w;
     temp.h = 1;
-    //SDL_FillRect(WINDOW, &temp, 0x808080);
+    SDL_FillRect(WINDOW, &temp, 0x808080);
 
     temp.w = 1;
     temp.h = bounds.h;
-    //SDL_FillRect(WINDOW, &temp, 0x808080);
+    SDL_FillRect(WINDOW, &temp, 0x808080);
 
     temp.x = bounds.w - 1;
     temp.h = bounds.h;
-    //SDL_FillRect(WINDOW, &temp, 0x808080);
+    SDL_FillRect(WINDOW, &temp, 0x808080);
 
     temp.x = bounds.x;
     temp.y = bounds.h - 1;
     temp.w = bounds.w;
     temp.h = 1;
-    //SDL_FillRect(WINDOW, &temp, 0x808080);
+    SDL_FillRect(WINDOW, &temp, 0x808080);
     
     if (northeast != NULL) {
         northeast->Draw();

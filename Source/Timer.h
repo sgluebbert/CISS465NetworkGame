@@ -3,51 +3,77 @@
 
 
 
+#include <SDL.h>
+
+#include "System.h"
+
+
+
 class Timer {
-public:
-	Timer();
-	Timer(double);
+    public:
+        static Timer Frame_Control;
+        
+        Timer();
+        void Update();
 
-	void Start();
-	bool Ended();
+        int Get_FPS();
+        double Get_Time_Per_Frame();
 
-	void Update(double);
+    private:
+        int old_time;
+        int last_time;
 
-	void Set_Interval(double);
-	double Get_Progress();
+        double speed_factor;
+        double delta;
 
-private:
-	double timer;
-	double interval;
+        int num_of_frames;
+        int frames;
 };
 
 
 
-Timer::Timer()
-	: timer(0.0), interval(0.0) {}
+Timer Timer::Frame_Control;
 
-Timer::Timer(double _timer)
-	: timer(_timer), interval(_timer) {}
 
-void Timer::Start() {
-	timer = 0.0;
+
+Timer::Timer() {
+    old_time = 0;
+    last_time = 0;
+
+    speed_factor = 0.0;
+
+    frames = 0;
+    num_of_frames = 0;
 }
 
-bool Timer::Ended() {
-	return timer >= interval;
+void Timer::Update() {
+    if(old_time + 1000 < SDL_GetTicks()) {
+        old_time = SDL_GetTicks();
+        
+        num_of_frames = frames;
+        frames = 0;
+    }
+
+    delta = 1.0 / FPS_LIMIT;
+    speed_factor = ((SDL_GetTicks() - last_time) / 1000.0);
+    last_time = SDL_GetTicks();
+    frames++;
+    
+    int delay = (delta - speed_factor) * 1000;
+    if (delay > 0)
+        SDL_Delay(delay);
+        
 }
 
-void Timer::Update(double dt) {
-	if (timer < interval)
-		timer += dt;
+int Timer::Get_FPS() {
+    return num_of_frames;
 }
 
-void Timer::Set_Interval(double _interval) {
-	interval = _interval;
-}
-
-double Timer::Get_Progress() {
-	return (timer / interval);
+double Timer::Get_Time_Per_Frame() {
+    if (speed_factor > delta)
+        return speed_factor;
+    else
+        return delta;
 }
 
 
