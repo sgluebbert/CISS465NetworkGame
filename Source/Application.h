@@ -96,10 +96,10 @@ void Application::Update() {
 
     AppStateManager::Update();
 
-    Timer::Frame_Control.Update();
+    Clock::Frame_Control.Update();
 
     char Buffer[255];
-    sprintf(Buffer, "FPS: %d", Timer::Frame_Control.Get_FPS());
+    sprintf(Buffer, "FPS: %d", Clock::Frame_Control.Get_FPS());
     SDL_WM_SetCaption(WINDOW_TITLE, Buffer);
 }
 

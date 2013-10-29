@@ -213,7 +213,7 @@ int main(int argc, char **argv)
 				entities.pop_back();
 		}
 
-        Timer::Frame_Control.Update();
+        Clock::Frame_Control.Update();
 	}
  
 	/* Clean and exit */

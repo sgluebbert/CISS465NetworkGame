@@ -4,8 +4,8 @@
 
 
 #include "AppStateBase.h"
+#include "Clock.h"
 #include "System.h"
-#include "Timer.h"
  
  
  
@@ -71,7 +71,7 @@ void AppStateIntro::Events(SDL_Event * Event) {
 }
 
 void AppStateIntro::Update() {
-        double temp_delta = Timer::Frame_Control.Get_Time_Per_Frame();
+        double temp_delta = Clock::Frame_Control.Get_Time_Per_Frame();
         bumper_timer += temp_delta;
 
         if (bumper_timer > bumper_duration) {

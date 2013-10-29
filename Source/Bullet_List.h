@@ -6,7 +6,7 @@
 #include <deque>
 
 #include "Bullet.h"
-#include "Timer.h"
+#include "Clock.h"
 
 
 struct Bullet_List {
@@ -44,7 +44,7 @@ Bullet_List* Bullet_List::getInstance() {
 }
 
 void Bullet_List::Update() {
-    double delta = Timer::Frame_Control.Get_Time_Per_Frame();
+    double delta = Clock::Frame_Control.Get_Time_Per_Frame();
 
     for (int i = 0; i < bullets.size(); i++) {
         Bullet *bullet = bullets[i];
