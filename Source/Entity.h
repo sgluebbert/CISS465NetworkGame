@@ -7,6 +7,7 @@
 #include "System.h"
 #include <ctime>
 #include <deque>
+#include "Clock.h"
 
 const int MAX_BULLETS = 5;
 
@@ -127,7 +128,7 @@ void Entity::Move(float delta) {
 }
 
 void Entity::Update() {
-    double delta = Timer::Frame_Control.Get_Time_Per_Frame();
+    double delta = Clock::Frame_Control.Get_Time_Per_Frame();
     
     did_shoot = false;
 

@@ -3,8 +3,7 @@
 
 
 
-#include "Timer.h"
-
+#include "Clock.h"
 
 
 struct Bullet {
