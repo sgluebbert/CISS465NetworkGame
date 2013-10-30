@@ -1,42 +1,23 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "SDL_net.h"
-#include <iostream>
+#include "NetString.h"
 
-static const int ParserBufferStartLength = 1;
+enum NetworkChunkEnums { NCE_END, NCE_NEW_PLAYER, NCE_PLAYER, NCE_REMOVE_PLAYER };
 
 struct Parser
 {
 	Parser();
-	Parser(unsigned char *buf, int length);
 
-	void ClearBuffer();
+	// Insert Serialize Methods
+	// bool Serialize(Entity &) for example
+	bool Serialize(/* Something */);
 
-	// These functions return true if it was able to read or write
-	bool WriteBool(bool);
-	bool WriteUChar(unsigned char);
-	bool WriteInt(int);
-	bool WriteFloat(float);
-
-	bool ReadBool(bool &);
-	bool ReadUChar(unsigned char &);
-	bool ReadInt(int &);
-	bool ReadFloat(float &);
-
-	int BufferLength() { return bufferLength; }
-	unsigned char *Buffer() { return buffer; }
-
+	// Insert Deserialize Methods
+	bool Deserialize();
 
 private:
-	bool Expand(int);
-
-	unsigned char * buffer;
-	int bufferLength;
-	int bufferSize;
-	int bufferIndex;
+	NetString string;
 };
-
-std::ostream &operator<<(std::ostream &stream, Parser &parser);
 
 #endif
