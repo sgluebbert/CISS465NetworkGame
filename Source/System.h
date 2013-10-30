@@ -8,7 +8,7 @@
 #include "Pallete.h"
 #include "SoundManager.h"
 #include "TextureManager.h"
-
+#include "Network.h"
 
 /*DEFAULT VARIABLES*/
 static const double DEFAULT_FPS_LIMIT = 30.0;
@@ -29,12 +29,16 @@ static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
-static UDPsocket socket;
-static UDPpacket * recieve;
-static UDPpacket * send;
+// static UDPsocket socket;
+// static UDPpacket * recieve;
+// static UDPpacket * send;
 
-static IPaddress server_address;
-static IPaddress client_address;
+// static IPaddress server_address;
+// static IPaddress client_address;
+
+// Network* NetworkFactory::instance = NULL;
+// NetworkType NetworkFactory::networkType = UNDEFINED;
+// Network *network = NetworkFactory::getInstance();
 
 static Sound_Manager * sound_manager;
 
@@ -66,7 +70,7 @@ static void Cleanup_System();
 static void Clear_Window();
 static SDL_Color Random_Color();
 
-const char *server_ipaddress = NULL;
+//const char *server_ipaddress = NULL;
 
 void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
     WINDOW_BOUNDING_BOX = new_bounding_box;
@@ -102,23 +106,21 @@ void Initialize_Managers() {
     sound_manager = Sound_Manager::Get_Instance();
 }
 
-bool Initialize_UDP_Network() {
-    //client_address.address = 082304324;
-    client_address.port = 0;
+// bool Initialize_UDP_Network() {
 
-    if (!(socket = SDLNet_UDP_Open(client_address.port)))
-        return false;
- 
-    /* Make space for the packet */
-    if (!(recieve = SDLNet_AllocPacket(512)))
-        return false;
- 
-    /* Make space for the packet */
-    if (!(send = SDLNet_AllocPacket(512)))
-        return false;
+//     client_address.port = 0;
 
-    return true;
-}
+//     if (!(socket = SDLNet_UDP_Open(client_address.port)))
+//         return false;
+ 
+//     if (!(recieve = SDLNet_AllocPacket(512)))
+//         return false;
+ 
+//     if (!(send = SDLNet_AllocPacket(512)))
+//         return false;
+
+//     return true;
+// }
 
 void Initialize_Trig_Table() {
     for (int i = 0; i < 72; i++) {
@@ -189,8 +191,8 @@ bool Initialize_System() {
     // std::cout << "Ready\n";
     surface_manager->Load();
 
-    if (!Initialize_UDP_Network())
-        return false;
+    // if (!Initialize_UDP_Network())
+    //     return false;
 
     Initialize_Managers();
 
@@ -222,13 +224,13 @@ void Cleanup_Managers() {
 }
 
 void Cleanup_UDP_Network() {
-    SDLNet_FreePacket(recieve);
+    //SDLNet_FreePacket(recieve);
     //SDLNet_FreePacket(send);
 }
 
 void Cleanup_System() {
     Cleanup_Managers();
-    Cleanup_UDP_Network();
+    //Cleanup_UDP_Network();
     Cleanup_SDL();
 }
 

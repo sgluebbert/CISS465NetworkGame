@@ -17,8 +17,11 @@
 #include "System.h"
 #include "Parser.h"
 
+Network* NetworkFactory::instance = NULL;
+NetworkType NetworkFactory::networkType = UNDEFINED;
+Network *network = NetworkFactory::getInstance();
 
-enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
+enum NetworkEventType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
 
 
 class AppStateGame : public AppStateBase {
@@ -39,10 +42,7 @@ private:
         Radar player_radar;
 
 	    Uint8 inputs[4];
-	
-	    IPaddress server_address;
-	    Uint16 server_port;
-	    Uint16 host_port;
+
 	    int client_channel;
 public:
  
@@ -74,23 +74,16 @@ void AppStateGame::Initialize() {
     background_rect = Camera::getInstance()->Get_Viewport();
     
     client_channel = -1;
-    host_port = 8080;
-    server_port = 8080;
-	    
+   
 	for (int i = 0; i < 4; i++)
 	    inputs[i] = 0;
- 
-	/* Resolve server name  */
-	if (SDLNet_ResolveHost(&server_address, server_ipaddress, server_port) == -1) {
-		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
-		AppStateEvent::New_Event(APPSTATE_MENU);
-	}
+
+    if (network->InitClient() == -1)
+    {
+        AppStateEvent::New_Event(APPSTATE_MENU);
+    }
 
    	player = NULL;
-    
-    send->address.host = server_address.host;	/* Set the destination host */
-    send->address.port = server_address.port;	/* And destination port */
-    send->len = 4;
     
     sound_manager->Load_Music(MUSIC_FILENAME);
     sound_manager->Play_Music();
@@ -101,23 +94,23 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-    send->data = inputs;
-    SDLNet_UDP_Send(socket, client_channel, send);
     
+    network->SendData(inputs, client_channel, 4);
+
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
-    while (SDLNet_UDP_Recv(socket, recieve)) {
-        Parser parser(recieve->data, recieve->len);
+    while (network->ReceiveData()) {
+        Parser parser(network->GetData(), network->GetDataLength());
 
         bool reading = true;
 
         while (reading)
         {
-	        NetworkType type;
+	        NetworkEventType type;
             unsigned char temp;
             if (!parser.ReadUChar(temp))
                 break;
-            type = (NetworkType)temp;
+            type = (NetworkEventType)temp;
 
             unsigned char team = 0;
             Ship * ship = NULL;
@@ -130,7 +123,7 @@ void AppStateGame::Update() {
                     {
                         client_channel = team;
                         std::cout << "New Channel: " << (int)team << '\n';
-                        SDLNet_UDP_Bind(socket, team, &recieve->address);
+                        network->Bind(team);
 
                         player = new Ship(team);
                         player->SetTexture(surface_manager->ship, 64, 64);

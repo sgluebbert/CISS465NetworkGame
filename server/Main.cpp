@@ -8,17 +8,23 @@
  
 #include "../Source/Parser.h"
 #include "../Source/Entity.h"
+#include "../Source/Network.h"
 
-UDPsocket sd;       /* Socket descriptor */
+//UDPsocket sd;       /* Socket descriptor */
 // UDPpacket * recieve;       /* Pointer to packet memory */
 // UDPpacket * send;       /* Pointer to packet memory */
-Uint16 server_port = 8080;
+//Uint16 server_port = 8080;
+
+Network* NetworkFactory::instance = NULL;
+NetworkType NetworkFactory::networkType = UNDEFINED;
+Network *network = NetworkFactory::getInstance();
+
 void init();
 int get_next_free(std::bitset<32> &);
 inline void strcpy(unsigned char *dst, unsigned char *src, int size);
 inline void write_float(float value, unsigned char *buffer);
 
-enum NetworkType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
+enum NetworkEventType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
 		
 const int ENTITY_STREAM_SIZE = 19;
 const int BULLET_STREAM_SIZE = 13;
@@ -44,8 +50,8 @@ int main(int argc, char **argv)
 	while (!quit)
 	{
 		/* Wait a packet. UDP_Recv returns != 0 if a packet is coming */
-		while (SDLNet_UDP_Recv(sd, recieve))
-		{
+		while (network->ReceiveData())
+		{		
 			bool exists = false;
 			Entity *entity;
 			int entity_index = 0;
@@ -55,7 +61,7 @@ int main(int argc, char **argv)
 				if (entities[i] == NULL)
 					continue;
 
-				if (entities[i]->ip == recieve->address.host && entities[i]->port == recieve->address.port)
+				if (entities[i]->ip == network->GetRecvHost() && entities[i]->port == network->GetRecvPort())
 				{
 					entity = entities[i];
 					exists = true;
@@ -69,7 +75,7 @@ int main(int argc, char **argv)
 				int next_player_id = get_next_free(taken_ids);
 				if (next_player_id != -1)
 				{
-					entity = new Entity(recieve->address.host, recieve->address.port, next_player_id);
+					entity = new Entity(network->GetRecvHost(), network->GetRecvPort(), next_player_id);
 					entities.push_back(entity);
 					entity->last_input = clock();
 					int spawn_point = GetSpawnPoint(entities);
@@ -81,14 +87,8 @@ int main(int argc, char **argv)
 					parser.WriteUChar(next_player_id);
 					parser.WriteUChar(END);
 
-					send->address.host = recieve->address.host;
-					send->address.port = recieve->address.port;
-					send->data = parser.Buffer();
-				    send->len = parser.BufferLength();
-
-
-					SDLNet_UDP_Send(sd, -1, send);
-	       			SDLNet_UDP_Bind(sd, next_player_id, &recieve->address);
+					network->SendData(parser.Buffer(), -1, parser.BufferLength());
+					network->Bind(next_player_id);
 
 					std::cout << "New Player Joined\n";
 					std::cout << "    id: " << next_player_id << '\n';
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 			else if (entity != NULL)
 			{
 				for (int i = 0; i < 4; i++)
-				    inputs[i] = recieve->data[i];
+				    inputs[i] = network->GetDataChar(i);
 					
 				if (entity->health > 0) {
 					entity->turn_left = inputs[0];
@@ -155,17 +155,19 @@ int main(int argc, char **argv)
 			{
 	            parser.WriteUChar(END);
 
-				send->address.host = recieve->address.host;
-				send->address.port = recieve->address.port;
-				send->data = parser.Buffer();
-			    send->len = parser.BufferLength();
+				// send->address.host = recieve->address.host;
+				// send->address.port = recieve->address.port;
+				// send->data = parser.Buffer();
+			 //    send->len = parser.BufferLength();
 				
 				for (int i = 0; i < entities.size(); i++)
 				{
 					Entity *entity = entities[i];
 					if (entity == NULL)
 						continue;
-					SDLNet_UDP_Send(sd, entity->id, send);
+					//SDLNet_UDP_Send(sd, entity->id, send);
+					network->SendData(parser.Buffer(), entity->id, parser.BufferLength());
+
 				}
 			}
 		}
@@ -189,16 +191,16 @@ int main(int argc, char **argv)
 					parser.WriteUChar(entities[i]->id);
 					parser.WriteUChar(END);
 
-					send->address.host = recieve->address.host;
-					send->address.port = recieve->address.port;
-					send->data = parser.Buffer();
-					send->len = parser.BufferLength();
+					// send->address.host = recieve->address.host;
+					// send->address.port = recieve->address.port;
+					// send->data = parser.Buffer();
+					// send->len = parser.BufferLength();
 					for (int n = 0; n < entities.size(); n++)
 					{
 						Entity *entity = entities[n];
 						if (entity == NULL)
 							continue;
-						SDLNet_UDP_Send(sd, entity->id, send);
+						network->SendData(parser.Buffer(), entity->id, parser.BufferLength());
 					}
 
 					taken_ids[entities[i]->id] = false;
@@ -217,8 +219,9 @@ int main(int argc, char **argv)
 	}
  
 	/* Clean and exit */
-	SDLNet_FreePacket(recieve);
-	SDLNet_FreePacket(send);
+	// SDLNet_FreePacket(recieve);
+	// SDLNet_FreePacket(send);
+	network->Close();
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
 }
@@ -239,28 +242,30 @@ void init()
 		exit(EXIT_FAILURE);
 	}
  
-	/* Open a socket */
-	if (!(sd = SDLNet_UDP_Open(server_port)))
-	{
-		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
+	network->InitServer();
+
+	// /* Open a socket */
+	// if (!(sd = SDLNet_UDP_Open(server_port)))
+	// {
+	// 	fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
+	// 	exit(EXIT_FAILURE);
+	// }
  
-	/* Make space for the packet */
-	if (!(recieve = SDLNet_AllocPacket(512)))
-	{
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
+	// /* Make space for the packet */
+	// if (!(recieve = SDLNet_AllocPacket(512)))
+	// {
+	// 	fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+	// 	exit(EXIT_FAILURE);
+	// }
  
-	/* Make space for the packet */
-	if (!(send = SDLNet_AllocPacket(512)))
-	{
-		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
+	// /* Make space for the packet */
+	// if (!(send = SDLNet_AllocPacket(512)))
+	// {
+	// 	fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
+	// 	exit(EXIT_FAILURE);
+	// }
  
-	std::cout << "Server listening on port " << server_port << '\n';
+	//std::cout << "Server listening on port " << server_port << '\n';
 
     Initialize_Trig_Table();
 }
