@@ -10,11 +10,6 @@
 #include "../Source/Entity.h"
 #include "../Source/Network.h"
 
-//UDPsocket sd;       /* Socket descriptor */
-// UDPpacket * recieve;       /* Pointer to packet memory */
-// UDPpacket * send;       /* Pointer to packet memory */
-//Uint16 server_port = 8080;
-
 Network* NetworkFactory::instance = NULL;
 NetworkType NetworkFactory::networkType = UNDEFINED;
 Network *network = NetworkFactory::getInstance();
@@ -23,9 +18,7 @@ void init();
 int get_next_free(std::bitset<32> &);
 inline void strcpy(unsigned char *dst, unsigned char *src, int size);
 inline void write_float(float value, unsigned char *buffer);
-
-enum NetworkEventType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
-		
+	
 const int ENTITY_STREAM_SIZE = 19;
 const int BULLET_STREAM_SIZE = 13;
 const int COLLISION_STREAM_SIZE = 13;
@@ -42,7 +35,7 @@ int main(int argc, char **argv)
 	int quit;
  
 	init();
-	Parser parser;
+	NetString netString;
     
 	/* Main loop */
 	quit = 0;
@@ -82,12 +75,12 @@ int main(int argc, char **argv)
 					entity->x = spawn_points[spawn_point][0];
 					entity->y = spawn_points[spawn_point][1];
 
-					parser.ClearBuffer();
-					parser.WriteUChar(NEW_PLAYER);
-					parser.WriteUChar(next_player_id);
-					parser.WriteUChar(END);
+					netString.ClearBuffer();
+					netString.WriteUChar(NCE_NEW_PLAYER);
+					netString.WriteUChar(next_player_id);
+					netString.WriteUChar(NCE_END);
 
-					network->SendData(parser.Buffer(), -1, parser.BufferLength());
+					network->SendData(netString.Buffer(), -1, netString.BufferLength());
 					network->Bind(next_player_id);
 
 					std::cout << "New Player Joined\n";
@@ -133,7 +126,7 @@ int main(int argc, char **argv)
 
 		if (entities.size() > 0)
 		{
-			parser.ClearBuffer();
+			netString.ClearBuffer();
 			for (int i = 0; i < entities.size(); i++)
 			{
 				Entity *entity = entities[i];
@@ -142,31 +135,25 @@ int main(int argc, char **argv)
 	                
 	            entity->Update();
 
-	            parser.WriteUChar(PLAYER);
-	            parser.WriteUChar(entity->id);
-	            parser.WriteFloat(entity->x);
-	            parser.WriteFloat(entity->y);
-	            parser.WriteFloat(entity->angle);
-	            parser.WriteFloat(entity->health);
-	            parser.WriteBool(entity->did_shoot);
+	            netString.WriteUChar(NCE_PLAYER);
+	            netString.WriteUChar(entity->id);
+	            netString.WriteFloat(entity->x);
+	            netString.WriteFloat(entity->y);
+	            netString.WriteFloat(entity->angle);
+	            netString.WriteFloat(entity->health);
+	            netString.WriteBool(entity->did_shoot);
 			}
 
-			if (parser.BufferLength() > 0)
+			if (netString.BufferLength() > 0)
 			{
-	            parser.WriteUChar(END);
+	            netString.WriteUChar(NCE_END);
 
-				// send->address.host = recieve->address.host;
-				// send->address.port = recieve->address.port;
-				// send->data = parser.Buffer();
-			 //    send->len = parser.BufferLength();
-				
 				for (int i = 0; i < entities.size(); i++)
 				{
 					Entity *entity = entities[i];
 					if (entity == NULL)
 						continue;
-					//SDLNet_UDP_Send(sd, entity->id, send);
-					network->SendData(parser.Buffer(), entity->id, parser.BufferLength());
+					network->SendData(netString.Buffer(), entity->id, netString.BufferLength());
 
 				}
 			}
@@ -186,21 +173,17 @@ int main(int argc, char **argv)
 				{
 					std::cout << "Kicking player " << entities[i]->id << " because of inactivity.\n";
 
-					parser.ClearBuffer();
-					parser.WriteUChar(REMOVE_PLAYER);
-					parser.WriteUChar(entities[i]->id);
-					parser.WriteUChar(END);
+					netString.ClearBuffer();
+					netString.WriteUChar(NCE_REMOVE_PLAYER);
+					netString.WriteUChar(entities[i]->id);
+					netString.WriteUChar(NCE_END);
 
-					// send->address.host = recieve->address.host;
-					// send->address.port = recieve->address.port;
-					// send->data = parser.Buffer();
-					// send->len = parser.BufferLength();
 					for (int n = 0; n < entities.size(); n++)
 					{
 						Entity *entity = entities[n];
 						if (entity == NULL)
 							continue;
-						network->SendData(parser.Buffer(), entity->id, parser.BufferLength());
+						network->SendData(netString.Buffer(), entity->id, netString.BufferLength());
 					}
 
 					taken_ids[entities[i]->id] = false;
@@ -218,9 +201,6 @@ int main(int argc, char **argv)
         Clock::Frame_Control.Update();
 	}
  
-	/* Clean and exit */
-	// SDLNet_FreePacket(recieve);
-	// SDLNet_FreePacket(send);
 	network->Close();
 	SDLNet_Quit();
 	return EXIT_SUCCESS;
@@ -243,29 +223,6 @@ void init()
 	}
  
 	network->InitServer();
-
-	// /* Open a socket */
-	// if (!(sd = SDLNet_UDP_Open(server_port)))
-	// {
-	// 	fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-	// 	exit(EXIT_FAILURE);
-	// }
- 
-	// /* Make space for the packet */
-	// if (!(recieve = SDLNet_AllocPacket(512)))
-	// {
-	// 	fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-	// 	exit(EXIT_FAILURE);
-	// }
- 
-	// /* Make space for the packet */
-	// if (!(send = SDLNet_AllocPacket(512)))
-	// {
-	// 	fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-	// 	exit(EXIT_FAILURE);
-	// }
- 
-	//std::cout << "Server listening on port " << server_port << '\n';
 
     Initialize_Trig_Table();
 }

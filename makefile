@@ -1,7 +1,8 @@
 CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
-build: Source/TextureManager.o Source/Texture.o Source/Text.o Source/Draw.o Source/Parser.o Source/Network.o
+
+build: Source/TextureManager.o Source/Texture.o Source/Text.o Source/Draw.o Source/NetString.o Source/Parser.o Source/Network.o
 
 ApplicationEvent.o: Source/ApplicationEvent
 
@@ -14,6 +15,8 @@ Text.o: Source/Text.cpp Source/Text.h
 Texture.o: Source/Texture.cpp Source/Texture.h
 
 Draw.o: Source/Draw.cpp Source/Draw.h
+
+NetString.o: Source/NetString.cpp Source/NetString.h
 
 Parser.o: Source/Parser.cpp Source/Parser.h
 

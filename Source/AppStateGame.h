@@ -21,9 +21,6 @@ Network* NetworkFactory::instance = NULL;
 NetworkType NetworkFactory::networkType = UNDEFINED;
 Network *network = NetworkFactory::getInstance();
 
-enum NetworkEventType { END, NEW_PLAYER, PLAYER, REMOVE_PLAYER, BULLET, COLLISION };
-
-
 class AppStateGame : public AppStateBase {
 private:
         static AppStateBase * instance;
@@ -100,24 +97,26 @@ void AppStateGame::Update() {
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
     while (network->ReceiveData()) {
-        Parser parser(network->GetData(), network->GetDataLength());
+        NetString netString(network->GetData(), network->GetDataLength());
 
         bool reading = true;
 
         while (reading)
         {
-	        NetworkEventType type;
+
+	        NetworkChunkEnums type;
             unsigned char temp;
-            if (!parser.ReadUChar(temp))
+            if (!netString.ReadUChar(temp))
                 break;
-            type = (NetworkEventType)temp;
+
+            type = (NetworkChunkEnums)temp;
 
             unsigned char team = 0;
             Ship * ship = NULL;
 
             switch (type) {
-                case NEW_PLAYER:
-                    parser.ReadUChar(team);
+                case NCE_NEW_PLAYER:
+                    netString.ReadUChar(team);
 
                     if (player == NULL)
                     {
@@ -132,9 +131,9 @@ void AppStateGame::Update() {
                     player_chat.Player_Joined(team);
                     break;
 
-                case PLAYER:
+                case NCE_PLAYER:
                     {
-                        parser.ReadUChar(team);
+                        netString.ReadUChar(team);
                         
 		                for (int i = 0; i < ships.size(); i++)
 		                {
@@ -155,12 +154,12 @@ void AppStateGame::Update() {
                     		player_chat.Player_Joined(team);
 			        	}
 
-                        parser.ReadFloat(ship->x);
-                        parser.ReadFloat(ship->y);
-                        parser.ReadFloat(ship->angle);
-                        parser.ReadFloat(ship->health);
+                        netString.ReadFloat(ship->x);
+                        netString.ReadFloat(ship->y);
+                        netString.ReadFloat(ship->angle);
+                        netString.ReadFloat(ship->health);
                         bool shot;
-                        parser.ReadBool(shot);
+                        netString.ReadBool(shot);
 
 	                    if (shot)
 	                    {
@@ -171,8 +170,8 @@ void AppStateGame::Update() {
 		                break;
 		            }
 
-	            case REMOVE_PLAYER:
-                    parser.ReadUChar(team);
+	            case NCE_REMOVE_PLAYER:
+                    netString.ReadUChar(team);
                     player_chat.Player_Disconnected(team);
 	                for (int i = 0; i < ships.size(); i++)
 	                {
@@ -193,7 +192,7 @@ void AppStateGame::Update() {
 	                	return;
 	                }
 
-	            case END:
+	            case NCE_END:
 	            	reading = false;
 	            	break;
 
