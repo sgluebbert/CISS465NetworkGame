@@ -72,7 +72,7 @@ public:
 
  	virtual int InitClient()
  	{
- 		Uint16 receive_port = 1235;
+ 		Uint16 receive_port = 0;
 
  		Init(receive_port);
 
@@ -99,7 +99,7 @@ public:
 
 		IPaddress client_address;
 		const char * client_ipaddress = NULL;
-		Uint32 client_port = 1235;
+		Uint32 client_port = 0;
 
 		if (SDLNet_ResolveHost(&client_address, client_ipaddress, client_port) == -1) 
 		{
