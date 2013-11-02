@@ -17,8 +17,6 @@
 #include "System.h"
 #include "Networking/Parser.h"
 
-Network* NetworkFactory::instance = NULL;
-NetworkType NetworkFactory::networkType = UNDEFINED;
 Network *network = NetworkFactory::getInstance();
 
 class AppStateGame : public AppStateBase {
@@ -75,7 +73,7 @@ void AppStateGame::Initialize() {
 	for (int i = 0; i < 4; i++)
 	    inputs[i] = 0;
 
-    if (network->InitClient() == -1)
+    if (network->Init() == -1)
     {
         AppStateEvent::New_Event(APPSTATE_MENU);
     }
@@ -91,13 +89,19 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-    
-    network->SendData(inputs, client_channel, 4);
+    NetString sendString;
+    sendString.WriteUChar(NCE_PLAYER_INPUT);
+    sendString.WriteBool(inputs[0]);
+    sendString.WriteBool(inputs[1]);
+    sendString.WriteBool(inputs[2]);
+    sendString.WriteBool(inputs[3]);
+    sendString.WriteUChar(NCE_END);
+    network->SendData(&sendString, client_channel);
 
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
     while (network->ReceiveData()) {
-        NetString netString(network->GetData(), network->GetDataLength());
+        NetString *netString = network->GetData();
 
         bool reading = true;
 
@@ -106,7 +110,7 @@ void AppStateGame::Update() {
 
 	        NetworkChunkEnums type;
             unsigned char temp;
-            if (!netString.ReadUChar(temp))
+            if (!netString->ReadUChar(temp))
                 break;
 
             type = (NetworkChunkEnums)temp;
@@ -116,7 +120,7 @@ void AppStateGame::Update() {
 
             switch (type) {
                 case NCE_NEW_PLAYER:
-                    netString.ReadUChar(team);
+                    netString->ReadUChar(team);
 
                     if (player == NULL)
                     {
@@ -133,7 +137,7 @@ void AppStateGame::Update() {
 
                 case NCE_PLAYER:
                     {
-                        netString.ReadUChar(team);
+                        netString->ReadUChar(team);
                         
 		                for (int i = 0; i < ships.size(); i++)
 		                {
@@ -154,12 +158,12 @@ void AppStateGame::Update() {
                     		player_chat.Player_Joined(team);
 			        	}
 
-                        netString.ReadFloat(ship->x);
-                        netString.ReadFloat(ship->y);
-                        netString.ReadFloat(ship->angle);
-                        netString.ReadFloat(ship->health);
+                        netString->ReadFloat(ship->x);
+                        netString->ReadFloat(ship->y);
+                        netString->ReadFloat(ship->angle);
+                        netString->ReadFloat(ship->health);
                         bool shot;
-                        netString.ReadBool(shot);
+                        netString->ReadBool(shot);
 
 	                    if (shot)
 	                    {
@@ -171,7 +175,7 @@ void AppStateGame::Update() {
 		            }
 
 	            case NCE_REMOVE_PLAYER:
-                    netString.ReadUChar(team);
+                    netString->ReadUChar(team);
                     player_chat.Player_Disconnected(team);
 	                for (int i = 0; i < ships.size(); i++)
 	                {
@@ -201,6 +205,8 @@ void AppStateGame::Update() {
                     break;
 	        }
 	    }
+
+        delete netString;
     }
 
     if (ships.size() > 0 && ships.front() == NULL) {

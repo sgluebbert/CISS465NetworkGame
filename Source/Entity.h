@@ -8,6 +8,7 @@
 #include <ctime>
 #include <deque>
 #include "Clock.h"
+#include "Networking/Parser.h"
 
 const int MAX_BULLETS = 5;
 
@@ -15,9 +16,12 @@ const float spawn_points[][2] = { {60, 60}, {ROOM_WIDTH - 60, ROOM_HEIGHT - 60},
                                   {60, ROOM_HEIGHT / 3}, {60, ROOM_HEIGHT * .75}, {ROOM_WIDTH / 3, ROOM_WIDTH - 60}, {ROOM_WIDTH * .75, ROOM_WIDTH - 60},
                                   {ROOM_HEIGHT - 60, ROOM_HEIGHT / 3}, {ROOM_HEIGHT - 60, ROOM_HEIGHT * .75} };
 
+class Entity;
+int GetSpawnPoint(std::deque<Entity*> &entities);
+
 class Entity {
 public:
-    Entity(Uint64, Uint32, int);
+    Entity(int);
     ~Entity();
     
     void TurnLeft(float);
@@ -26,14 +30,13 @@ public:
     void CalculateVelocity(float);
     void Move(float);
     void TryFire();
-    void Respawn();
+    void Respawn(std::deque<Entity*> &);
+    NetString *Serialize();
     
-    virtual void Update();
+    virtual void Update(std::deque<Entity*> &);
     
 //protected:
-    Uint64 ip;
-    Uint32 port;
-    time_t last_input, death_time;
+    time_t death_time;
     int id;
     float x, y;
     float dx, dy;
@@ -63,8 +66,8 @@ float Entity::respawn_time = 5.0;
 
 
 
-Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
-    : ip(_ip), port(_port), id(_id) {
+Entity::Entity(int _id)
+    : id(_id) {
     death_time = 0;
     x = 0.0;
     y = 0.0;
@@ -87,6 +90,29 @@ Entity::Entity(Uint64 _ip, Uint32 _port, int _id)
 }
 
 Entity::~Entity() {
+}
+
+void Entity::Respawn(std::deque<Entity*> &entities)
+{
+    int spawn_point = GetSpawnPoint(entities);
+    x = spawn_points[spawn_point][0];
+    y = spawn_points[spawn_point][1];
+    health = 100;
+    velocity = 0;
+    can_shoot = 0;
+    death_time = 0;
+}
+
+NetString *Entity::Serialize()
+{
+    NetString *string = new NetString();
+    string->WriteUChar(id);
+    string->WriteFloat(x);
+    string->WriteFloat(y);
+    string->WriteFloat(angle);
+    string->WriteFloat(health);
+    string->WriteBool(did_shoot);
+    return string;
 }
 
 void Entity::CalculateSpeed(float delta) {
@@ -127,7 +153,7 @@ void Entity::Move(float delta) {
     y -= dy * delta;
 }
 
-void Entity::Update() {
+void Entity::Update(std::deque<Entity*> &entities) {
     double delta = Clock::Frame_Control.Get_Time_Per_Frame();
     
     did_shoot = false;
@@ -173,6 +199,19 @@ void Entity::Update() {
 
     if (health < 0)
         health = 0;
+
+    if (health == 0)
+    {
+        if (death_time == 0)
+            time(&death_time);
+        else
+        {
+            time_t now;
+            time(&now);
+            if (now - death_time >= respawn_timer)
+                Respawn(entities);
+        }
+    }
 }
 
 void Entity::TryFire()

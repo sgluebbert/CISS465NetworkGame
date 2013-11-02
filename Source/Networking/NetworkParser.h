@@ -16,7 +16,7 @@ public:
 	NetworkParser()
 	{
 		std::string line;
-        std::ifstream config_file("../Source/conf/network.conf");
+        std::ifstream config_file("./conf/network.conf");
         if (config_file.is_open())
         {
         	while (std::getline(config_file, line))
@@ -71,30 +71,22 @@ public:
 		return map["NETWORK"];
 	}
 
-	const char * GetServerHost()
+	const char * GetHostAddress()
 	{
-		if (map["SERVER_HOST"] == "NULL")
+		if (map["HOST_ADDRESS"] == "NULL")
 			return NULL;
 
-		return map["SERVER_HOST"].c_str();
+		return map["HOST_ADDRESS"].c_str();
 	}
 
-	const char * GetClientHost()
+	Uint16 GetListenPort()
 	{
-		if (map["CLIENT_HOST"] == "NULL")
-			return NULL;
-
-		return map["CLIENT_HOST"].c_str();
+		return atoi(map["LISTEN_PORT"].c_str());
 	}
 
-	Uint16 GetServerPort()
+	Uint16 GetHostPort()
 	{
-		return atoi(map["SERVER_PORT"].c_str());
-	}
-
-	Uint16 GetClientPort()
-	{
-		return atoi(map["CLIENT_PORT"].c_str());
+		return atoi(map["HOST_PORT"].c_str());
 	}
 
 private:

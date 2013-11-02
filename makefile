@@ -2,7 +2,7 @@ CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 
-build: Source/TextureManager.o Source/Texture.o Source/Text.o Source/Draw.o Source/Networking/NetString.o Source/Networking/Parser.o Source/Networking/Network.o Source/Networking/NetworkParser.o
+build: Source/TextureManager.o Source/Texture.o Source/Text.o Source/Draw.o Source/Networking/NetString.o Source/Networking/Parser.o Source/Networking/Network.o Source/Networking/NetworkParser.o Source/Networking/Server.o
 
 ApplicationEvent.o: Source/ApplicationEvent
 
@@ -24,10 +24,13 @@ Network.o: Source/Networking/Network.cpp Source/Networking/Network.h
 
 NetworkParser.o: Source/Networking/NetworkParser.cpp Source/Networking/NetworkParser.h
 
+Server.o: Source/Networking/Server.cpp Source/Networking/Server.h
+
 clean:
 	rm -f client/a.out
 	rm -f server/a.out
 	rm -f Source/*.o
+	rm -f Source/Networking/*.o
 
 push:
 	make clean

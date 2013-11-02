@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include "NetworkParser.h"
+#include "Parser.h"
 
 class NetworkError{};
 
@@ -17,16 +18,14 @@ class Network
 
 public:
     virtual const char * get_type() const = 0;
-    virtual int Init(Uint16 receive_port) = 0;
-    virtual int InitClient() = 0;
-    virtual int InitServer() = 0;
+    virtual int Init() = 0;
 
     virtual void Close() = 0;
-    virtual void SendData(unsigned char * buffer, int id, int len) = 0;
+    virtual void SendData(NetString* stream, int id) = 0;
 	virtual int ReceiveData() = 0;
 	virtual void Bind(int next_player_id) = 0;
 	virtual char GetDataChar(int i) = 0;
-	virtual unsigned char * GetData() = 0;
+	virtual NetString *GetData() = 0;
 	virtual int GetDataLength() = 0;
 
 	virtual Uint32 GetRecvHost() = 0;
@@ -45,15 +44,19 @@ class UDPNetwork : public Network
 public:
     virtual const char * get_type() const { return "UDP"; }
  	
-    virtual int Init(Uint16 receive_port)
+    virtual int Init()
     {
-    	if (SDLNet_Init() < 0)
+
+		NetworkParser * networkParser = new NetworkParser();
+
+ 		Uint16 listen_port = networkParser->GetListenPort();
+		if (SDLNet_Init() < 0)
 		{
 			fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 			exit(EXIT_FAILURE);
 		}
 		
-    	if (!(_sd = SDLNet_UDP_Open(receive_port)))
+		if (!(_sd = SDLNet_UDP_Open(listen_port)))
 		{
 			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
 			exit(EXIT_FAILURE);
@@ -71,52 +74,20 @@ public:
 			exit(EXIT_FAILURE);
 		}
 
+ 		IPaddress host_address;
+		const char * host_ipaddress = networkParser->GetHostAddress();
+		Uint32 host_port = networkParser->GetHostPort();
+
+		if (SDLNet_ResolveHost(&host_address, host_ipaddress, host_port) == -1) 
+		{
+			fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", host_port, SDLNet_GetError());
+			return -1;
+		}
+
+		_receive->address.host = host_address.host;
+		_receive->address.port = host_address.port;
+
 		return 1;
-    }
-
- 	virtual int InitClient()
- 	{
- 		NetworkParser * networkParser = new NetworkParser();
-
- 		Uint16 receive_port = networkParser->GetClientPort(); 				// 0
- 		Init(receive_port);
-
-
- 		IPaddress server_address;
-		const char * server_ipaddress = networkParser->GetServerHost(); 	// localhost
-		Uint32 server_port = networkParser->GetServerPort(); 				//1236
-
-		if (SDLNet_ResolveHost(&server_address, server_ipaddress, server_port) == -1) 
-		{
-			fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", server_port, SDLNet_GetError());
-			return -1;
-		}
-
-		_receive->address.host = server_address.host;
-		_receive->address.port = server_address.port;
-
- 	}
-
-    virtual int InitServer()
-    {
-    	NetworkParser * networkParser = new NetworkParser();
-
-    	Uint16 receive_port = networkParser->GetServerPort(); 				// 1236
-		Init(receive_port);
-
-		IPaddress client_address;
-		const char * client_ipaddress = networkParser->GetClientHost(); 	// NULL
-		Uint32 client_port = networkParser->GetClientPort(); 				// 0
-
-		if (SDLNet_ResolveHost(&client_address, client_ipaddress, client_port) == -1) 
-		{
-			fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", client_port, SDLNet_GetError());
-			return -1;
-		}
-
-		_receive->address.host = client_address.host;
-		_receive->address.port = client_address.port;
-
     }
 
     virtual void Close()
@@ -126,7 +97,7 @@ public:
 		SDLNet_Quit();
     }
 
- 	virtual void SendData(unsigned char * buffer, int id, int len)
+ 	virtual void SendData(NetString* stream, int id)
  	{
  		if (id == -1)
  		{
@@ -134,8 +105,8 @@ public:
     		_send->address.port = _receive->address.port;	/* And destination port */
  		}
  		
-		_send->data = buffer;
-		_send->len = len;
+		_send->data = stream->Buffer();
+		_send->len = stream->BufferLength();
 
 		SDLNet_UDP_Send(_sd, id, _send);
  	}
@@ -155,9 +126,9 @@ public:
 		return _receive->data[i];
 	}
 	
-	virtual unsigned char * GetData()
+	virtual NetString * GetData()
 	{
-		return _receive->data;
+		return new NetString(_receive->data, _receive->len);
 	}
 
 	virtual int GetDataLength()
@@ -187,18 +158,8 @@ class TCPNetwork : public Network
 
 public:
     virtual const char * get_type() const { return "TCP"; }
- 	
- 	virtual int InitServer()
- 	{
 
- 	}
-
- 	virtual int InitClient()
- 	{
-
- 	}
-
-    virtual int Init(Uint16 receive_port)
+    virtual int Init()
     {
   		// TODO: IMPLEMENT THIS
     }
@@ -209,7 +170,7 @@ public:
 		// SDLNet_Quit();
     }
 
-    virtual void SendData(unsigned char * buffer, int id, int len)
+    virtual void SendData(NetString* stream, int id)
  	{
  		//SDLNet_TCP_Send(_sd, buffer, len);
  	}
@@ -234,7 +195,7 @@ public:
 		// return _receive[i];
 	}
 
-	virtual unsigned char * GetData()
+	virtual NetString * GetData()
 	{
 		// return _receive;
 	}
