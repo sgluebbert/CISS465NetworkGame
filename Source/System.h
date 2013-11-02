@@ -8,7 +8,7 @@
 #include "Pallete.h"
 #include "SoundManager.h"
 #include "TextureManager.h"
-#include "Network.h"
+#include "Networking/Network.h"
 
 /*DEFAULT VARIABLES*/
 static const double DEFAULT_FPS_LIMIT = 30.0;

@@ -5,6 +5,8 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <SDL.h>
+#include <SDL_net.h>
 
 class NetworkParser
 {

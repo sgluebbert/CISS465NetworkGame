@@ -6,9 +6,9 @@
 #include <deque>
 #include <bitset>
  
-#include "../Source/Parser.h"
+#include "../Source/Networking/Parser.h"
 #include "../Source/Entity.h"
-#include "../Source/Network.h"
+#include "../Source/Networking/Network.h"
 
 Network* NetworkFactory::instance = NULL;
 NetworkType NetworkFactory::networkType = UNDEFINED;
@@ -215,13 +215,6 @@ inline void write_float(float value, unsigned char *buffer)
 
 void init()
 {
-	/* Initialize SDL_net */
-	if (SDLNet_Init() < 0)
-	{
-		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
-	}
- 
 	network->InitServer();
 
     Initialize_Trig_Table();

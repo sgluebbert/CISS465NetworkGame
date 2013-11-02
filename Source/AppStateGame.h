@@ -15,7 +15,7 @@
 #include "Health_Bar.h"
 #include "Radar.h"
 #include "System.h"
-#include "Parser.h"
+#include "Networking/Parser.h"
 
 Network* NetworkFactory::instance = NULL;
 NetworkType NetworkFactory::networkType = UNDEFINED;

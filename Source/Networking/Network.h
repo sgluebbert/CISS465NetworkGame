@@ -4,8 +4,6 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <SDL.h>
-#include <SDL_net.h>
 #include "NetworkParser.h"
 
 class NetworkError{};
@@ -49,6 +47,12 @@ public:
  	
     virtual int Init(Uint16 receive_port)
     {
+    	if (SDLNet_Init() < 0)
+		{
+			fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+			exit(EXIT_FAILURE);
+		}
+		
     	if (!(_sd = SDLNet_UDP_Open(receive_port)))
 		{
 			fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
