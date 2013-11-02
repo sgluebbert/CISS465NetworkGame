@@ -6,7 +6,7 @@
 #include <fstream>
 #include <SDL.h>
 #include <SDL_net.h>
-
+#include "NetworkParser.h"
 
 class NetworkError{};
 
@@ -72,13 +72,15 @@ public:
 
  	virtual int InitClient()
  	{
- 		Uint16 receive_port = 0;
+ 		NetworkParser * networkParser = new NetworkParser();
 
+ 		Uint16 receive_port = networkParser->GetClientPort(); 				// 0
  		Init(receive_port);
 
+
  		IPaddress server_address;
-		const char * server_ipaddress = "localhost";
-		Uint32 server_port = 1236;
+		const char * server_ipaddress = networkParser->GetServerHost(); 	// localhost
+		Uint32 server_port = networkParser->GetServerPort(); 				//1236
 
 		if (SDLNet_ResolveHost(&server_address, server_ipaddress, server_port) == -1) 
 		{
@@ -93,13 +95,14 @@ public:
 
     virtual int InitServer()
     {
-    	Uint16 receive_port = 1236;
+    	NetworkParser * networkParser = new NetworkParser();
+
+    	Uint16 receive_port = networkParser->GetServerPort(); 				// 1236
 		Init(receive_port);
 
-
 		IPaddress client_address;
-		const char * client_ipaddress = NULL;
-		Uint32 client_port = 0;
+		const char * client_ipaddress = networkParser->GetClientHost(); 	// NULL
+		Uint32 client_port = networkParser->GetClientPort(); 				// 0
 
 		if (SDLNet_ResolveHost(&client_address, client_ipaddress, client_port) == -1) 
 		{
@@ -293,12 +296,11 @@ private:
 
     static void ChooseConnectionType()
     {
-        std::string text;
-        std::ifstream config_file("../Source/conf/network.conf");
-        if (config_file.is_open())
-            std::getline(config_file, text);
+    	NetworkParser * networkParser = new NetworkParser();
 
-        config_file.close();
+    	std::string text = networkParser->GetNetworkType();
+
+    	std::cout << "Connecting Via: " << text << std::endl;
 
         if (text == "UDP") 
         {
