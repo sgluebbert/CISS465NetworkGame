@@ -1,8 +1,9 @@
 #include "Server.h"
 
 Server::Server(DebugLevel l)
-	: debugLevel(l), checkForInactivity(1)
+	: debugLevel(l), checkForInactivity(1), frameCount(0), clientCount(0)
 {
+	time(&lastSpeedDisplay);
 	network = NetworkFactory::getInstance();
 	network->Init();
 
@@ -11,7 +12,7 @@ Server::Server(DebugLevel l)
 		clientList[i] = NULL;
 	}
 
-	std::cout << "\n[ Server Started ] " << CurrentDateTime() << "\n";
+	std::cout << "[ Server Started ] " << CurrentDateTime() << "\n";
 }
 
 Server::~Server()
@@ -49,6 +50,7 @@ std::vector<int> Server::HandleIncomingData()
 				usedChannels[nextChannel] = true;
 				client = new ServerClient(network->GetRecvHost(), network->GetRecvPort(), nextChannel);
 				clients.push_back(client);
+				clientCount++;
 				clientList[nextChannel] = client;
 				time(&client->lastInput);
 				newServerClients.push_back(nextChannel);
@@ -63,7 +65,7 @@ std::vector<int> Server::HandleIncomingData()
 
 				if (debugLevel > DL_NONE)
 				{
-					std::cout << "\n[ New Client Accepted ] " << CurrentDateTime() << "\nChannel: " << nextChannel << "\n";
+					std::cout << "[ New Client Accepted ] " << CurrentDateTime() << " >>> Channel: " << nextChannel << "\n";
 				}
 			}
 			else
@@ -75,7 +77,7 @@ std::vector<int> Server::HandleIncomingData()
 				network->SendData(&netString, -1);
 				if (debugLevel > DL_NONE)
 				{
-					std::cout << "\n[ New Client Rejected ] " << CurrentDateTime() << "\nToo many connections.\n";
+					std::cout << "[ New Client Rejected ] " << CurrentDateTime() << " >>> Too many connections.\n";
 				}
 			}
 		}
@@ -89,6 +91,9 @@ std::vector<int> Server::HandleIncomingData()
 		}
 	}
 
+	if (debugLevel > DL_LOW)
+		CheckSpeed();
+
 	return newServerClients;
 }
 
@@ -96,11 +101,6 @@ std::bitset<MaximumClients> Server::CleanupClients()
 {
 	std::bitset<MaximumClients> cleanedUpClients;
 	cleanedUpClients.reset();
-
-	if (clients.size() > 0 && clients.front() == NULL)
-		clients.pop_front();
-	if (clients.size() > 0 && clients.back() == NULL)
-		clients.pop_back();
 
 	// Check for inactive clients
 	if (checkForInactivity-- == 0)
@@ -123,13 +123,14 @@ std::bitset<MaximumClients> Server::CleanupClients()
 				clientList[client->channel] = NULL;
 				clients[i] = NULL;
 				usedChannels[client->channel] = false;
+				clientCount--;
 
 				string.WriteUChar(NCE_REMOVE_PLAYER);
 				string.WriteUChar((unsigned char)client->channel);
 
 				if (debugLevel > DL_NONE)
 				{
-					std::cout << "\n[ Client Timed Out ] " << CurrentDateTime() << "\nChannel: " << client->channel << "\n";
+					std::cout << "[ Client Timed Out ] " << CurrentDateTime() << " >>> Channel: " << client->channel << "\n";
 				}
 
 				delete client;
@@ -142,6 +143,11 @@ std::bitset<MaximumClients> Server::CleanupClients()
 			SendToAll(&string);
 		}
 	}
+
+	if (clients.size() > 0 && clients.front() == NULL)
+		clients.pop_front();
+	if (clients.size() > 0 && clients.back() == NULL)
+		clients.pop_back();
 
 	return cleanedUpClients;
 }
@@ -160,7 +166,22 @@ void Server::SendToAll(NetString *string)
 
 	if (debugLevel > DL_MED)
 	{
-		std::cout << "\n[ Message Sent To All Clients ] " << CurrentDateTime() << "\n" << *string << "\n";
+		std::cout << "[ Message Sent To All Clients ] " << CurrentDateTime() << " >>> " << *string << "\n";
+	}
+}
+
+void Server::CheckSpeed()
+{
+	frameCount++;
+
+	const float timespan = 2;
+	time_t now;
+	time(&now);
+	if (now - lastSpeedDisplay >= timespan)
+	{
+		time(&lastSpeedDisplay);
+		std::cout << "[ Server Speed ] " << CurrentDateTime() << " >>> Clients: " << clientCount << "; Frames Per Second: " << frameCount / timespan << "\n";
+		frameCount = 0;
 	}
 }
 

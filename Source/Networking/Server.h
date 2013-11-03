@@ -38,8 +38,13 @@ struct Server
 
 private:
 	int GetNextChannel();
-	int checkForInactivity;
 
+	void CheckSpeed();
+	int frameCount;
+	time_t lastSpeedDisplay;
+
+	int clientCount;
+	int checkForInactivity;
 	DebugLevel debugLevel;
 	std::deque<ServerClient *> clients;
 	std::bitset<MaximumClients> usedChannels;
