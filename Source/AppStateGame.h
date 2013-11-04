@@ -100,14 +100,13 @@ void AppStateGame::Update() {
 
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
-    while (network->ReceiveData()) {
+    while (network->ReceiveData() != -1) {
         NetString *netString = network->GetData();
 
         bool reading = true;
 
         while (reading)
         {
-
 	        NetworkChunkEnums type;
             unsigned char temp;
             if (!netString->ReadUChar(temp))
@@ -125,7 +124,6 @@ void AppStateGame::Update() {
                     if (player == NULL)
                     {
                         client_channel = team;
-                        std::cout << "New Channel: " << (int)team << '\n';
                         network->Bind(team);
 
                         player = new Ship(team);
@@ -205,8 +203,6 @@ void AppStateGame::Update() {
                     break;
 	        }
 	    }
-
-        delete netString;
     }
 
     if (ships.size() > 0 && ships.front() == NULL) {

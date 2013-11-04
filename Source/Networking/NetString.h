@@ -10,8 +10,10 @@ struct NetString
 {
 	NetString();
 	NetString(unsigned char *buf, int length);
+	~NetString();
 
 	void ClearBuffer();
+	bool AddUChars(unsigned char *buf, int length);
 
 	// These functions return true if it was able to read or write
 	bool WriteBool(bool);

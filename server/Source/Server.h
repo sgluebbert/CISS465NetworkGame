@@ -1,26 +1,22 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "Network.h"
+#include "../../Source/Networking/Network.h"
 #include <ctime>
 #include <vector>
 #include <deque>
 #include <bitset>
 #include <string>
 
-const int MaximumClients = 32;
-
 struct ServerClient
 {
-	ServerClient(Uint64 _ip, Uint32 _port, int _channel = -1)
-		: ip(_ip), port(_port), lastInput(0), channel(_channel)
+	ServerClient(int _id = -1)
+		: id(_id)
 	{
 		inputs[0] = 0; inputs[1] = 0; inputs[2] = 0; inputs[3] = 0;
 	}
-	Uint64 ip;
-	Uint32 port;
 	time_t lastInput;
-	int channel;
+	int id;
 	bool inputs[4];
 };
 
@@ -37,8 +33,6 @@ struct Server
 	ServerClient* clientList[MaximumClients];
 
 private:
-	int GetNextChannel();
-
 	void CheckSpeed();
 	int frameCount;
 	time_t lastSpeedDisplay;
@@ -46,8 +40,7 @@ private:
 	int clientCount;
 	int checkForInactivity;
 	DebugLevel debugLevel;
-	std::deque<ServerClient *> clients;
-	std::bitset<MaximumClients> usedChannels;
+	std::vector<int> removedClients;
 	Network *network;
 };
 

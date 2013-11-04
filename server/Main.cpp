@@ -7,7 +7,7 @@
 #include <bitset>
  
 #include "../Source/Entity.h"
-#include "../Source/Networking/Server.h"
+#include "./Source/Server.h"
 
 void init();
 
