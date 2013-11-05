@@ -15,7 +15,6 @@ void TextureManager::Load()
 {
 	fonts.init();
 
-	test 					= new Texture("./Art/Untitled.bmp");
 	bullet 					= new Texture("./Art/PPC_Shot.png");
 	smoke 					= new Texture("./Art/smoke.png");
 	ship 					= new Texture("./Art/ship01.png");

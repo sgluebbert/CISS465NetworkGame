@@ -3,233 +3,163 @@
 
 
 
-#include <SDL.h>
-
-#include "Bullet_List.h"
-#include "System.h"
-#include "Timer.h"
+#include "Particle_Emitter.h"
+#include "Texture.h"
 
 
 
-class Ship {
+enum Ship_State {	ALIVE, DYING, DEAD	};
+
+
+
+class Ship : public Entity {
 public:
-    Ship(int);
-    ~Ship();
-    
-    void SetTexture(Texture *, float, float);
 
-    SDL_Rect Get_Bounding_Box();
-    
-    void TurnLeft(float);
-    void TurnRight(float);
-    void CalculateSpeed(float);
-    void CalculateVelocity(float);
-    void Move(float);
-    void TryFire();
-    bool Deserialize(NetString *string);
+    void Set_Texture(Texture *, float, float);
 
-    void Take_Damage(float);
-    float Get_Health();
-    void Respawn();
-    
-    virtual void Draw();
-    virtual void Update();
-    
+	void Fire(int);
+
+	void Update(double);
+	void Draw();
+
 //protected:
     Texture * texture;
-    Uint64 ip;
-    Uint32 port;
-    time_t last_input, death_time;
-    
-    int id;
-    float x, y;
-    float dx, dy;
-    float width, height;
-    
-    float turn_rate;
-    float angle;
-    
-    float throttle;
-    float max_velocity;
-    float velocity;
-    float acceleration;
-    float deceleration;
-    bool move_forward, turn_left, turn_right, shoot, did_shoot;
-    int can_shoot, reload_rate;
-    float health, max_health;
+    Particle_Emitter smoke_emitter;
+    Particle_Emitter explosion_emitter;
 
-    float respawn_timer;
-    static float respawn_time;
+    Ship_State state;
+
+	double max_health, max_shields, max_armor, max_power;
+	double health, shields, armor, power;
+	double capture_modifier; //Affects the rate defined by the planet
+	//Weapons * weapon_pool;
+
+	const static int NUMBER_OF_WEAPONS = 4;
 };
 
 
 
-Ship::Ship(int _id) 
-    : id(_id) {
-    texture = NULL;
-    x = 0.0;
-    y = 0.0;
-    dx = 0.0;
-    dy = 0.0;
-    width = 0.0;
-    height = 0.0;
-    angle = 0.0;
-    turn_rate = 0.0;
-    throttle = 0.0;
-    velocity = 0.0;
-    acceleration = 0.0;
-    deceleration = 0.0;
-    move_forward = turn_left = turn_right = shoot = false;
-    can_shoot = 0;
-    reload_rate = 20;
-    health = max_health = 100;
-}
+class Interceptor : public Ship {
+public:
+	Interceptor(double _x, double _y) {
+		//Entity Variables
+		x = _x;
+		y = _y;
+		angle = 0.0;
+		mass = 30.0;
 
-Ship::~Ship() {
-}
+		//Dynamic Entity Variables
+	    max_velocity = 40.0;
+	    reverse_modifier = 0.5;
+	    turn_rate = 50.0;
 
-void Ship::SetTexture(Texture * tex, float new_width, float new_height) {
-    texture = tex;
-    width = new_width;
-    height = new_height;
-}
+		//Ship Variables
+    	texture = NULL;
+		state = ALIVE;
 
-bool Ship::Deserialize(NetString *string)
-{
-    if (!string->ReadFloat(x)) return false;
-    if (!string->ReadFloat(y)) return false;
-    if (!string->ReadFloat(angle)) return false;
-    if (!string->ReadFloat(health)) return false;
-    bool shot;
-    if (!string->ReadBool(shot)) return false;
+		max_health = max_shields = health = shields = 75.0;
+		max_armor = max_power = armor = power = 100.0;
+		capture_modifier = 4.0 / 3.0;
 
-    if (shot)
-    {
-        Bullet_List *bullet_list = Bullet_List::getInstance();
-        int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
-        int offset_y = -20 * TRIG_TABLE[int(angle / 5.0)][0];
-        bullet_list->AddBullet(id, x + offset_x, y + offset_y, velocity + 120, angle);
-    }
-    return true;
-}
+		//Set Important Variables
+		Set_Texture(surface_manager->ship, 64, 64);
+	}
 
-SDL_Rect Ship::Get_Bounding_Box() {
-    SDL_Rect temp;
+private:
+};
 
-    temp.x = x;
-    temp.y = y;
-    temp.w = width;
-    temp.h = height;
 
-    return temp;
-}
 
-void Ship::Draw() {
-    if (texture == NULL)
-        return;
-    if (health <= 0)
-        return;
+class Fighter : public Ship {
+public:
+	Fighter(double _x, double _y) {
+		//Entity Variables
+		x = _x;
+		y = _y;
+		angle = 0.0;
+		mass = 40.0;
 
-    texture->DrawCentered(x, y, -angle, 48);
-}
+		//Dynamic Entity Variables
+	    max_velocity = 30.0;
+	    reverse_modifier = 0.5;
+	    turn_rate = 40.0;
 
-void Ship::CalculateSpeed(float delta) {
-    // dx = velocity * TRIG_TABLE[int(angle / 5.0)][1];
-    // dy = velocity * TRIG_TABLE[int(angle / 5.0)][0];
-}
+		//Ship Variables
+    	texture = NULL;
+		state = ALIVE;
 
-void Ship::CalculateVelocity(float delta) {
-    // float tempA = acceleration * delta;
-    // float tempD = deceleration * delta;
-    
-    // if (velocity > max_velocity * throttle) {
-    //     velocity -= tempD;
-        
-    //     if (velocity < max_velocity * throttle)
-    //         velocity = max_velocity * throttle;
-    // }
-    // else if (velocity < max_velocity * throttle) {
-    //     velocity += tempA;
-        
-    //     if (velocity > max_velocity * throttle)
-    //         velocity = max_velocity * throttle;
-    // }
-}
+		max_health = max_shields = health = shields = 100.0;
+		max_armor = max_power = armor = power = 100.0;
+		capture_modifier = 1.0;
 
-void Ship::TurnLeft(float delta) {
-    // angle += turn_rate * delta;
-    // if (angle >= 360) angle = angle - 360;
-}
+		//Set Important Variables
+		Set_Texture(surface_manager->ship, 64, 64);
+	}
 
-void Ship::TurnRight(float delta) {
-    // angle -= turn_rate * delta;
-    // if (angle < 0) angle = 360 + angle;
-}
+private:
+};
 
-void Ship::Move(float delta) {
-    // x += dx * delta;
-    // y -= dy * delta;
-}
 
-void Ship::Update() {
-    // float delta = Timer::Frame_Control.Get_Time_Per_Frame();
-    
-    // if (move_forward)
-    //     throttle = 1;
-    // else
-    //     throttle = 0;
 
-    // if (turn_left)
-    //     TurnLeft(delta);
-    // if (turn_right)
-    //     TurnRight(delta);
+class Frigate : public Ship {
+public: 
+	Frigate(double _x, double _y) {
+		//Entity Variables
+		x = _x;
+		y = _y;
+		angle = 0.0;
+		mass = 50.0;
 
-    // CalculateVelocity(delta);
-    // CalculateSpeed(delta);
-    // Move(delta);
+		//Dynamic Entity Variables
+	    max_velocity = 22.5;
+	    reverse_modifier = 0.5;
+	    turn_rate = 30.0;
 
-    if (health <= 0)
-        return;
+		//Ship Variables
+    	texture = NULL;
+		state = ALIVE;
 
-    Bullet_List *bullet_list = Bullet_List::getInstance();
-    for (int i = 0; i < bullet_list->bullets.size(); i++)
-    {
-        Bullet *bullet = bullet_list->bullets[i];
-        if (bullet == NULL || bullet->team == id)
-            continue;
+		max_health = max_shields = health = shields = 400.0 / 3.0;
+		max_armor = max_power = armor = power = 100.0;
+		capture_modifier = 0.75;
 
-        if (point_in_rect(bullet->x, bullet->y, x - width / 3, y - height / 3, x + width / 3, y + height / 3))
-        {
-            delete bullet;
-            bullet_list->bullets[i] = NULL;
-        }
-    }
+		//Set Important Variables
+		Set_Texture(surface_manager->ship, 64, 64);
+	}
 
-    // if (can_shoot > 0)
-    // 	can_shoot--;
-    // if (shoot)
-    // 	TryFire();
-}
+private:
+};
 
-void Ship::TryFire()
-{
-	// if (can_shoot == 0) {
-	//     //Bullet_List * bullet_list = Bullet_List::getInstance();
 
-	//     int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
- //    	    int offset_y = 20 * TRIG_TABLE[int(angle / 5.0)][0];
-	//     //bullet_list->AddBullet(x + offset_x, y - offset_y, velocity + 100, angle);
-	//     can_shoot = reload_rate;
-	// }
-}
 
-void Ship::Take_Damage(float damage) {
-    // health -= damage;
-}
+class Bomber : public Ship {
+public:
+	Bomber(double _x, double _y) {
+		//Entity Variables
+		x = _x;
+		y = _y;
+		angle = 0.0;
+		mass = 40.0;
 
-float Ship::Get_Health() {
-    return health / max_health;
-}
+		//Dynamic Entity Variables
+	    max_velocity = 30.0;
+	    reverse_modifier = 0.5;
+	    turn_rate = 40.0;
+
+		//Ship Variables
+    	texture = NULL;
+		state = ALIVE;
+
+		max_health = max_shields = health = shields = 75.0;
+		max_armor = max_power = armor = power = 400.0 / 3.0;
+		capture_modifier = 1.0;
+
+		//Set Important Variables
+		Set_Texture(surface_manager->ship, 64, 64);
+	}
+
+private:
+};
 
 
 

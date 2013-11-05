@@ -1,31 +1,26 @@
-#ifndef APPSTATEGAME_H
-#define APPSTATEGAME_H
+#ifndef APPSTATETEST_H
+#define APPSTATETEST_H
 
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <sstream>
-#include <deque>
 
 #include "AppStateBase.h"
 #include "Camera.h"
+#include "Client.h"
 #include "System.h"
-#include "Parser.h"
 
 
 
-class AppStateGame : public AppStateBase {
+class AppStateTest : public AppStateBase {
 private:
         static AppStateBase * instance;
-        AppStateGame();
+        AppStateTest();
         
         Texture * background_texture;
         Rect<double> background_rect;
         
         static const char * MUSIC_FILENAME;
-
-	int client_channel;
+        
+        Client player;
 public:
  
         void Initialize();

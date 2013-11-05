@@ -1,40 +1,38 @@
-#ifndef BC_H
-#define BC_H
+#ifndef CIRCLE_H
+#define CIRCLE_H
 
 
 
-#include "BV.h"
+#include <iostream>
 
 
 
-class BC : public BV {
+template <class T>
+class Circle {
 public:
-	double x, y, r;
+	T x, y, r;
 
-
-
-	BC()
+	Circle()
 		: x(0), y(0), r(0) {}
 
-	BC(double _x, double _y, double _r)
+	Circle(T _x, T _y, T _r)
 		: x(_x), y(_y), r(_r) {}
 
 
 
-	void Update(double dt, double _x, double _y) {
+	void Update(double dt, T _x, T _y) {
 		x = _x;
 		y = _y;
 	}
 
 	void Draw() {
 	}
-
-private:	
 };
 
 
 
-std::ostream & operator<<(std::ostream & cout, const BC & rhs) {
+template <class T>
+std::ostream & operator<<(std::ostream & cout, const Circle<T> & rhs) {
     std::cout << "Position: [" << rhs.x << ", " << rhs.y << "]\t";
     std::cout << "Radius: " << rhs.r << std::endl;
 

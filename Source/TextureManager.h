@@ -27,7 +27,6 @@ class TextureManager {
 public:
 	static TextureManager * GetInstance();
 
-	Texture * test;
 	Texture * bullet;
 	Texture * smoke;
 	Texture * ship;

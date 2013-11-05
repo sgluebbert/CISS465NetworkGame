@@ -11,12 +11,6 @@ NetString::NetString(unsigned char *buf, int length)
 {
 }
 
-NetString::~NetString()
-{
-	if (buffer != NULL)
-		delete [] buffer;	
-}
-
 void NetString::ClearBuffer()
 {
 	if (buffer != NULL)
@@ -27,23 +21,6 @@ void NetString::ClearBuffer()
 
 	bufferLength = 0;
 	bufferIndex = 0;
-}
-
-bool NetString::AddUChars(unsigned char *buf, int length)
-{
-	int temp = bufferIndex;
-
-	for (int i = 0; i < length; ++i)
-	{
-		if (!WriteUChar(buf[i]))
-		{
-			bufferIndex = temp;
-			return false;
-		}
-	}
-
-	bufferIndex = temp;
-	return true;
 }
 
 bool NetString::WriteBool(bool value)

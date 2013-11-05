@@ -3,11 +3,14 @@
 
 
 
+#include <SDL.h>
+#include <iostream>
+
+
+
 template <class T>
 struct Rect {
 	T x, y, w, h;
-
-
 
 	Rect()
 		: x(0), y(0), w(0), h(0) {}
@@ -27,7 +30,14 @@ struct Rect {
 		}
 	}
 
-	
+	Rect & operator=(SDL_Rect & other) {
+		x = other.x;
+		y = other.y;
+		w = other.w;
+		h = other.h;
+	}
+
+
 
 	bool Intersects(const Rect<T> & rhs) const {
 		return Intersects_Horizontally(rhs) && Intersects_Vertically(rhs);
@@ -39,16 +49,26 @@ struct Rect {
 	}
 
 	bool Within(const Rect<T> & rhs) const {
-	    return (rhs->x >= x &&
-	            rhs->x + rhs->w <= x + w &&
-	            rhs->y >= y &&
-	            rhs->y + rhs->h <= y + h);
+	    return (rhs.x >= x &&
+	            rhs.x + rhs.w <= x + w &&
+	            rhs.y >= y &&
+	            rhs.y + rhs.h <= y + h);
 	}
 
 
 
+	void Update(double dt, T _x, T _y, T _w, T _h) {
+		x = _x;
+		y = _y;
+		w = _w;
+		h = _h;
+	}
+
+	void Draw() {
+	}
+
 private:
-    bool Intersects_Horizontally(const Rect<T> & rhs) const {
+	bool Intersects_Horizontally(const Rect<T> & rhs) const {
 	    if (x >= rhs->x &&
 	        x <= rhs->x + rhs->w)
 	        return true;
@@ -60,7 +80,7 @@ private:
 	    return false;
 	}
 
-    bool Intersects_Vertically(const Rect<T> & rhs) const {
+	bool Intersects_Vertically(const Rect<T> & rhs) const {
 	    if (y >= rhs->y &&
 	        y <= rhs->y + rhs->h)
 	        return true;
@@ -71,6 +91,7 @@ private:
 
 	    return false;
 	}
+
 };
 
 

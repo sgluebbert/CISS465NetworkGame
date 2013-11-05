@@ -1,11 +1,15 @@
 #ifndef APPSTATEBASE_H
 #define APPSTATEBASE_H
 
+
+
 #include <SDL.h>
 
 #include "AppStateEvent.h"
 #include "EventHandler.h"
  
+
+
 class AppStateBase : public EventHandler {
 public:
     AppStateBase();
@@ -18,10 +22,6 @@ public:
     virtual void Cleanup() = 0;
 };
 
-AppStateBase::AppStateBase() {
-}
 
-AppStateBase::~AppStateBase() {
-}
 
 #endif

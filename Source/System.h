@@ -1,14 +1,17 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+
+
 #include <string>
 #include <cmath>
 
 #include "SDL_net.h"
-#include "Pallete.h"
-// #include "SoundManager.h"
+#include "SoundManager.h"
 #include "TextureManager.h"
-#include "Networking/Network.h"
+#include "Network.h"
+
+
 
 /*DEFAULT VARIABLES*/
 static const double DEFAULT_FPS_LIMIT = 30.0;
@@ -29,6 +32,8 @@ static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
+static Network * network = NULL;
+
 // static UDPsocket socket;
 // static UDPpacket * recieve;
 // static UDPpacket * send;
@@ -40,20 +45,18 @@ static double TRIG_TABLE[72][2];
 // NetworkType NetworkFactory::networkType = UNDEFINED;
 // Network *network = NetworkFactory::getInstance();
 
-// static Sound_Manager * sound_manager;
+static Sound_Manager * sound_manager;
 
-const int ROOM_WIDTH = 2000;
-const int ROOM_HEIGHT = 2000;
+static const int ROOM_WIDTH = 2000;
+static const int ROOM_HEIGHT = 2000;
 
 
 
 /*System Functions*/
-static void Reset_Window(SDL_Rect);
-
-static bool Initialize_SDL();
-static bool Initialize_SDL_Modules();
+//static bool Initialize_SDL();
+//static bool Initialize_SDL_Modules();
 static void Initialize_Managers();
-static bool Initialize_UDP_Network();
+//static bool Initialize_UDP_Network();
 
 static void Initialize_Trig_Table();
 static void Initialize_Key_Array();
@@ -69,13 +72,6 @@ static void Cleanup_System();
 
 static void Clear_Window();
 static SDL_Color Random_Color();
-
-//const char *server_ipaddress = NULL;
-
-void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
-    WINDOW_BOUNDING_BOX = new_bounding_box;
-    WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF);
-}
 
 
 
@@ -103,7 +99,7 @@ void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
 // }
 
 void Initialize_Managers() {
-    // sound_manager = Sound_Manager::Get_Instance();
+    sound_manager = Sound_Manager::Get_Instance();
 }
 
 // bool Initialize_UDP_Network() {
@@ -220,7 +216,7 @@ void Cleanup_SDL_Modules() {
 }
 
 void Cleanup_Managers() {
-    // Sound_Manager::Delete_Instance();
+    Sound_Manager::Delete_Instance();
 }
 
 void Cleanup_UDP_Network() {
@@ -242,7 +238,7 @@ inline float read_float(unsigned char *buffer)
     return temp;
 }
 
-bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
+static bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
     if(y < y1 || y > y2 || x < x1 || x > x2)
         return false;
 
@@ -257,15 +253,6 @@ inline unsigned int min(unsigned int x, unsigned int y)
 inline float point_distance(float x1, float y1, float x2, float y2)
 {
     return sqrt(pow(y2 - y1, 2) + pow(x2 - x1, 2));
-}
-
-// void Clear_Window() {
-//     SDL_FillRect(WINDOW, &WINDOW_BOUNDING_BOX, 0x000000);
-// }
-
-SDL_Color Random_Color() {
-  SDL_Color c = {rand() % 256, rand() % 256, rand() % 256, 0};
-  return c;
 }
 
 
