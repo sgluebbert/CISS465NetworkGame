@@ -26,6 +26,7 @@ public:
     void CalculateVelocity(float);
     void Move(float);
     void TryFire();
+    bool Deserialize(NetString *string);
 
     void Take_Damage(float);
     float Get_Health();
@@ -40,7 +41,7 @@ public:
     Uint32 port;
     time_t last_input, death_time;
     
-    int team;
+    int id;
     float x, y;
     float dx, dy;
     float width, height;
@@ -63,8 +64,8 @@ public:
 
 
 
-Ship::Ship(int _team) 
-    : team(_team) {
+Ship::Ship(int _id) 
+    : id(_id) {
     texture = NULL;
     x = 0.0;
     y = 0.0;
@@ -91,6 +92,25 @@ void Ship::SetTexture(Texture * tex, float new_width, float new_height) {
     texture = tex;
     width = new_width;
     height = new_height;
+}
+
+bool Ship::Deserialize(NetString *string)
+{
+    if (!string->ReadFloat(x)) return false;
+    if (!string->ReadFloat(y)) return false;
+    if (!string->ReadFloat(angle)) return false;
+    if (!string->ReadFloat(health)) return false;
+    bool shot;
+    if (!string->ReadBool(shot)) return false;
+
+    if (shot)
+    {
+        Bullet_List *bullet_list = Bullet_List::getInstance();
+        int offset_x = 20 * TRIG_TABLE[int(angle / 5.0)][1];
+        int offset_y = -20 * TRIG_TABLE[int(angle / 5.0)][0];
+        bullet_list->AddBullet(id, x + offset_x, y + offset_y, velocity + 120, angle);
+    }
+    return true;
 }
 
 SDL_Rect Ship::Get_Bounding_Box() {
@@ -175,7 +195,7 @@ void Ship::Update() {
     for (int i = 0; i < bullet_list->bullets.size(); i++)
     {
         Bullet *bullet = bullet_list->bullets[i];
-        if (bullet == NULL || bullet->team == team)
+        if (bullet == NULL || bullet->team == id)
             continue;
 
         if (point_in_rect(bullet->x, bullet->y, x - width / 3, y - height / 3, x + width / 3, y + height / 3))
