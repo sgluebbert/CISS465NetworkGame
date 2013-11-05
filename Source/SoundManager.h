@@ -1,7 +1,7 @@
 #ifndef SOUND_MANAGER_H
 #define SOUND_MANAGER_H
 
-
+/*
 
 #include "SDL.h"
 #include "SDL_mixer.h"
@@ -94,5 +94,5 @@ void Sound_Manager::Stop_Music() {
 }
 
 
-
+*/
 #endif

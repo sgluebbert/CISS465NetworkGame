@@ -80,8 +80,8 @@ void AppStateGame::Initialize() {
 
    	player = NULL;
     
-    sound_manager->Load_Music(MUSIC_FILENAME);
-    sound_manager->Play_Music();
+    // sound_manager->Load_Music(MUSIC_FILENAME);
+    // sound_manager->Play_Music();
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -249,7 +249,7 @@ void AppStateGame::Draw() {
 }
 
 void AppStateGame::Cleanup() {
-    sound_manager->Stop_Music();
+    // sound_manager->Stop_Music();
 
 	for (int i = 0; i < ships.size(); i++)
     {

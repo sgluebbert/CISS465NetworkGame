@@ -62,8 +62,8 @@ void AppStateIntro::Initialize() {
     bumper_timer = 0.0;
     current_color = 0.0;
     
-    sound_manager->Load_Music("./Sound/Music/Intro.ogg");
-    sound_manager->Play_Music();
+    // sound_manager->Load_Music("./Sound/Music/Intro.ogg");
+    // sound_manager->Play_Music();
 }
 
 void AppStateIntro::Events(SDL_Event * Event) {
@@ -108,7 +108,7 @@ void AppStateIntro::Draw() {
 }
 
 void AppStateIntro::Cleanup() {
-    sound_manager->Stop_Music();
+    // sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateIntro::GetInstance() {

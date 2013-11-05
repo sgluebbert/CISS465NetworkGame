@@ -50,8 +50,8 @@ void AppStateMenu::Initialize() {
     background_surf = surface_manager->background_main_menu;
     //background_rect;
     
-    sound_manager->Load_Music(MUSIC_FILENAME);
-    sound_manager->Play_Music();
+    // sound_manager->Load_Music(MUSIC_FILENAME);
+    // sound_manager->Play_Music();
     
     main_menu.Add_Option("Play");
     main_menu.Add_Option("Exit");
@@ -72,7 +72,7 @@ void AppStateMenu::Draw() {
 }
 
 void AppStateMenu::Cleanup() {
-    sound_manager->Stop_Music();
+    // sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateMenu::GetInstance() {

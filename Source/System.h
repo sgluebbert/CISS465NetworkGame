@@ -6,7 +6,7 @@
 
 #include "SDL_net.h"
 #include "Pallete.h"
-#include "SoundManager.h"
+// #include "SoundManager.h"
 #include "TextureManager.h"
 #include "Networking/Network.h"
 
@@ -40,7 +40,7 @@ static double TRIG_TABLE[72][2];
 // NetworkType NetworkFactory::networkType = UNDEFINED;
 // Network *network = NetworkFactory::getInstance();
 
-static Sound_Manager * sound_manager;
+// static Sound_Manager * sound_manager;
 
 const int ROOM_WIDTH = 2000;
 const int ROOM_HEIGHT = 2000;
@@ -103,7 +103,7 @@ void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
 // }
 
 void Initialize_Managers() {
-    sound_manager = Sound_Manager::Get_Instance();
+    // sound_manager = Sound_Manager::Get_Instance();
 }
 
 // bool Initialize_UDP_Network() {
@@ -220,7 +220,7 @@ void Cleanup_SDL_Modules() {
 }
 
 void Cleanup_Managers() {
-    Sound_Manager::Delete_Instance();
+    // Sound_Manager::Delete_Instance();
 }
 
 void Cleanup_UDP_Network() {
