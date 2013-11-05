@@ -12,6 +12,7 @@ struct Parser
 	// Insert Serialize Methods
 	// bool Serialize(Entity &) for example
 	bool Serialize(/* Something */);
+	bool SerializeInput(bool *, int);
 
 	// Insert Deserialize Methods
 	bool Deserialize();

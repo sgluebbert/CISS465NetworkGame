@@ -9,7 +9,6 @@
 #include "SDL_net.h"
 #include "SoundManager.h"
 #include "TextureManager.h"
-#include "Network.h"
 
 
 
@@ -32,8 +31,6 @@ static double PI = 3.141592654;
 static double TWOPI = 6.283185307;
 static double TRIG_TABLE[72][2];
 
-static Network * network = NULL;
-
 // static UDPsocket socket;
 // static UDPpacket * recieve;
 // static UDPpacket * send;
@@ -53,11 +50,7 @@ static const int ROOM_HEIGHT = 2000;
 
 
 /*System Functions*/
-//static bool Initialize_SDL();
-//static bool Initialize_SDL_Modules();
 static void Initialize_Managers();
-//static bool Initialize_UDP_Network();
-
 static void Initialize_Trig_Table();
 static void Initialize_Key_Array();
 
@@ -66,7 +59,6 @@ static bool Initialize_System();
 static void Cleanup_SDL();
 static void Cleanup_SDL_Modules();
 static void Cleanup_Managers();
-static void Cleanup_UDP_Network();
 
 static void Cleanup_System();
 
@@ -75,48 +67,9 @@ static SDL_Color Random_Color();
 
 
 
-// bool Initialize_SDL() {
-//     if (SDL_Init(SDL_INIT_VIDEO) < 0)
-//         return false;
-
-//     if (!Initialize_SDL_Modules())
-//         return false;
-
-//     return true;
-// }
-
-// bool Initialize_SDL_Modules() {
-//     if (TTF_Init() < 0 )
-//         return false;
-
-//     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-//         return false;
-
-//     if (SDLNet_Init() < 0)
-//         return false;
-
-//     return true;
-// }
-
 void Initialize_Managers() {
     sound_manager = Sound_Manager::Get_Instance();
 }
-
-// bool Initialize_UDP_Network() {
-
-//     client_address.port = 0;
-
-//     if (!(socket = SDLNet_UDP_Open(client_address.port)))
-//         return false;
- 
-//     if (!(recieve = SDLNet_AllocPacket(512)))
-//         return false;
- 
-//     if (!(send = SDLNet_AllocPacket(512)))
-//         return false;
-
-//     return true;
-// }
 
 void Initialize_Trig_Table() {
     for (int i = 0; i < 72; i++) {
@@ -132,56 +85,6 @@ void Initialize_Key_Array() {
 }
 
 bool Initialize_System() {
-    // if (!Initialize_SDL())
-    //     return false;
-
-    // if ( SDL_Init(SDL_INIT_VIDEO) != 0 )
-    // {
-    //     printf("Unable to initialize SDL: %s\n", SDL_GetError());
-    //     exit(1);
-    // }
-
-    // if (TTF_Init() != 0 )
-    // {
-    //     printf("Unable to initialize TTF: %s\n", TTF_GetError());
-    //     exit(1);
-    // }
-
-    // WINDOW_BOUNDING_BOX = DEFAULT_WINDOW_BOUNDING_BOX;
-
-    // // SDL_ShowCursor(false);
-    // SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    // SDL_WM_SetCaption("Not Named", NULL);
-    // surface_manager->surface = SDL_SetVideoMode ( WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_RESIZABLE );// | SDL_FULLSCREEN);
-
-    // if ( surface_manager->surface == NULL ) 
-    // {
-    //     std::cerr << "Unable to set " << WINDOW_BOUNDING_BOX.w << "x" << WINDOW_BOUNDING_BOX.h << " video: " << SDL_GetError() << std::endl;
-    //     exit(1);
-    // }
-
-    // atexit(TTF_Quit);
-    // atexit(SDL_Quit);
-
-    // glClearColor(0.f, 0.f, 0.f, 0.f);
-    // glViewport(0, 0, WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h);
-
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // glEnable(GL_POINT_SMOOTH);
-
-    // // Antialiasing on and amount
-    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    // SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 3);
-
-    // //Check for error
-    // GLenum error = glGetError();
-    // if( error != GL_NO_ERROR )
-    // {
-    //     std::cerr << "Error initializing OpenGL: " << gluErrorString(error) << std::endl;
-    //     exit(1);
-    // }
     InitWindow();
 
     // std::cout << "Ready\n";
@@ -206,9 +109,6 @@ bool Initialize_System() {
 
 void Cleanup_SDL() {
     Cleanup_SDL_Modules();
-
-    // SDL_FreeSurface(WINDOW);
-    // SDL_Quit();
 }
 
 void Cleanup_SDL_Modules() {
@@ -219,14 +119,8 @@ void Cleanup_Managers() {
     Sound_Manager::Delete_Instance();
 }
 
-void Cleanup_UDP_Network() {
-    //SDLNet_FreePacket(recieve);
-    //SDLNet_FreePacket(send);
-}
-
 void Cleanup_System() {
     Cleanup_Managers();
-    //Cleanup_UDP_Network();
     Cleanup_SDL();
 }
 

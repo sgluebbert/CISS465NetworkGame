@@ -31,6 +31,7 @@ void AppStateTest::Update() {
     viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
     viewport.y = player.pawn->y + player.pawn->w / 2.0 - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
+    std::cout << "Update" << std::endl;
 }
 
 void AppStateTest::Draw() {
@@ -62,10 +63,10 @@ AppStateBase * AppStateTest::GetInstance() {
 
 void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.inputs[TURN_LEFT] = 1;               break;
-    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = 1;              break;
-    case SDLK_UP:       player.inputs[MOVE_FORWARD] = 1;            break;
-    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = 1;           break;
+    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;               break;
+    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;              break;
+    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;            break;
+    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;           break;
     case SDLK_d:        player.pawn->health = 0.25 * player.pawn->max_health;           break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
@@ -76,10 +77,10 @@ void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 
 void AppStateTest::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.inputs[TURN_LEFT] = 0;               break;
-    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = 0;              break;
-    case SDLK_UP:       player.inputs[MOVE_FORWARD] = 0;            break;
-    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = 0;           break;
+    case SDLK_LEFT:     player.inputs[TURN_LEFT] = false;               break;
+    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = false;              break;
+    case SDLK_UP:       player.inputs[MOVE_FORWARD] = false;            break;
+    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = false;           break;
     default:
         break;
     }

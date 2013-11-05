@@ -2,7 +2,7 @@ CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Menu.o Source/NetString.o Source/Network.o Source/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o
+build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o
 
 Application.o: Source/Application.h Source/Application.cpp
 
@@ -38,11 +38,13 @@ EventHandler.o: Source/EventHandler.cpp Source/EventHandler.h
 
 Menu.o: Source/Menu.cpp Source/Menu.h
 
-NetString.o: Source/NetString.cpp Source/NetString.h
+NetString.o: Source/Networking/NetString.cpp Source/Networking/NetString.h
 
-Network.o: Source/Network.cpp Source/Network.h
+NetworkParser.o: Source/Networking/NetworkParser.cpp Source/Networking/NetworkParser.h
 
-Parser.o: Source/Parser.cpp Source/Parser.h
+Network.o: Source/Networking/Network.cpp Source/Networking/Network.h
+
+Parser.o: Source/Networking/Parser.cpp Source/Networking/Parser.h
 
 Particle.o: Source/Particle.cpp Source/Particle.h
 

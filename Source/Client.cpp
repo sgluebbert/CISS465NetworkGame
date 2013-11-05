@@ -5,24 +5,73 @@
 Client::Client() {
 	pawn = new Fighter(0.0, 0.0);
 
+	//network = NetworkFactory::getInstance();
+
 	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
-		inputs[i] = 0;
+		inputs[i] = false;
 
 	channel_id = -1;
 	player_id = -1;
 	team_id = -1;
 
 	host_port = 8080;
+
+	// if (!network->Init())
+	// 	ready = 0;
 }
 
 
 
-void Client::Send() {
-
+Client::~Client()
+{
+	// if (ready != 1)
+ // 		return;
+ 	
+	// network->Close();
+	// ready = 2;
 }
 
-void Client::Receive() {
 
+
+void Client::Bind(int _id) // Remove eventually!
+{
+	if (ready != 1)
+ 		return;
+
+	channel_id = _id;
+	network->Bind(channel_id);
+}
+
+
+
+bool Client::Send() {
+	if (ready != 1)
+ 		return false;
+
+	Parser parser;
+	if (!parser.SerializeInput(inputs, NUMBER_OF_INPUTS))
+		return false;
+	parser.End();
+
+	network->SendData(parser.GetStream(), channel_id);
+}
+
+NetString * Client::Receive() {
+	if (ready != 1)
+ 		return NULL;
+	// Should fix this up to do all parsing
+	
+	netString.ClearBuffer();
+
+	while (network->ReceiveData() != -1)
+	{
+		NetString *temp = network->GetData();
+		if (temp != NULL)
+			netString += *temp;
+	}
+
+	netString.Seek(0);
+	return &netString;
 }
 
 

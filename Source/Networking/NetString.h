@@ -12,6 +12,8 @@ struct NetString
 	NetString(unsigned char *buf, int length);
 	~NetString();
 
+	bool Seek(int);
+
 	void ClearBuffer();
 	bool AddUChars(unsigned char *buf, int length);
 

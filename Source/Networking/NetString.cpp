@@ -17,6 +17,19 @@ NetString::~NetString()
 		delete [] buffer;	
 }
 
+
+
+bool NetString::Seek(int i)
+{
+	if (i < 0 || i >= bufferLength)
+		return false;
+
+	bufferIndex = i;
+	return true;
+}
+
+
+
 void NetString::ClearBuffer()
 {
 	if (buffer != NULL)
