@@ -12,8 +12,10 @@ struct NetString
 	NetString(unsigned char *buf, int length);
 	~NetString();
 
+
 	void ClearBuffer();
 	bool AddUChars(unsigned char *buf, int length);
+	bool Seek(int i);
 
 	// These functions return true if it was able to read or write
 	bool WriteBool(bool);
@@ -32,6 +34,8 @@ struct NetString
 	NetString &operator+=(const NetString &other);
 
 private:
+	NetString(const NetString &other);
+	NetString& operator=(const NetString &other);
 	bool Expand(int);
 
 	unsigned char * buffer;

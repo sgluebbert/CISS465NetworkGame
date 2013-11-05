@@ -16,8 +16,7 @@
 #include "Radar.h"
 #include "System.h"
 #include "Networking/Parser.h"
-
-Network *network = NetworkFactory::getInstance();
+#include "../client/Source/Client.h"
 
 class AppStateGame : public AppStateBase {
 private:
@@ -36,9 +35,8 @@ private:
         Health_Bar player_health;
         Radar player_radar;
 
-	    Uint8 inputs[4];
-
-	    int client_channel;
+	    bool inputs[4];
+        Client client;
 public:
  
         void Initialize();
@@ -67,16 +65,9 @@ AppStateGame::AppStateGame() {
 void AppStateGame::Initialize() {
     background_texture = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
-    
-    client_channel = -1;
    
 	for (int i = 0; i < 4; i++)
 	    inputs[i] = 0;
-
-    if (network->Init() == -1)
-    {
-        AppStateEvent::New_Event(APPSTATE_MENU);
-    }
 
    	player = NULL;
     
@@ -89,72 +80,64 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
-    NetString sendString;
-    sendString.WriteUChar(NCE_PLAYER_INPUT);
-    sendString.WriteBool(inputs[0]);
-    sendString.WriteBool(inputs[1]);
-    sendString.WriteBool(inputs[2]);
-    sendString.WriteBool(inputs[3]);
-    sendString.WriteUChar(NCE_END);
-    network->SendData(&sendString, client_channel);
+    client.SendInput(inputs);
 
     Bullet_List *bullet_list = Bullet_List::getInstance();
 
-    while (network->ReceiveData() != -1) {
-        NetString *netString = network->GetData();
+    NetString *netString = client.Listen();
 
+    if (netString != NULL && netString->BufferLength() > 0)
+    {
         bool reading = true;
-
         while (reading)
         {
-	        NetworkChunkEnums type;
+            NetworkChunkEnums type;
             unsigned char temp;
             if (!netString->ReadUChar(temp))
                 break;
 
             type = (NetworkChunkEnums)temp;
 
-            unsigned char team = 0;
+            unsigned char playerId = 0;
             Ship * ship = NULL;
 
             switch (type) {
                 case NCE_NEW_PLAYER:
-                    netString->ReadUChar(team);
+                    netString->ReadUChar(playerId);
 
                     if (player == NULL)
                     {
-                        client_channel = team;
-                        network->Bind(team);
+                        client.SetId(playerId); // Remove eventually!
 
-                        player = new Ship(team);
+                        player = new Ship(playerId);
                         player->SetTexture(surface_manager->ship, 64, 64);
                         ships.push_back(player);
                     }
-                    player_chat.Player_Joined(team);
+                    player_chat.Player_Joined(playerId);
                     break;
 
                 case NCE_PLAYER:
                     {
-                        netString->ReadUChar(team);
+                        netString->ReadUChar(playerId);
                         
-		                for (int i = 0; i < ships.size(); i++)
-		                {
-		                	if (ships[i] == NULL)
-		                		continue;
-		                	if (ships[i]->team == team)
-		                	{
-		                		ship = ships[i];
-		                		break;
-		                	}
-		                }
+                        for (int i = 0; i < ships.size(); i++)
+                        {
+                            if (ships[i] == NULL)
+                                continue;
+                            if (ships[i]->id == playerId)
+                            {
+                                ship = ships[i];
+                                break;
+                            }
+                        }
 
-			        	if (ship == NULL) // New player
-			        	{
-			        		ship = new Ship(team);
-			        		ships.push_back(ship);
-		                    ship->SetTexture(surface_manager->ship, 64, 64);
-                    		player_chat.Player_Joined(team);
-			        	}
+                        if (ship == NULL) // New player
+                        {
+                            ship = new Ship(playerId);
+                            ships.push_back(ship);
+                            ship->SetTexture(surface_manager->ship, 64, 64);
+                            player_chat.Player_Joined(playerId);
+                        }
 
                         netString->ReadFloat(ship->x);
                         netString->ReadFloat(ship->y);
@@ -163,54 +146,54 @@ void AppStateGame::Update() {
                         bool shot;
                         netString->ReadBool(shot);
 
-	                    if (shot)
-	                    {
-	                    	int offset_x = 20 * TRIG_TABLE[int(ship->angle / 5.0)][1];
-            				int offset_y = -20 * TRIG_TABLE[int(ship->angle / 5.0)][0];
-	                    	bullet_list->AddBullet(ship->team, ship->x + offset_x, ship->y + offset_y, ship->velocity + 120, ship->angle);
-	                    }
-		                break;
-		            }
+                        if (shot)
+                        {
+                            int offset_x = 20 * TRIG_TABLE[int(ship->angle / 5.0)][1];
+                            int offset_y = -20 * TRIG_TABLE[int(ship->angle / 5.0)][0];
+                            bullet_list->AddBullet(ship->id, ship->x + offset_x, ship->y + offset_y, ship->velocity + 170, ship->angle);
+                        }
+                        break;
+                    }
 
-	            case NCE_REMOVE_PLAYER:
-                    netString->ReadUChar(team);
-                    player_chat.Player_Disconnected(team);
-	                for (int i = 0; i < ships.size(); i++)
-	                {
-	                	if (ships[i] == NULL)
-	                		continue;
-	                	if (ships[i]->team == team)
-	                	{
-	                		delete ships[i];
-	                		ships[i] = NULL;
-	                		break;
-	                	}
-	                }
+                case NCE_REMOVE_PLAYER:
+                    netString->ReadUChar(playerId);
+                    player_chat.Player_Disconnected(playerId);
+                    for (int i = 0; i < ships.size(); i++)
+                    {
+                        if (ships[i] == NULL)
+                            continue;
+                        if (ships[i]->id == playerId)
+                        {
+                            delete ships[i];
+                            ships[i] = NULL;
+                            break;
+                        }
+                    }
 
-	                if (player != NULL &&  player->team == team)
-	                {
-	                	Cleanup();
-	                	AppStateEvent::New_Event(APPSTATE_MENU);
-	                	return;
-	                }
+                    if (player != NULL &&  player->id == playerId)
+                    {
+                        Cleanup();
+                        AppStateEvent::New_Event(APPSTATE_MENU);
+                        return;
+                    }
 
-	            case NCE_END:
-	            	reading = false;
-	            	break;
+                case NCE_END:
+                    reading = false;
+                    break;
 
                 default:
                     reading = false;
                     break;
-	        }
-	    }
+            }
+        }
     }
 
     if (ships.size() > 0 && ships.front() == NULL) {
-    	ships.pop_front();
+        ships.pop_front();
     }
 
     if (ships.size() > 0 && ships.back() == NULL) {
-    	ships.pop_back();
+        ships.pop_back();
     }
 
     for (int i = 0; i < ships.size(); i++)

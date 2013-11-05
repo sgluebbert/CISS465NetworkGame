@@ -76,12 +76,12 @@ Entity::Entity(int _id)
     width = 64;
     height = 64;
     angle = 0.0;
-    turn_rate = 24;
+    turn_rate = 28;
     throttle = 4;
     velocity = 0.0;
-    acceleration = 14;
+    acceleration = 18;
     deceleration = 10;
-	max_velocity = 40;
+	max_velocity = 50;
     move_forward = turn_left = turn_right = shoot = did_shoot = false;
     health = max_health = 100;
     can_shoot = 0;

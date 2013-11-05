@@ -14,7 +14,16 @@ NetString::NetString(unsigned char *buf, int length)
 NetString::~NetString()
 {
 	if (buffer != NULL)
-		delete [] buffer;	
+		delete [] buffer;
+}
+
+bool NetString::Seek(int i)
+{
+	if (i < 0 || i >= bufferLength)
+		return false;
+
+	bufferIndex = i;
+	return true;
 }
 
 void NetString::ClearBuffer()

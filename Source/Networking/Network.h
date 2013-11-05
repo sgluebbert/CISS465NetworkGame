@@ -37,6 +37,8 @@ public:
 	virtual Uint16 GetRecvPort() = 0;
 	virtual Uint32 GetSendHost() = 0;
 	virtual Uint16 GetSendPort() = 0;
+protected:
+	bool connected;
 };
 
 //----------------------------------------------------------------------------------------------------------
@@ -59,6 +61,7 @@ public:
  	
     virtual int Init(bool isServer)
     {
+    	connected = false;
 		_setSize = (isServer ? MaximumClients : 1);
     	
 		NetworkParser * networkParser = new NetworkParser();
@@ -104,33 +107,45 @@ public:
 		_receive->address.host = host_address.host;
 		_receive->address.port = host_address.port;
 
+		connected = true;
 		return 1;
     }
 
     virtual void Close()
     {
+    	if (!connected)
+    		return;
+    	connected = false;
   		SDLNet_FreePacket(_receive);
 		SDLNet_FreePacket(_send);
+		SDLNet_UDP_Close(_sd);
 		SDLNet_Quit();
     }
 
  	virtual bool SendData(NetString* stream, int id)
  	{
+    	if (!connected)
+    		return false;
+
  		if (id == -1)
 		{
 			_send->address.host = _receive->address.host;        /* Set the destination host */
 			_send->address.port = _receive->address.port;        /* And destination port */
 		}
 
- 		_send->data = stream->Buffer();
-		_send->len = stream->BufferLength();
+		memcpy(_send->data, stream->Buffer(), std::min(stream->BufferLength(), 512));
+		_send->len = std::min(stream->BufferLength(), 512);
 
+		// std::cout << "Sending on: " << id << " " << *stream << '\n';
 		SDLNet_UDP_Send(_sd, id, _send);
 		return true;
  	}
 	
 	virtual int ReceiveData(std::vector<int> *newClients = NULL, std::vector<int> *removedClients = NULL)
 	{
+    	if (!connected)
+    		return -1;
+
 		int result = SDLNet_UDP_Recv(_sd, _receive);
 		if (result <= 0)
 			return -1;
@@ -202,12 +217,15 @@ public:
 
 	virtual void RemoveConnection(int id)
 	{
+		SDLNet_UDP_Unbind(_sd, id);
 		delete _usedSockets[id];
 		_usedSockets[id] = NULL;
 	}
 
 	virtual void Bind(int id)
 	{
+    	if (!connected)
+    		return;
 		SDLNet_UDP_Bind(_sd, id, &_receive->address);
 	}
 
