@@ -7,6 +7,7 @@
 
 #include "Circle.h"
 #include "Rect.h"
+#include "Networking/Parser.h"
 
 
 
@@ -18,8 +19,8 @@ public:
     void Map_To_Viewport(Rect<double>);
     void Map_To_World(Rect<double>);
 
-    virtual void Serialize();
-    virtual void Deserialize();
+    NetString * Serialize();
+    bool Deserialize(NetString *);
     
     void Turn_Left(double);
     void Turn_Right(double);
@@ -33,7 +34,7 @@ public:
     Circle<double> bounding_volume;     //Hit Box for collisions
     Rect<double> drawing_box;           //Box Reference for drawing?
 
-    double x, y, w, h, angle;           //Center point and angle for rotation and drawing
+    float x, y, w, h, angle;            //Center point and angle for rotation and drawing
     double dx, dy;                      //Vector
     double mass;                        //For physics calculations
     double velocity, max_velocity;      //units per second

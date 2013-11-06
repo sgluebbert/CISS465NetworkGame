@@ -23,22 +23,21 @@ bool Parser::SerializeInput(bool * in, int size)
 	return true;
 }
 
-bool Parser::DeserializeInput(NetString *string, bool *out)
+bool Parser::DeserializeInput(NetString *string, bool *out, int size)
 {
 	unsigned char type;
 	string->ReadUChar(type);
 	if (type != NCE_PLAYER_INPUT)
 		return false;
-	string->ReadBool(out[0]);
-	string->ReadBool(out[1]);
-	string->ReadBool(out[2]);
-	string->ReadBool(out[3]);
+	for (int i = 0; i < size; i++)
+		if (!string->ReadBool(out[i])) return false;
+
 	return true;
 }
 
 void Parser::End()
 {
-	unsigned char end;
+	unsigned char end = 0;
 	string.ReadUChar(end);
 	if (end != NCE_END)
 		string.WriteUChar(NCE_END);

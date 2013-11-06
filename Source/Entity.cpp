@@ -29,13 +29,21 @@ void Entity::Map_To_World(Rect<double> viewport) {
 }
 
 
+NetString *Entity::Serialize() {
+    NetString * string = new NetString();
 
-void Entity::Serialize() {
-    //Write to the byte array
+    if (!string->WriteFloat(x) && !string->WriteFloat(y) && !string->WriteFloat(angle)) {
+        delete string;
+        return NULL;
+    }
+
+    return string;
 }
 
-void Entity::Deserialize() {
-    //Read from the byte array
+bool Entity::Deserialize(NetString *string) {
+    if (!string->ReadFloat(x) && !string->ReadFloat(y) && !string->ReadFloat(angle))
+        return false;
+    return true;
 }
 
 

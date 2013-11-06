@@ -17,6 +17,9 @@ public:
 
     void Set_Texture(Texture *, float, float);
 
+    NetString * Serialize();
+    bool Deserialize(NetString *);
+
 	void Fire(int);
 
 	void Update(double);
@@ -30,7 +33,7 @@ public:
     Ship_State state;
 
 	double max_health, max_shields, max_armor, max_power;
-	double health, shields, armor, power;
+	float health, shields, armor, power;
 	double capture_modifier; //Affects the rate defined by the planet
 	//Weapons * weapon_pool;
 

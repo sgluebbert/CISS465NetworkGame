@@ -12,11 +12,11 @@ struct Parser
 	// Insert Serialize Methods
 	// bool Serialize(Entity &) for example
 	bool Serialize(/* Something */);
-	bool SerializeInput(bool *, int);
+	bool SerializeInput(bool *, int size);
 
 	// Insert Deserialize Methods
 	bool Deserialize();
-	bool DeserializeInput(NetString *string, bool *out);
+	bool DeserializeInput(NetString *string, bool *out, int size);
 
 	void End();
 	unsigned int GetStreamLength();

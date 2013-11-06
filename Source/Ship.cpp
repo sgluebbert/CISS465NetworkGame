@@ -8,6 +8,36 @@ void Ship::Set_Texture(Texture * tex, float width, float height) {
     h = height;
 }
 
+NetString *Ship::Serialize() {
+	NetString * string = new NetString();
+
+	NetString * baseString = Entity::Serialize();
+	if (baseString == NULL)
+		return NULL;
+
+	if (!(*string += *baseString)) {
+		delete string;
+		return NULL;
+	}
+
+	if (!string->WriteFloat(health)) {
+		delete string;
+		return NULL;
+	}
+
+	return string;
+}
+
+bool Ship::Deserialize(NetString *string) {
+	if (!Entity::Deserialize(string))
+		return false;
+
+	if (!string->ReadFloat(health))
+		return false;
+
+	return true;
+}
+
 void Ship::Fire(int weapon_id) {
 	//weapon_pool[weapond_id]->Fire();
 }

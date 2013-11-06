@@ -65,7 +65,7 @@ std::vector<int> Server::HandleIncomingData()
 		time(&client->lastInput);
 		NetString *netString = network->GetData(receiveId);
 		Parser parser;
-		parser.DeserializeInput(netString, client->inputs);
+		parser.DeserializeInput(netString, client->inputs, NUMBER_OF_INPUTS);
 	}
 
 	if (debugLevel > DL_LOW)

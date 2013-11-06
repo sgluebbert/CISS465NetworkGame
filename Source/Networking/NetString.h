@@ -31,7 +31,7 @@ struct NetString
 	int BufferLength() const { return bufferLength; }
 	unsigned char *Buffer() const { return buffer; }
 
-	NetString &operator+=(const NetString &other);
+	bool operator+=(const NetString &other);
 
 private:
 	bool Expand(int);

@@ -8,16 +8,20 @@
 #include <bitset>
 #include <string>
 
+
+enum INPUTS {	MOVE_FORWARD, MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT, FIRE_ENERGY, FIRE_BALLISTIC, FIRE_MISSILE, FIRE_MINE, NUMBER_OF_INPUTS	};
+
 struct ServerClient
 {
 	ServerClient(int _id = -1)
 		: id(_id)
 	{
-		inputs[0] = 0; inputs[1] = 0; inputs[2] = 0; inputs[3] = 0;
+		for (int i = 0; i < NUMBER_OF_INPUTS; ++i)
+			inputs[i] = false;
 	}
 	time_t lastInput;
 	int id;
-	bool inputs[4];
+	bool inputs[NUMBER_OF_INPUTS];
 };
 
 enum DebugLevel { DL_NONE, DL_LOW, DL_MED, DL_HIGH };

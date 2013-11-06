@@ -11,7 +11,7 @@
 #include "AppStateBase.h"
 #include "Camera.h"
 #include "System.h"
-#include "./Networking/Parser.h"
+#include "Client.h"
 
 
 
@@ -23,9 +23,9 @@ private:
         Texture * background_texture;
         Rect<double> background_rect;
         
-        static const char * MUSIC_FILENAME;
+        // static const char * MUSIC_FILENAME;
 
-	int client_channel;
+        Client player;
 public:
  
         void Initialize();

@@ -6,7 +6,7 @@
 #include <deque>
 #include <bitset>
  
-#include "../Source/Entity.h"
+#include "../Source/Ship.h"
 #include "./Source/Server.h"
 
 void init();
@@ -14,8 +14,11 @@ void init();
 int main(int argc, char **argv)
 {
     Initialize_Trig_Table();
-	std::deque<Entity*> entities;
+	Ship *ships[MaximumClients];
 	Server server;
+
+	for (int i = 0; i < MaximumClients; ++i)
+		ships[i] = NULL;
 	
 	int quit = 0;
     
@@ -24,68 +27,79 @@ int main(int argc, char **argv)
 		std::vector<int> newClients = server.HandleIncomingData();
 		for (std::vector<int>::iterator it = newClients.begin(); it != newClients.end(); it++)
 		{
-			Entity *entity = new Entity(*it);
-			entity->Respawn(entities);
-			entities.push_back(entity);
+			Ship *ship = new Ship();
+			// entity->Respawn(entities);
+			ships[*it] = ship;
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Update Bullets
-		Bullet_List::getInstance()->Update();
+		// Bullet_List::getInstance()->Update();
 		///////////////////////////////////////////////////////////////////////////////////////////
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Update Players
-		if (entities.size() > 0)
+		NetString string;
+		
+		Ship *ship;
+		double dt = Clock::Frame_Control.Get_Time_Per_Frame();
+		for (int i = 0; i < MaximumClients; ++i)
 		{
-			NetString string;
-			
-			for (std::deque<Entity*>::iterator it = entities.begin(); it != entities.end(); it++)
+			ship = ships[i];
+			if (ship == NULL)
+				continue;
+
+			ServerClient *client = server.clientList[i];
+			if (client == NULL)
 			{
-				if (*it == NULL)
-					continue;
-
-				ServerClient *client = server.clientList[(*it)->id];
-				if (client == NULL)
-				{
-					// This should never happen
-					entities[it - entities.begin()] = NULL;
-					delete *it;
-					continue;
-				}
-					
-				// Replace Sometime
-				(*it)->turn_left = client->inputs[0];
-				(*it)->turn_right = client->inputs[1];
-				(*it)->move_forward = client->inputs[2];
-				(*it)->shoot = client->inputs[3];
-				///////////////////
-
-				(*it)->Update(entities);
-
-				string.WriteUChar(NCE_PLAYER);
-				NetString *chunk = (*it)->Serialize();
-				string += *chunk;
-				delete chunk;
+				// This should never happen
+				ships[i] = NULL;
+				delete ship;
+				continue;
 			}
+				
+			// Replace Sometime
+			if (client->inputs[MOVE_FORWARD])
+				ship->force = 200.0;
+			else
+				ship->force = 0.0;
+			if (client->inputs[MOVE_BACKWARD])
+				ship->force = -200.0;
+			else
+				ship->force = 0.0;
+			if (client->inputs[TURN_LEFT])
+				ship->Turn_Left(dt);
+			if (client->inputs[TURN_RIGHT])
+				ship->Turn_Right(dt);
+			if (client->inputs[FIRE_ENERGY])
+				ship->Fire(0);
+			///////////////////
 
-			if (string.BufferLength() > 0)
-			{
-				string.WriteUChar(NCE_END);
-				server.SendToAll(&string);
-			}
+			ship->Update(dt);
+
+			string.WriteUChar(NCE_PLAYER);
+			NetString *chunk = ship->Serialize();
+			string += *chunk;
+			delete chunk;
+		}
+
+		if (string.BufferLength() > 0)
+		{
+			string.WriteUChar(NCE_END);
+			server.SendToAll(&string);
 		}
 		///////////////////////////////////////////////////////////////////////////////////////////
 
 		std::bitset<MaximumClients> removedChannels = server.CleanupClients();
-		for (std::deque<Entity*>::iterator it = entities.begin(); it != entities.end(); it++)
+		for (int i = 0; i < MaximumClients; ++i)
 		{
-			if (*it == NULL)
+			ship = ships[i];
+			if (ship == NULL)
 				continue;
-			if (removedChannels.test((*it)->id))
+			if (removedChannels.test(i))
 			{
-				entities[it - entities.begin()] = NULL;
-				delete *it;
+				ships[i] = NULL;
+				delete ship;
 			}
 		}
 

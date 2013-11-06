@@ -168,11 +168,12 @@ bool NetString::Expand(int newSize)
 	return true;
 }
 
-NetString & NetString::operator+=(const NetString &other)
+bool NetString::operator+=(const NetString &other)
 {
 	if (other.BufferLength() + bufferLength > bufferSize)
 	{
-		bool expanded = Expand((other.BufferLength() + bufferLength) * 1.2);
+		if (!Expand((other.BufferLength() + bufferLength) * 1.2))
+			return false;
 	}
 
 	unsigned char *otherBuffer = other.Buffer();
@@ -181,7 +182,7 @@ NetString & NetString::operator+=(const NetString &other)
 
 	bufferLength += other.BufferLength();
 
-	return *this;
+	return true;
 }
 
 std::ostream &operator<<(std::ostream &stream, NetString &netstring)

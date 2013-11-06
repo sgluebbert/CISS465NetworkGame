@@ -5,7 +5,7 @@
 Client::Client() {
 	pawn = new Fighter(0.0, 0.0);
 
-	//network = NetworkFactory::getInstance();
+	network = NetworkFactory::getInstance();
 
 	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
 		inputs[i] = false;
@@ -16,30 +16,20 @@ Client::Client() {
 
 	host_port = 8080;
 
-	// if (!network->Init())
-	// 	ready = 0;
+	ready = 1;
+	if (!network->Init())
+		ready = 0;
 }
 
 
 
 Client::~Client()
 {
-	// if (ready != 1)
- // 		return;
- 	
-	// network->Close();
-	// ready = 2;
-}
-
-
-
-void Client::Bind(int _id) // Remove eventually!
-{
 	if (ready != 1)
  		return;
-
-	channel_id = _id;
-	network->Bind(channel_id);
+ 	
+	network->Close();
+	ready = 2;
 }
 
 
@@ -71,32 +61,65 @@ NetString * Client::Receive() {
 	}
 
 	netString.Seek(0);
+
+
+	bool reading = true;
+	while (reading)
+	{
+		NetworkChunkEnums type;
+		unsigned char temp;
+		if (!netString.ReadUChar(temp))
+			break;
+
+		unsigned char playerId = 0;
+		type = (NetworkChunkEnums)temp;
+
+		switch (type)
+		{
+			case NCE_NEW_PLAYER:
+				netString.ReadUChar(playerId);
+
+				if (channel_id == -1)
+				{
+					channel_id = playerId;
+					network->Bind(channel_id);
+				}
+				break;
+
+			default:
+				reading = false;
+		}
+	}
+
+
 	return &netString;
 }
 
 
 
 void Client::Update(double dt) {
-	if (inputs[MOVE_FORWARD])
-		pawn->force = 200.0;
-	else
-		pawn->force = 0.0;
-	if (inputs[MOVE_BACKWARD])
-		pawn->force = -200.0;
-	else
-		pawn->force = 0.0;
-	if (inputs[TURN_LEFT])
-		pawn->Turn_Left(dt);
-	if (inputs[TURN_RIGHT])
-		pawn->Turn_Right(dt);
-	if (inputs[FIRE_ENERGY])
-		pawn->Fire(0);
-	if (inputs[FIRE_BALLISTIC])
-		pawn->Fire(1);
-	if (inputs[FIRE_MISSILE])
-		pawn->Fire(2);
-	if (inputs[FIRE_MINE])
-		pawn->Fire(3);
+	// if (inputs[MOVE_FORWARD])
+	// 	pawn->force = 200.0;
+	// else
+	// 	pawn->force = 0.0;
+	// if (inputs[MOVE_BACKWARD])
+	// 	pawn->force = -200.0;
+	// else
+	// 	pawn->force = 0.0;
+	// if (inputs[TURN_LEFT])
+	// 	pawn->Turn_Left(dt);
+	// if (inputs[TURN_RIGHT])
+	// 	pawn->Turn_Right(dt);
+	// if (inputs[FIRE_ENERGY])
+	// 	pawn->Fire(0);
+	// if (inputs[FIRE_BALLISTIC])
+	// 	pawn->Fire(1);
+	// if (inputs[FIRE_MISSILE])
+	// 	pawn->Fire(2);
+	// if (inputs[FIRE_MINE])
+	// 	pawn->Fire(3);
+	Send();
+	Receive();
 
 	pawn->Update(dt);
 }

@@ -122,8 +122,8 @@ public:
 			_send->address.port = _receive->address.port;        /* And destination port */
 		}
 
- 		_send->data = stream->Buffer();
-		_send->len = stream->BufferLength();
+		memcpy(_send->data, stream->Buffer(), std::min(512, stream->BufferLength()));
+		_send->len = std::min(512, stream->BufferLength());
 
 		SDLNet_UDP_Send(_sd, id, _send);
 		return true;
