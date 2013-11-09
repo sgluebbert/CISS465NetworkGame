@@ -20,7 +20,7 @@ Simply enter the following in the terminal:
     $ /home/student/Desktop/SpaceGame/spacegame
 
 Or go through the following sequence of clicks from student's Desktop:
-`SpaceGame > spacegame
+`SpaceGame > spacegame`
 
 Note that this checks for available updates as well.
 
@@ -31,11 +31,11 @@ Simply enter the following in the terminal:
     $ /home/student/Desktop/SpaceGame/updater.sh
 
 Or go through the following sequence of clicks from student's Desktop:
-`SpaceGame > updater.sh
+`SpaceGame > updater.sh`
 
 
 ## Developer Side instructions
-Please don't move the directory containing this document (and it's contents)
+Please don't move the directory containing this document (and its contents)
 from it's current location. Please don't remove the lines updating the
 TimeStamp in the makefile for the client. 
 
