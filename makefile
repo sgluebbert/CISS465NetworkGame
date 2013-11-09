@@ -2,7 +2,7 @@ CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o
+build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o TimeStamp
 
 Application.o: Source/Application.h Source/Application.cpp
 
@@ -72,6 +72,8 @@ Timer.o: Source/Timer.cpp Source/Timer.h
 
 Weapon.o: Source/Weapon.cpp Source/Weapon.h
 
+TimeStamp: updater/source_timestamp.sh
+	./source_timestamp.sh
 clean:
 	rm -f client/a.out
 	rm -f server/a.out
