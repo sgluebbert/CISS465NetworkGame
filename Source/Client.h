@@ -5,7 +5,7 @@
 
 #include "Ship.h"
 #include "./Networking/Network.h"
-#include "Progress_Bar.h"
+#include "Progress_Circle.h"
 
 
 
@@ -28,10 +28,16 @@ public:
 	bool offline;
 
 	Ship * pawn;
+
 	Health_Bar armor_bar;
 	Health_Bar hull_bar;
 	Health_Bar shield_bar;
 	Health_Bar power_bar;
+
+	Health_Circle armor_circle;
+	Health_Circle hull_circle;
+	Health_Circle shield_circle;
+	Health_Circle power_circle;
 
 	Client();
 	~Client();

@@ -1,7 +1,12 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+
+
+#include "Math.h"
 #include "Texture.h"
+
+
 
 struct Color
 {
@@ -47,14 +52,26 @@ struct Color
 	float r, g, b, a;
 };
 
+
+
 const Color RED(1, 0, 0, 1);
 const Color GREEN(0, 1, 0, 1);
 const Color WHITE(1, 1, 1, 1);
 const Color BLACK(0, 0, 0, 1);
 const Color GRAY(.5, .5, .5, 1);
 
-void DrawLine(float x1, float y1, float x2, float y2, const Color *color = NULL);
-void DrawRect(float x1, float y1, float x2, float y2, bool fill, const Color *color = NULL);
+
+
+static const int SMOOTH_FACTOR = 100;
+
+
+
+void DrawLine(float x1, float y1, float x2, float y2, const Color * color = NULL);
+void DrawRect(float x1, float y1, float x2, float y2, bool fill, const Color * color = NULL);
+void DrawPolygon(float x, float y, float r, int s, double a, bool fill, const Color * color = NULL);
+void DrawCircle(float x, float y, float r, bool fill, const Color * color = NULL);
+void DrawCircleSection(float x, float y, float r, double sa, double ea, bool fill, const Color * color = NULL);
+
 
 
 #endif

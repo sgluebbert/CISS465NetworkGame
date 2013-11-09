@@ -17,6 +17,18 @@ Client::Client() {
 	power_bar.Set_Rect(0, 60, 80, 20, 2);
 	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
 
+	shield_circle.Set_Circle(780, 20, 20, 2, 10, 0);
+	shield_circle.Set_Color(Color(0.00, 0.00, 0.50));
+
+	hull_circle.Set_Circle(780, 60, 20, 2, 10, 0);
+	hull_circle.Set_Color(Color(0.50, 0.00, 0.00));
+
+	armor_circle.Set_Circle(780, 100, 20, 2, 10, 0);
+	armor_circle.Set_Color(Color(0.00, 0.50, 0.00));
+
+	power_circle.Set_Circle(780, 140, 20, 2, 10, 0);
+	power_circle.Set_Color(Color(0.50, 0.50, 0.00));
+
 	channel_id = -1;
 	player_id = -1;
 	team_id = -1;
@@ -154,12 +166,22 @@ void Client::Update(double dt) {
 	shield_bar.Notify(pawn->shields / pawn->max_shields);
 	power_bar.Notify(pawn->power / pawn->max_power);
 
+	armor_circle.Notify(pawn->armor / pawn->max_armor);
+	hull_circle.Notify(pawn->health / pawn->max_health);
+	shield_circle.Notify(pawn->shields / pawn->max_shields);
+	power_circle.Notify(pawn->power / pawn->max_power);
+
 	pawn->Update(dt);
 
 	armor_bar.Update(dt);
 	hull_bar.Update(dt);
 	shield_bar.Update(dt);
 	power_bar.Update(dt);
+
+	armor_circle.Update(dt);
+	hull_circle.Update(dt);
+	shield_circle.Update(dt);
+	power_circle.Update(dt);
 }
 
 void Client::Draw() {
@@ -169,4 +191,9 @@ void Client::Draw() {
 	hull_bar.Draw();
 	shield_bar.Draw();
 	power_bar.Draw();
+
+	armor_circle.Draw();
+	hull_circle.Draw();
+	shield_circle.Draw();
+	power_circle.Draw();
 }

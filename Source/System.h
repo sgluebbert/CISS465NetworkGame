@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "SDL_net.h"
+#include "Math.h"
 #include "SoundManager.h"
 #include "TextureManager.h"
 
@@ -26,10 +27,6 @@ static const char * WINDOW_ICON_FILEPATH = "./Art/Icon.bmp";
 static const char * APPLICATION_VERSION = "0.0.0.0";
 
 static bool IS_KEY_PRESSED[SDLK_LAST];
-
-static double PI = 3.141592654;
-static double TWOPI = 6.283185307;
-static double TRIG_TABLE[72][2];
 
 // static UDPsocket socket;
 // static UDPpacket * recieve;
@@ -51,7 +48,6 @@ static const int ROOM_HEIGHT = 2000;
 
 /*System Functions*/
 static void Initialize_Managers();
-static void Initialize_Trig_Table();
 static void Initialize_Key_Array();
 
 static bool Initialize_System();
@@ -69,14 +65,6 @@ static SDL_Color Random_Color();
 
 void Initialize_Managers() {
     sound_manager = Sound_Manager::Get_Instance();
-}
-
-void Initialize_Trig_Table() {
-    for (int i = 0; i < 72; i++) {
-        double temp = 2 * PI * i / 72;
-        TRIG_TABLE[i][0] = sin(temp);
-        TRIG_TABLE[i][1] = cos(temp);
-    }
 }
 
 void Initialize_Key_Array() {
