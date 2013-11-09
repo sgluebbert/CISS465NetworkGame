@@ -73,7 +73,7 @@ Timer.o: Source/Timer.cpp Source/Timer.h
 Weapon.o: Source/Weapon.cpp Source/Weapon.h
 
 TimeStamp: updater/source_timestamp.sh
-	./source_timestamp.sh
+	(cd updater && ./source_timestamp.sh)
 clean:
 	rm -f client/a.out
 	rm -f server/a.out
