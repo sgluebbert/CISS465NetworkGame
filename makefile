@@ -2,7 +2,7 @@ CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o
+build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o
 
 Application.o: Source/Application.h Source/Application.cpp
 
@@ -36,6 +36,8 @@ Entity.o: Source/Entity.cpp Source/Entity.h
 
 EventHandler.o: Source/EventHandler.cpp Source/EventHandler.h
 
+Map.o: Source/Map.cpp Source/Map.h
+
 Menu.o: Source/Menu.cpp Source/Menu.h
 
 NetString.o: Source/Networking/NetString.cpp Source/Networking/NetString.h
@@ -49,6 +51,8 @@ Parser.o: Source/Networking/Parser.cpp Source/Networking/Parser.h
 Particle.o: Source/Particle.cpp Source/Particle.h
 
 Particle_Emitter.o: Source/Particle_Emitter.cpp Source/Particle_Emitter.h
+
+Progress_Bar.o: Source/Progress_Bar.cpp Source/Progress_Bar.h
 
 Quad_Tree.o: Source/Quad_Tree.cpp Source/Quad_Tree.h
 
@@ -65,6 +69,8 @@ Texture.o: Source/Texture.cpp Source/Texture.h
 TextureManager.o: Source/TextureManager.cpp Source/TextureManager.h
 
 Timer.o: Source/Timer.cpp Source/Timer.h
+
+Weapon.o: Source/Weapon.cpp Source/Weapon.h
 
 clean:
 	rm -f client/a.out

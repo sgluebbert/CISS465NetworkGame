@@ -5,10 +5,11 @@
 
 #include "Ship.h"
 #include "./Networking/Network.h"
+#include "Progress_Bar.h"
 
 
 
-enum INPUTS {	MOVE_FORWARD, MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT, FIRE_ENERGY, FIRE_BALLISTIC, FIRE_MISSILE, FIRE_MINE, NUMBER_OF_INPUTS	};
+enum INPUTS {	MOVE_FORWARD, MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT, FIRE_ENERGY, FIRE_BALLISTIC, FIRE_PROPELLED, FIRE_MINE, FIRE_POWERUP, NUMBER_OF_INPUTS	};
 
 
 
@@ -24,8 +25,13 @@ public:
 	NetString netString;
 
 	int ready;
+	bool offline;
 
 	Ship * pawn;
+	Health_Bar armor_bar;
+	Health_Bar hull_bar;
+	Health_Bar shield_bar;
+	Health_Bar power_bar;
 
 	Client();
 	~Client();
@@ -33,6 +39,7 @@ public:
 	void Update(double);
 	void Draw();
 
+	bool Connect();
 	bool Send();
 	NetString * Receive();
 

@@ -3,29 +3,36 @@
 
 
 
+#include "Networking/NetString.h"
 #include "Particle_Emitter.h"
 #include "Texture.h"
+#include "Weapon.h"
 
 
 
-enum Ship_State {	ALIVE, DYING, DEAD	};
+enum Ship_State	 {	ALIVE, DYING, DEAD	};
+enum Weapon_Type {	ENERGY_TYPE, BALLISTIC_TYPE, PROPELLED_TYPE, BOMB_TYPE, POWERUP_TYPE	};
 
 
 
 class Ship : public Entity {
 public:
-
     void Set_Texture(Texture *, float, float);
 
     NetString * Serialize();
     bool Deserialize(NetString *);
 
-	void Fire(int);
+	void Fire(Weapon_Type);
+	void Damage_Armor(double);
+	void Damage_Shields(double);
+	void Damage_Hull(double);
 
 	void Update(double);
 	void Draw();
 
 //protected:
+	static double default_max_resource, default_power_recharge, default_capture_modifier;
+
     Texture * texture;
     Particle_Emitter smoke_emitter;
     Particle_Emitter explosion_emitter;
@@ -34,10 +41,9 @@ public:
 
 	double max_health, max_shields, max_armor, max_power;
 	float health, shields, armor, power;
-	double capture_modifier; //Affects the rate defined by the planet
-	//Weapons * weapon_pool;
-
-	const static int NUMBER_OF_WEAPONS = 4;
+	double power_recharge_rate;
+	double capture_modifier;
+	Weapon * weapon_pool[5];
 };
 
 
@@ -60,12 +66,19 @@ public:
     	texture = NULL;
 		state = ALIVE;
 
-		max_health = max_shields = health = shields = 75.0;
-		max_armor = max_power = armor = power = 100.0;
-		capture_modifier = 4.0 / 3.0;
+		max_health = max_shields = health = shields = default_max_resource * 0.75;
+		max_armor = max_power = armor = power = default_max_resource;
+		power_recharge_rate = default_power_recharge;
+		capture_modifier = default_capture_modifier * 4.0 / 3.0;
 
 		//Set Important Variables
 		Set_Texture(surface_manager->ship, 64, 64);
+
+		weapon_pool[ENERGY_TYPE]	= new Laser();
+		weapon_pool[BALLISTIC_TYPE] = new Gauss();
+		weapon_pool[PROPELLED_TYPE] = new Rocket();
+		weapon_pool[BOMB_TYPE]		= new Bomb();
+		weapon_pool[POWERUP_TYPE]	= NULL;
 	}
 
 private:
@@ -91,12 +104,19 @@ public:
     	texture = NULL;
 		state = ALIVE;
 
-		max_health = max_shields = health = shields = 100.0;
-		max_armor = max_power = armor = power = 100.0;
-		capture_modifier = 1.0;
+		max_health = max_shields = health = shields = default_max_resource;
+		max_armor = max_power = armor = power = default_max_resource;
+		power_recharge_rate = default_power_recharge;
+		capture_modifier = default_capture_modifier;
 
 		//Set Important Variables
 		Set_Texture(surface_manager->ship, 64, 64);
+
+		weapon_pool[ENERGY_TYPE]	= new Laser();
+		weapon_pool[BALLISTIC_TYPE] = new Gauss();
+		weapon_pool[PROPELLED_TYPE] = new Rocket();
+		weapon_pool[BOMB_TYPE]		= new Bomb();
+		weapon_pool[POWERUP_TYPE]	= NULL;
 	}
 
 private:
@@ -122,12 +142,19 @@ public:
     	texture = NULL;
 		state = ALIVE;
 
-		max_health = max_shields = health = shields = 400.0 / 3.0;
-		max_armor = max_power = armor = power = 100.0;
-		capture_modifier = 0.75;
+		max_health = max_shields = health = shields = default_max_resource * 4.0 / 3.0;
+		max_armor = max_power = armor = power = default_max_resource;
+		power_recharge_rate = default_power_recharge;
+		capture_modifier = default_capture_modifier * 0.75;
 
 		//Set Important Variables
 		Set_Texture(surface_manager->ship, 64, 64);
+
+		weapon_pool[ENERGY_TYPE]	= new Laser();
+		weapon_pool[BALLISTIC_TYPE] = new Gauss();
+		weapon_pool[PROPELLED_TYPE] = new Rocket();
+		weapon_pool[BOMB_TYPE]		= new Bomb();
+		weapon_pool[POWERUP_TYPE]	= NULL;
 	}
 
 private:
@@ -153,12 +180,19 @@ public:
     	texture = NULL;
 		state = ALIVE;
 
-		max_health = max_shields = health = shields = 75.0;
-		max_armor = max_power = armor = power = 400.0 / 3.0;
-		capture_modifier = 1.0;
+		max_health = max_shields = health = shields = default_max_resource * 0.75;
+		max_armor = max_power = armor = power = default_max_resource * 4.0 / 3.0;
+		power_recharge_rate = default_power_recharge;
+		capture_modifier = default_capture_modifier;
 
 		//Set Important Variables
 		Set_Texture(surface_manager->ship, 64, 64);
+
+		weapon_pool[ENERGY_TYPE]	= new Laser();
+		weapon_pool[BALLISTIC_TYPE] = new Gauss();
+		weapon_pool[PROPELLED_TYPE] = new Rocket();
+		weapon_pool[BOMB_TYPE]		= new Bomb();
+		weapon_pool[POWERUP_TYPE]	= NULL;
 	}
 
 private:

@@ -1,21 +1,14 @@
-#include "Client.h"
+#include "Player.h"
 
 
 
-Client::Client() {
+Player::Player() {
 	pawn = new Fighter(0.0, 0.0);
 
-	shield_bar.Set_Rect(0, 0, 80, 20, 2);
-	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
+	network = NetworkFactory::getInstance();
 
-	hull_bar.Set_Rect(0, 20, 80, 20, 2);
-	hull_bar.Set_Color(Color(0.50, 0.00, 0.00));
-
-	armor_bar.Set_Rect(0, 40, 80, 20, 2);
-	armor_bar.Set_Color(Color(0.00, 0.50, 0.00));
-
-	power_bar.Set_Rect(0, 60, 80, 20, 2);
-	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
+	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
+		inputs[i] = false;
 
 	channel_id = -1;
 	player_id = -1;
@@ -23,15 +16,14 @@ Client::Client() {
 
 	host_port = 8080;
 
-	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
-		inputs[i] = false;
-
-	offline = true;
+	ready = 1;
+	if (!network->Init())
+		ready = 0;
 }
 
 
 
-Client::~Client()
+Player::~Player()
 {
 	if (ready != 1)
  		return;
@@ -42,21 +34,7 @@ Client::~Client()
 
 
 
-bool Client::Connect() {
-	network = NetworkFactory::getInstance();
-
-	ready = 1;
-	if (!network->Init())
-		ready = 0;
-
-	offline = 1 - ready;
-
-	return ready;
-}
-
-
-
-bool Client::Send() {
+bool Player::Send() {
 	if (ready != 1)
  		return false;
 
@@ -68,7 +46,7 @@ bool Client::Send() {
 	network->SendData(parser.GetStream(), channel_id);
 }
 
-NetString * Client::Receive() {
+NetString * Player::Receive() {
 	if (ready != 1)
  		return NULL;
 	// Should fix this up to do all parsing
@@ -119,7 +97,7 @@ NetString * Client::Receive() {
 
 
 
-void Client::Update(double dt) {
+void Player::Update(double dt) {
 	if (offline) {
 		if (inputs[MOVE_FORWARD])
 			pawn->force = 200.0;
@@ -134,39 +112,22 @@ void Client::Update(double dt) {
 		if (inputs[TURN_RIGHT])
 			pawn->Turn_Right(dt);
 		if (inputs[FIRE_ENERGY])
-			pawn->Fire(ENERGY_TYPE);
+			pawn->Fire(0);
 		if (inputs[FIRE_BALLISTIC])
-			pawn->Fire(BALLISTIC_TYPE);
-		if (inputs[FIRE_PROPELLED])
-			pawn->Fire(PROPELLED_TYPE);
+			pawn->Fire(1);
+		if (inputs[FIRE_MISSILE])
+			pawn->Fire(2);
 		if (inputs[FIRE_MINE])
-			pawn->Fire(BOMB_TYPE);
-		if (inputs[FIRE_POWERUP])
-			pawn->Fire(POWERUP_TYPE);
+			pawn->Fire(3);
 	}
 	else {
 		Send();
 		Receive();
 	}
 
-	armor_bar.Notify(pawn->armor / pawn->max_armor);
-	hull_bar.Notify(pawn->health / pawn->max_health);
-	shield_bar.Notify(pawn->shields / pawn->max_shields);
-	power_bar.Notify(pawn->power / pawn->max_power);
-
 	pawn->Update(dt);
-
-	armor_bar.Update(dt);
-	hull_bar.Update(dt);
-	shield_bar.Update(dt);
-	power_bar.Update(dt);
 }
 
-void Client::Draw() {
+void Player::Draw() {
 	pawn->Draw();
-
-	armor_bar.Draw();
-	hull_bar.Draw();
-	shield_bar.Draw();
-	power_bar.Draw();
 }

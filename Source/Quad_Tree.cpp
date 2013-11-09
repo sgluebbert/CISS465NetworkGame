@@ -38,7 +38,11 @@ Quad_Tree::~Quad_Tree() {
 }
 
 bool Quad_Tree::Is_Within(Entity * item) {
-    const Rect<double> temp = item->drawing_box;
+    Rect<double> temp;
+    temp.x = item->x;
+    temp.y = item->y;
+    temp.w = item->w;
+    temp.h = item->h;
 
     return bounds.Within(temp);
 }
@@ -131,8 +135,7 @@ void Quad_Tree::Clear() {
 
 
 
-void Quad_Tree::Update(double delta) {
-    //If objects contained are static, this does not need to be called
+void Quad_Tree::Update(double dt) {
 }
 
 void Quad_Tree::Draw() {

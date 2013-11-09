@@ -17,7 +17,6 @@ Particle::Particle(Particle & p) {
 	age = 0;
 
     bounding_volume = p.bounding_volume;
-    drawing_box = p.drawing_box;
 
     x = p.x;
     y = p.y;

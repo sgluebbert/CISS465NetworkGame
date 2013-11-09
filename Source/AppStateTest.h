@@ -8,6 +8,8 @@
 #include "Client.h"
 #include "System.h"
 
+#include "Map.h"
+
 
 
 class AppStateTest : public AppStateBase {

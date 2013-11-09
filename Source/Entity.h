@@ -3,11 +3,10 @@
 
 
 
-#include <deque>
+#include "Networking/NetString.h"
 
 #include "Circle.h"
 #include "Rect.h"
-#include "Networking/Parser.h"
 
 
 
@@ -19,8 +18,8 @@ public:
     void Map_To_Viewport(Rect<double>);
     void Map_To_World(Rect<double>);
 
-    NetString * Serialize();
-    bool Deserialize(NetString *);
+    virtual NetString * Serialize();
+    virtual bool Deserialize(NetString *);
     
     void Turn_Left(double);
     void Turn_Right(double);
@@ -32,16 +31,20 @@ public:
     virtual void Draw();
     
     Circle<double> bounding_volume;     //Hit Box for collisions
-    Rect<double> drawing_box;           //Box Reference for drawing?
 
-    float x, y, w, h, angle;            //Center point and angle for rotation and drawing
+    float x, y, w, h, angle;           //Center point and angle for rotation and drawing
     double dx, dy;                      //Vector
     double mass;                        //For physics calculations
     double velocity, max_velocity;      //units per second
     double reverse_modifier;            //Percent
     double force;                       //
     double inertia;                     //For torque calculations
-    double turn_rate;                   //Radians per second
+    double turn_rate;                   //Degrees per second
+
+    //static Quad_Tree drawable;
+    //static Quad_Tree collidable;
+
+    //static void Update_Trees();
 };
 
 

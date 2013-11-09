@@ -87,9 +87,7 @@ void Entity::Update(double dt) {
     Move(dt);
 
     bounding_volume.Update(dt, x, y);
-    drawing_box.Update(dt, x, y, w, h);
 }
 
 void Entity::Draw() {
-    //SDL_BlitSurface(surface_ptr, NULL, WINDOW, &bounding_box);
 }

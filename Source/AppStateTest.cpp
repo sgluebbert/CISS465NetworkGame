@@ -31,7 +31,6 @@ void AppStateTest::Update() {
     viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
     viewport.y = player.pawn->y + player.pawn->w / 2.0 - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
-    std::cout << "Update" << std::endl;
 }
 
 void AppStateTest::Draw() {
@@ -46,7 +45,7 @@ void AppStateTest::Draw() {
 }
 
 void AppStateTest::Cleanup() {
-    sound_manager->Stop_Music();
+    //sound_manager->Stop_Music();
 }
 
 
@@ -63,13 +62,20 @@ AppStateBase * AppStateTest::GetInstance() {
 
 void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;               break;
-    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;              break;
-    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;            break;
-    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;           break;
-    case SDLK_d:        player.pawn->health = 0.25 * player.pawn->max_health;           break;
-    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
-    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
+    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;                break;
+    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;               break;
+    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;             break;
+    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;            break;
+    /*Change Weapon Firing to use the PRESSED_KEY array rather than the toggles*/
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;              break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;           break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;           break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = true;                break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;             break;
+    case SDLK_d:        player.pawn->Damage_Shields(10.0);              break;
+    case SDLK_f:        player.pawn->Damage_Armor(10.0);                break;
+    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);        break;
+    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);        break;
     default:
         break;
     }
@@ -81,6 +87,12 @@ void AppStateTest::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = false;              break;
     case SDLK_UP:       player.inputs[MOVE_FORWARD] = false;            break;
     case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = false;           break;
+    /*Change Weapon Firing to use the PRESSED_KEY array rather than the toggles*/
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = false;             break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = false;          break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = false;          break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = false;               break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = false;            break;
     default:
         break;
     }
