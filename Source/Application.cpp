@@ -10,8 +10,8 @@ Application::Application() {
 
 
 
-bool Application::Execute() {
-    if (!Initialize())
+bool Application::Execute(bool gui) {
+    if (!Initialize(gui))
         return -1;
 
     SDL_Event Event;
@@ -29,11 +29,14 @@ bool Application::Execute() {
 
 
 
-bool Application::Initialize() {
-    if (!Initialize_System())
+bool Application::Initialize(bool _gui) {
+    gui = _gui;
+    if (gui && !Initialize_System())
         return false;
 
-    AppStateManager::Initialize();\
+    Initialize_Trig_Table();
+
+    AppStateManager::Initialize(gui);\
     
     return true;
 }
@@ -45,6 +48,9 @@ void Application::Events(SDL_Event * Event) {
 }
 
 void Application::Draw() {
+    if (!gui)
+        return;
+    
     glClear( GL_COLOR_BUFFER_BIT );
     glLoadIdentity();
 

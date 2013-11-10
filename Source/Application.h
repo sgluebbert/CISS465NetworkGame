@@ -17,9 +17,9 @@ class Application : public EventHandler {
 public:
     Application();
     
-    bool Execute();
+    bool Execute(bool);
     
-    bool Initialize();
+    bool Initialize(bool);
     void Events(SDL_Event *);
     void Draw();
     void Update();
@@ -37,6 +37,7 @@ public:
     
 protected:
     bool is_running;
+    bool gui;
 };
 
 

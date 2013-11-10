@@ -81,7 +81,7 @@ bool NetString::WriteInt(int value)
 {
 	if (bufferIndex >= bufferSize - 5)
 	{
-		if (!Expand(bufferSize * 2))
+		if (!Expand(std::max(bufferSize * 2, 8)))
 			return false;
 	}
 	
@@ -95,16 +95,17 @@ bool NetString::WriteFloat(float value)
 {
 	if (bufferIndex >= bufferSize - 5)
 	{
-		if (!Expand(bufferSize * 2))
+		if (!Expand(std::max(bufferSize * 2, 8)))
 			return false;
 	}
-	
+
 	unsigned int temp;
-	memcpy(&temp, &value, sizeof(float) < sizeof(unsigned int) ? sizeof(float) : sizeof(unsigned int));
+	memcpy(&temp, &value, std::min(sizeof(float), sizeof(unsigned int)));
 
 	SDLNet_Write32(temp, buffer + bufferIndex);
 	bufferIndex += 4;
 	bufferLength += 4;
+
 	return true;
 }
 

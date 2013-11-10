@@ -22,7 +22,7 @@ public:
     NetString * Serialize();
     bool Deserialize(NetString *);
 
-	void Fire(Weapon_Type);
+	bool Fire(Weapon_Type);
 	void Damage_Armor(double);
 	void Damage_Shields(double);
 	void Damage_Hull(double);

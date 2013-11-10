@@ -22,10 +22,13 @@ private:
         
         Texture * background_texture;
         Rect<double> background_rect;
+        Network *network;
         
         // static const char * MUSIC_FILENAME;
-
+        void Send();
+        void Receive();
         Client player;
+        Ship *players[MaximumClients];
 public:
  
         void Initialize();

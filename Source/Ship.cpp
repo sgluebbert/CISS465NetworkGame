@@ -44,18 +44,21 @@ bool Ship::Deserialize(NetString *string) {
 	return true;
 }
 
-void Ship::Fire(Weapon_Type weapon_id) {
+bool Ship::Fire(Weapon_Type weapon_id) {
+	// Return true for I fired something
+
 	if (weapon_id < ENERGY_TYPE)
-		return;
+		return false;
 	if (weapon_id > POWERUP_TYPE)
-		return;
+		return false;
 	if (weapon_pool[weapon_id] == NULL)
-		return;
+		return false;
 	if (power < weapon_pool[weapon_id]->power)
-		return;
+		return false;
 
 	if (weapon_pool[weapon_id]->Fire())
 		power -= weapon_pool[weapon_id]->power;
+	return true;
 }
 
 void Ship::Damage_Armor(double damage) {

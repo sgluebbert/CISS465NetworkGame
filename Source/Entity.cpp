@@ -32,7 +32,7 @@ void Entity::Map_To_World(Rect<double> viewport) {
 NetString *Entity::Serialize() {
     NetString * string = new NetString();
 
-    if (!string->WriteFloat(x) && !string->WriteFloat(y) && !string->WriteFloat(angle)) {
+    if (!string->WriteFloat(x) || !string->WriteFloat(y) || !string->WriteFloat(angle)) {
         delete string;
         return NULL;
     }
@@ -41,8 +41,9 @@ NetString *Entity::Serialize() {
 }
 
 bool Entity::Deserialize(NetString *string) {
-    if (!string->ReadFloat(x) && !string->ReadFloat(y) && !string->ReadFloat(angle))
+    if (!string->ReadFloat(x) || !string->ReadFloat(y) || !string->ReadFloat(angle))
         return false;
+
     return true;
 }
 
@@ -70,8 +71,8 @@ void Entity::Calculate_Velocity(double dt) {
 }
 
 void Entity::Calculate_Speed(double dt) {
-    dx = velocity * TRIG_TABLE[int(angle / 5.0)][0];
-    dy = velocity * TRIG_TABLE[int(angle / 5.0)][1];
+    dx = velocity * cos(angle);//TRIG_TABLE[int(angle / 5.0)][0];
+    dy = velocity * sin(angle);//TRIG_TABLE[int(angle / 5.0)][1];
 }
 
 void Entity::Move(double dt) {

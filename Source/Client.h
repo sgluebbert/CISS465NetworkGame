@@ -19,13 +19,14 @@ public:
 	char channel_id;
 	Uint8 player_id;
 	Uint8 team_id;
-	Uint16 host_port;
+	time_t last_input;
 
 	Network * network;
 	NetString netString;
 
 	int ready;
 	bool offline;
+	bool fired[5];
 
 	Ship * pawn;
 
@@ -45,9 +46,9 @@ public:
 	void Update(double);
 	void Draw();
 
-	bool Connect();
-	bool Send();
-	NetString * Receive();
+	// bool Connect();
+	// bool Send();
+	// NetString * Receive();
 
 private:
 };

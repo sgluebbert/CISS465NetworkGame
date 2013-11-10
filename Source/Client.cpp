@@ -32,11 +32,13 @@ Client::Client() {
 	channel_id = -1;
 	player_id = -1;
 	team_id = -1;
-
-	host_port = 8080;
+	time(&last_input);
 
 	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
 		inputs[i] = false;
+
+	for (int i = 0; i < 5; ++i)
+		fired[i] = false;
 
 	offline = true;
 }
@@ -54,80 +56,80 @@ Client::~Client()
 
 
 
-bool Client::Connect() {
-	network = NetworkFactory::getInstance();
+// bool Client::Connect() {
+// 	network = NetworkFactory::getInstance();
 
-	ready = 1;
-	if (!network->Init())
-		ready = 0;
+// 	ready = 1;
+// 	if (!network->Init())
+// 		ready = 0;
 
-	offline = 1 - ready;
+// 	offline = 1 - ready;
 
-	return ready;
-}
+// 	return ready;
+// }
 
 
 
-bool Client::Send() {
-	if (ready != 1)
- 		return false;
+// bool Client::Send() {
+// 	if (ready != 1)
+//  		return false;
 
-	Parser parser;
-	if (!parser.SerializeInput(inputs, NUMBER_OF_INPUTS))
-		return false;
-	parser.End();
+// 	Parser parser;
+// 	if (!parser.SerializeInput(inputs, NUMBER_OF_INPUTS))
+// 		return false;
+// 	parser.End();
 
-	network->SendData(parser.GetStream(), channel_id);
-}
+// 	network->SendData(parser.GetStream(), channel_id);
+// }
 
-NetString * Client::Receive() {
-	if (ready != 1)
- 		return NULL;
-	// Should fix this up to do all parsing
+// NetString * Client::Receive() {
+// 	if (ready != 1)
+//  		return NULL;
+// 	// Should fix this up to do all parsing
 	
-	netString.ClearBuffer();
+// 	netString.ClearBuffer();
 
-	while (network->ReceiveData() != -1)
-	{
-		NetString *temp = network->GetData();
-		if (temp != NULL)
-			netString += *temp;
-	}
+// 	while (network->ReceiveData() != -1)
+// 	{
+// 		NetString *temp = network->GetData();
+// 		if (temp != NULL)
+// 			netString += *temp;
+// 	}
 
-	netString.Seek(0);
-
-
-	bool reading = true;
-	while (reading)
-	{
-		NetworkChunkEnums type;
-		unsigned char temp;
-		if (!netString.ReadUChar(temp))
-			break;
-
-		unsigned char playerId = 0;
-		type = (NetworkChunkEnums)temp;
-
-		switch (type)
-		{
-			case NCE_NEW_PLAYER:
-				netString.ReadUChar(playerId);
-
-				if (channel_id == -1)
-				{
-					channel_id = playerId;
-					network->Bind(channel_id);
-				}
-				break;
-
-			default:
-				reading = false;
-		}
-	}
+// 	netString.Seek(0);
 
 
-	return &netString;
-}
+// 	bool reading = true;
+// 	while (reading)
+// 	{
+// 		NetworkChunkEnums type;
+// 		unsigned char temp;
+// 		if (!netString.ReadUChar(temp))
+// 			break;
+
+// 		unsigned char playerId = 0;
+// 		type = (NetworkChunkEnums)temp;
+
+// 		switch (type)
+// 		{
+// 			case NCE_NEW_PLAYER:
+// 				netString.ReadUChar(playerId);
+
+// 				if (channel_id == -1)
+// 				{
+// 					channel_id = playerId;
+// 					network->Bind(channel_id);
+// 				}
+// 				break;
+
+// 			default:
+// 				reading = false;
+// 		}
+// 	}
+
+
+// 	return &netString;
+// }
 
 
 
@@ -135,30 +137,24 @@ void Client::Update(double dt) {
 	if (offline) {
 		if (inputs[MOVE_FORWARD])
 			pawn->force = 200.0;
-		else
-			pawn->force = 0.0;
 		if (inputs[MOVE_BACKWARD])
 			pawn->force = -200.0;
-		else
+		if (!inputs[MOVE_BACKWARD] && !inputs[MOVE_FORWARD])
 			pawn->force = 0.0;
 		if (inputs[TURN_LEFT])
 			pawn->Turn_Left(dt);
 		if (inputs[TURN_RIGHT])
 			pawn->Turn_Right(dt);
 		if (inputs[FIRE_ENERGY])
-			pawn->Fire(ENERGY_TYPE);
+			fired[0] = pawn->Fire(ENERGY_TYPE);
 		if (inputs[FIRE_BALLISTIC])
-			pawn->Fire(BALLISTIC_TYPE);
+			fired[1] = pawn->Fire(BALLISTIC_TYPE);
 		if (inputs[FIRE_PROPELLED])
-			pawn->Fire(PROPELLED_TYPE);
+			fired[2] = pawn->Fire(PROPELLED_TYPE);
 		if (inputs[FIRE_MINE])
-			pawn->Fire(BOMB_TYPE);
+			fired[3] = pawn->Fire(BOMB_TYPE);
 		if (inputs[FIRE_POWERUP])
-			pawn->Fire(POWERUP_TYPE);
-	}
-	else {
-		Send();
-		Receive();
+			fired[4] = pawn->Fire(POWERUP_TYPE);
 	}
 
 	armor_bar.Notify(pawn->armor / pawn->max_armor);

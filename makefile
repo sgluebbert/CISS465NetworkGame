@@ -2,11 +2,7 @@ CC = g++
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
 
-<<<<<<< HEAD
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Progress_Circle.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o
-=======
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o TimeStamp
->>>>>>> 882f9e39fd76d4d0f53d83f934b9382da4559ced
+build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateGameServer.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Progress_Circle.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o
 
 Application.o: Source/Application.h Source/Application.cpp
 
@@ -23,6 +19,8 @@ AppStateIntro.o: Source/AppStateIntro.h Source/AppStateIntro.cpp
 AppStateMenu.o: Source/AppStateMenu.h Source/AppStateMenu.cpp
 
 AppStateGame.o: Source/AppStateGame.h Source/AppStateGame.cpp
+
+AppStateGameServer.o: Source/AppStateGameServer.h Source/AppStateGameServer.cpp
 
 AppStateTest.o: Source/AppStateTest.h Source/AppStateTest.cpp
 
@@ -87,7 +85,7 @@ clean:
 
 push:
 	make clean
-	git add *
+	git add .
 	git status
 	@echo ""
 	@read -p "Commit Comment: " MSG;\

@@ -7,8 +7,11 @@ AppStateBase * AppStateManager::instance = NULL;
  
  
  
-void AppStateManager::Initialize() {
-    Set_Active_State(APPSTATE_INTRO);
+void AppStateManager::Initialize(bool gui) {
+    if (gui)
+        Set_Active_State(APPSTATE_INTRO);
+    else
+        Set_Active_State(APPSTATE_GAME_SERVER);
 }
  
 void AppStateManager::Events(SDL_Event * Event) {
@@ -46,6 +49,9 @@ void AppStateManager::Set_Active_State(AppState NewStateID) {
         break;
     case APPSTATE_GAME:
         instance = AppStateGame::GetInstance();
+        break;
+    case APPSTATE_GAME_SERVER:
+        instance = AppStateGameServer::GetInstance();
         break;
     case APPSTATE_TEST:
         instance = AppStateTest::GetInstance();

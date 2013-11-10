@@ -79,14 +79,14 @@ public:
 		return map["HOST_ADDRESS"].c_str();
 	}
 
-	Uint16 GetListenPort()
+	Uint16 GetServerPort()
 	{
-		return atoi(map["LISTEN_PORT"].c_str());
+		return atoi(map["SERVER_PORT"].c_str());
 	}
 
-	Uint16 GetHostPort()
+	Uint16 GetClientPort()
 	{
-		return atoi(map["HOST_PORT"].c_str());
+		return atoi(map["CLIENT_PORT"].c_str());
 	}
 
 private:

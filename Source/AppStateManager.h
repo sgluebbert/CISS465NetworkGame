@@ -7,6 +7,7 @@
 #include "AppStateIntro.h"
 #include "AppStateMenu.h"
 #include "AppStateGame.h"
+#include "AppStateGameServer.h"
 #include "AppStateTest.h"
  
  
@@ -17,7 +18,7 @@ class AppStateManager {
         static AppState active_state;
  
     public:
-        static void Initialize();
+        static void Initialize(bool);
         static void Events(SDL_Event* Event);
         static void Update();
         static void Draw();

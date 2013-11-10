@@ -7,9 +7,17 @@ AppStateBase * AppStateGame::instance = NULL;
 
 
 AppStateGame::AppStateGame() {
+    player.offline = false;
+
+    for (int i = 0; i < MaximumClients; ++i)
+    {
+        players[i] = NULL;
+    }
 }
 
 void AppStateGame::Initialize() {
+    network = NetworkFactory::getInstance();
+    network->Init();
     background_texture = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
 }
@@ -20,7 +28,16 @@ void AppStateGame::Events(SDL_Event * Event) {
 
 void AppStateGame::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
-    player.Update(dt);
+    for (int i = 0; i < MaximumClients; ++i)
+    {
+        if (players[i] == NULL)
+            continue;
+
+        players[i]->Update(dt);
+    }
+
+    Send();
+    Receive();
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
@@ -34,10 +51,107 @@ void AppStateGame::Draw() {
     player.pawn->Map_To_Viewport(temp_rect);
     player.Draw();
     player.pawn->Map_To_World(temp_rect);
+
+    for (int i = 0; i < MaximumClients; ++i)
+    {
+        if (players[i] == NULL && players[i] != player.pawn)
+            continue;
+
+        players[i]->Map_To_Viewport(temp_rect);
+        players[i]->Draw();
+        players[i]->Map_To_World(temp_rect);
+    }
+}
+
+void AppStateGame::Send() {
+    Parser parser;
+    if (!parser.SerializeInput(player.inputs, NUMBER_OF_INPUTS))
+        return;
+    parser.End();
+
+    network->SendData(parser.GetStream(), player.channel_id);
+}
+
+void AppStateGame::Receive() {
+    NetString netString;
+
+    while (network->ReceiveData() != -1)
+    {
+        NetString *temp = network->GetData();
+        if (temp != NULL)
+            netString += *temp;
+    }
+
+    if (netString.BufferLength() == 0)
+        return;
+
+    netString.Seek(0);
+
+    bool reading = true;
+    while (reading)
+    {
+        NetworkChunkEnums type;
+        unsigned char temp;
+        if (!netString.ReadUChar(temp))
+            break;
+
+        unsigned char playerId = 0;
+        type = (NetworkChunkEnums)temp;
+
+        switch (type)
+        {
+            case NCE_NEW_PLAYER:
+                netString.ReadUChar(playerId);
+
+                if (player.channel_id == -1)
+                {
+                    player.channel_id = playerId;
+                    network->Bind(playerId);
+                    players[playerId] = player.pawn;
+                }
+                break;
+
+            case NCE_PLAYER:
+                netString.ReadUChar(playerId);
+                Ship *ship;
+
+                // New Player?
+                if (players[playerId] == NULL)
+                {
+                    players[playerId] = new Ship();
+                }
+
+                ship = players[playerId];
+                ship->Deserialize(&netString);
+
+                bool shipFired[5];
+                netString.ReadBool(shipFired[0]);
+                netString.ReadBool(shipFired[1]);
+                netString.ReadBool(shipFired[2]);
+                netString.ReadBool(shipFired[3]);
+                netString.ReadBool(shipFired[4]);
+                break;
+
+            case NCE_REMOVE_PLAYER:
+                netString.ReadUChar(playerId);
+                if (players[playerId] != NULL)
+                {
+                    delete players[playerId];
+                    players[playerId] = NULL;
+                }
+
+            default:
+                reading = false;
+        }
+    }
 }
 
 void AppStateGame::Cleanup() {
-    sound_manager->Stop_Music();
+    for (int i = 0; i < MaximumClients; ++i)
+    {
+        if (players[i] != NULL && players[i] != player.pawn)
+            delete players[i];
+    }
 }
 
 AppStateBase * AppStateGame::GetInstance() {
