@@ -38,10 +38,7 @@ TimeStamp: updater/source_timestamp.sh
 .PHONY: clean
 clean:
 	rm -f Source/*.o
-	rm -f server/Source/*.o
-	rm -f server/a.out
-	rm -f client/Source/*.o
-	rm -f client/a.out
+	rm -f app/a.out
 
 # This gets the repo up and ready for pushing to the master origin on github.
 # Make sure you see all your changes when the status is displayed.
@@ -49,7 +46,7 @@ clean:
 # tense because that is the standard for git commits.
 push:
 	make clean
-	git add .
+	git add . -A
 	git status
 	@echo ""
 	@read -p "Commit Comment: " MSG;\
