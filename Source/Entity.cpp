@@ -1,6 +1,5 @@
 #include "Entity.h"
 #include "System.h"
-#include "Timer.h"
 
 
 
@@ -16,17 +15,6 @@ Entity::Entity() {
 Entity::~Entity() {
 }
 
-
-
-void Entity::Map_To_Viewport(Rect<double> viewport) {
-    x -= viewport.x;
-    y -= viewport.y;
-}
-
-void Entity::Map_To_World(Rect<double> viewport) {
-    x += viewport.x;
-    y += viewport.y;
-}
 
 
 NetString *Entity::Serialize() {
@@ -61,6 +49,7 @@ void Entity::Turn_Right(double dt) {
 }
 
 void Entity::Calculate_Velocity(double dt) {
+    velocity *= 0.95;//FRICTION_COEFFICENT;
     velocity += (force / mass) * dt;
 
     if (velocity > max_velocity)
@@ -70,8 +59,9 @@ void Entity::Calculate_Velocity(double dt) {
 }
 
 void Entity::Calculate_Speed(double dt) {
-    dx = velocity * TRIG_TABLE[int(angle / 5.0)][0];
-    dy = velocity * TRIG_TABLE[int(angle / 5.0)][1];
+    //TRIG_TABLE isn't working correctly, for some reason it is always 0 within this function, and elsewhere is correct
+    dx = velocity * cos(angle * PI / 180) * dt;//TRIG_TABLE[int(angle / 5.0)][1] * dt;
+    dy = velocity * sin(angle * PI / 180) * dt;//TRIG_TABLE[int(angle / 5.0)][0] * dt;
 }
 
 void Entity::Move(double dt) {

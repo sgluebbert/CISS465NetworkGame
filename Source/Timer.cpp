@@ -3,26 +3,30 @@
 
 
 Timer::Timer()
-	: timer(0.0), interval(0.0) {}
+	: timer(0.0), interval(0.0), active(false) {}
 
 Timer::Timer(double _timer)
-	: timer(_timer), interval(_timer) {}
+	: timer(_timer), interval(_timer), active(false) {}
 
 void Timer::Start() {
+	active = true;
 	timer = 0.0;
 }
 
 bool Timer::Ended() {
-	return timer >= interval;
+	return !active;
 }
 
 void Timer::Update(double dt) {
-	if (timer < interval)
+	if (active)
 		timer += dt;
+	if (timer >= interval)
+		active = false;
 }
 
 void Timer::Set_Interval(double _interval) {
 	interval = _interval;
+	timer = 0.0;
 }
 
 double Timer::Get_Progress() {

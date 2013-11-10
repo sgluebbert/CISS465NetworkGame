@@ -29,10 +29,10 @@ public:
 
 	Ship * pawn;
 
-	Health_Bar armor_bar;
-	Health_Bar hull_bar;
-	Health_Bar shield_bar;
-	Health_Bar power_bar;
+	// Health_Bar armor_bar;
+	// Health_Bar hull_bar;
+	// Health_Bar shield_bar;
+	// Health_Bar power_bar;
 
 	Health_Circle armor_circle;
 	Health_Circle hull_circle;
@@ -41,6 +41,8 @@ public:
 
 	Client();
 	~Client();
+
+	void Respawn(double, double);
 
 	void Update(double);
 	void Draw();

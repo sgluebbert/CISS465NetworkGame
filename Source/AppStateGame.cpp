@@ -23,17 +23,18 @@ void AppStateGame::Update() {
     player.Update(dt);
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
-    viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
-    viewport.y = player.pawn->y + player.pawn->w / 2.0 - viewport.h / 2.0;
+    viewport.x = player.pawn->x + viewport.w / 2.0;
+    viewport.y = player.pawn->y + viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
 }
 
 void AppStateGame::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
-    player.pawn->Map_To_Viewport(temp_rect);
+
+    temp_camera->Map_To_Viewport(player.pawn);
     player.Draw();
-    player.pawn->Map_To_World(temp_rect);
+    temp_camera->Map_To_World(player.pawn);
 }
 
 void AppStateGame::Cleanup() {

@@ -25,6 +25,42 @@ Camera::Camera() {
 }
 
 
+
+void Camera::Map_To_Viewport(Entity * entity) {
+    entity->x -= viewport.x;
+    entity->y -= viewport.y;
+}
+
+void Camera::Map_To_World(Entity * entity) {
+    entity->x += viewport.x;
+    entity->y += viewport.y;
+}
+
+
+
+void Camera::Map_To_Viewport(Circle<double> * entity) {
+    entity->x -= viewport.x;
+    entity->y -= viewport.y;
+}
+
+void Camera::Map_To_World(Circle<double> * entity) {
+    entity->x += viewport.x;
+    entity->y += viewport.y;
+}
+
+
+
+void Camera::Map_To_Viewport(Rect<double> * entity) {
+    entity->x -= viewport.x;
+    entity->y -= viewport.y;
+}
+
+void Camera::Map_To_World(Rect<double> * entity) {
+    entity->x += viewport.x;
+    entity->y += viewport.y;
+}
+
+
     
 void Camera::Set_Viewport(const Rect<double> & nviewport) {
     viewport = nviewport;

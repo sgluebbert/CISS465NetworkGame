@@ -5,29 +5,31 @@
 Client::Client() {
 	pawn = new Fighter(0.0, 0.0);
 
-	shield_bar.Set_Rect(0, 0, 80, 20, 2);
+	/*shield_bar.Set_Rect(720, 0, 80, 20, 2);
 	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
 
-	hull_bar.Set_Rect(0, 20, 80, 20, 2);
+	hull_bar.Set_Rect(720, 20, 80, 20, 2);
 	hull_bar.Set_Color(Color(0.50, 0.00, 0.00));
 
-	armor_bar.Set_Rect(0, 40, 80, 20, 2);
+	armor_bar.Set_Rect(720, 40, 80, 20, 2);
 	armor_bar.Set_Color(Color(0.00, 0.50, 0.00));
 
-	power_bar.Set_Rect(0, 60, 80, 20, 2);
-	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
+	power_bar.Set_Rect(720, 60, 80, 20, 2);
+	power_bar.Set_Color(Color(0.50, 0.50, 0.00));*/
 
-	shield_circle.Set_Circle(780, 20, 20, 2, 10, 0);
+	shield_circle.Set_Circle(32, 32, 32, 2, 16, 0);
 	shield_circle.Set_Color(Color(0.00, 0.00, 0.50));
 
-	hull_circle.Set_Circle(780, 60, 20, 2, 10, 0);
+	hull_circle.Set_Circle(96, 32, 32, 2, 16, 0);
 	hull_circle.Set_Color(Color(0.50, 0.00, 0.00));
 
-	armor_circle.Set_Circle(780, 100, 20, 2, 10, 0);
+	armor_circle.Set_Circle(96, 96, 32, 2, 16, 0);
 	armor_circle.Set_Color(Color(0.00, 0.50, 0.00));
 
-	power_circle.Set_Circle(780, 140, 20, 2, 10, 0);
+	power_circle.Set_Circle(32, 96, 32, 2, 16, 0);
 	power_circle.Set_Color(Color(0.50, 0.50, 0.00));
+
+	pawn->respawn_timer.Set_Interval(5.0);
 
 	channel_id = -1;
 	player_id = -1;
@@ -43,13 +45,19 @@ Client::Client() {
 
 
 
-Client::~Client()
-{
+Client::~Client() {
 	if (ready != 1)
  		return;
  	
 	network->Close();
 	ready = 2;
+}
+
+
+
+void Client::Respawn(double _x, double _y) {
+	delete pawn;
+	pawn = new Fighter(_x, _y);
 }
 
 
@@ -134,17 +142,20 @@ NetString * Client::Receive() {
 void Client::Update(double dt) {
 	if (offline) {
 		if (inputs[MOVE_FORWARD])
-			pawn->force = 200.0;
+			pawn->Accelerate(false);
 		else
-			pawn->force = 0.0;
+			pawn->Decelerate();
+
 		if (inputs[MOVE_BACKWARD])
-			pawn->force = -200.0;
+			pawn->Accelerate(true);
 		else
-			pawn->force = 0.0;
+			pawn->Decelerate();
+
 		if (inputs[TURN_LEFT])
 			pawn->Turn_Left(dt);
 		if (inputs[TURN_RIGHT])
 			pawn->Turn_Right(dt);
+
 		if (inputs[FIRE_ENERGY])
 			pawn->Fire(ENERGY_TYPE);
 		if (inputs[FIRE_BALLISTIC])
@@ -161,10 +172,10 @@ void Client::Update(double dt) {
 		Receive();
 	}
 
-	armor_bar.Notify(pawn->armor / pawn->max_armor);
+	/*armor_bar.Notify(pawn->armor / pawn->max_armor);
 	hull_bar.Notify(pawn->health / pawn->max_health);
 	shield_bar.Notify(pawn->shields / pawn->max_shields);
-	power_bar.Notify(pawn->power / pawn->max_power);
+	power_bar.Notify(pawn->power / pawn->max_power);*/
 
 	armor_circle.Notify(pawn->armor / pawn->max_armor);
 	hull_circle.Notify(pawn->health / pawn->max_health);
@@ -173,10 +184,13 @@ void Client::Update(double dt) {
 
 	pawn->Update(dt);
 
-	armor_bar.Update(dt);
+	if (pawn->state == DEAD && pawn->respawn_timer.Ended())
+		Respawn(0.0, 0.0);
+
+	/*armor_bar.Update(dt);
 	hull_bar.Update(dt);
 	shield_bar.Update(dt);
-	power_bar.Update(dt);
+	power_bar.Update(dt);*/
 
 	armor_circle.Update(dt);
 	hull_circle.Update(dt);
@@ -187,10 +201,10 @@ void Client::Update(double dt) {
 void Client::Draw() {
 	pawn->Draw();
 
-	armor_bar.Draw();
+	/*armor_bar.Draw();
 	hull_bar.Draw();
 	shield_bar.Draw();
-	power_bar.Draw();
+	power_bar.Draw();*/
 
 	armor_circle.Draw();
 	hull_circle.Draw();
