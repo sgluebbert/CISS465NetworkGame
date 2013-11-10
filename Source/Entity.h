@@ -15,9 +15,6 @@ public:
     Entity();
     ~Entity();
 
-    void Map_To_Viewport(Rect<double>);
-    void Map_To_World(Rect<double>);
-
     virtual NetString * Serialize();
     virtual bool Deserialize(NetString *);
     
@@ -33,13 +30,13 @@ public:
     Circle<double> bounding_volume;     //Hit Box for collisions
 
     float x, y, w, h, angle;           //Center point and angle for rotation and drawing
-    double dx, dy;                      //Vector
-    double mass;                        //For physics calculations
-    double velocity, max_velocity;      //units per second
-    double reverse_modifier;            //Percent
-    double force;                       //
-    double inertia;                     //For torque calculations
-    double turn_rate;                   //Degrees per second
+    float dx, dy;                      //Vector
+    float mass;                        //For physics calculations
+    float velocity, max_velocity;      //units per second
+    float reverse_modifier;            //Percent
+    float force;                       //
+    float inertia;                     //For torque calculations
+    float turn_rate;                   //Degrees per second
 
     //static Quad_Tree drawable;
     //static Quad_Tree collidable;

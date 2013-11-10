@@ -19,7 +19,7 @@ void TextureManager::Load()
 	smoke 					= new Texture("./Art/smoke.png");
 	ship 					= new Texture("./Art/ship01.png");
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
-	background_game 		= new Texture("./Art/Background.bmp");
+	background_game 		= new Texture("./Art/Background.png");
 	button 					= new Texture("./Art/Button.png");
 	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
 }

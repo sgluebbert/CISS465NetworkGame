@@ -2,6 +2,18 @@
 
 
 
+Star::Star() {
+    bounding_volume.x = rand() % 2000;
+    bounding_volume.y = rand() % 2000;
+    bounding_volume.r = rand() % 3;
+}
+
+void Star::Draw() {
+    DrawCircle(bounding_volume.x, bounding_volume.y, bounding_volume.r, true, &WHITE);
+}
+
+
+
 AppStateBase * AppStateTest::instance = NULL;
 
 
@@ -13,9 +25,16 @@ AppStateTest::AppStateTest() {
 
 void AppStateTest::Initialize() {
     background_texture = surface_manager->background_game;
+    map = new Map(0);
+
+    srand(time(NULL));
+    Initialize_Trig_Table();
+
+    for (int i = 0; i < 500; i++)
+        stars.push_back(Star());
     
-    // sound_manager->Load_Music("./Sound/Music/Battle.ogg");
-    // sound_manager->Play_Music();
+    //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
+    //sound_manager->Play_Music();
 }
 
 void AppStateTest::Events(SDL_Event * Event) {
@@ -37,15 +56,22 @@ void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
-    background_texture->DrawAtRect(temp_rect.x, temp_rect.y, temp_rect.w, temp_rect.h);
+    for (int i = 0; i < stars.size(); i++) {
+        temp_camera->Map_To_Viewport(&stars[i].bounding_volume);
+        if (!(stars[i].bounding_volume.x < 0 || stars[i].bounding_volume.x > 800 ||
+              stars[i].bounding_volume.y < 0 || stars[i].bounding_volume.y > 600))
+            stars[i].Draw();
+        temp_camera->Map_To_World(&stars[i].bounding_volume);
+    }
 
-    player.pawn->Map_To_Viewport(temp_rect);
+    temp_camera->Map_To_Viewport(player.pawn);
     player.Draw();
-    player.pawn->Map_To_World(temp_rect);
+    temp_camera->Map_To_World(player.pawn);
 }
 
 void AppStateTest::Cleanup() {
-    //sound_manager->Stop_Music();
+    delete map;
+    sound_manager->Stop_Music();
 }
 
 

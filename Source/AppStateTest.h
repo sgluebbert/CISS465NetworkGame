@@ -12,6 +12,17 @@
 
 
 
+class Star {
+public:
+        Star();
+
+        void Draw();
+
+        Circle<double> bounding_volume;
+};
+
+
+
 class AppStateTest : public AppStateBase {
 private:
         static AppStateBase * instance;
@@ -20,9 +31,10 @@ private:
         Texture * background_texture;
         Rect<double> background_rect;
         
-        static const char * MUSIC_FILENAME;
-        
         Client player;
+        Map * map;
+
+        std::vector<Star> stars;
 public:
  
         void Initialize();

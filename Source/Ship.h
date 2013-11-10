@@ -23,15 +23,18 @@ public:
     bool Deserialize(NetString *);
 
 	bool Fire(Weapon_Type);
-	void Damage_Armor(double);
-	void Damage_Shields(double);
-	void Damage_Hull(double);
+	void Accelerate(bool);
+	void Decelerate();
+
+	void Damage_Armor(float);
+	void Damage_Shields(float);
+	void Damage_Hull(float);
 
 	void Update(double);
 	void Draw();
 
 //protected:
-	static double default_max_resource, default_power_recharge, default_capture_modifier;
+	static const float default_max_resource, default_power_recharge, default_capture_modifier;
 
     Texture * texture;
     Particle_Emitter smoke_emitter;
@@ -39,10 +42,13 @@ public:
 
     Ship_State state;
 
-	double max_health, max_shields, max_armor, max_power;
+    Timer respawn_timer;
+
+	float max_health, max_shields, max_armor, max_power;
 	float health, shields, armor, power;
-	double power_recharge_rate;
-	double capture_modifier;
+	float shield_recharge_delay, shield_recharge_rate;
+	float power_recharge_rate;
+	float capture_modifier;
 	Weapon * weapon_pool[5];
 };
 
@@ -54,6 +60,7 @@ public:
 		//Entity Variables
 		x = _x;
 		y = _y;
+		w = 20;
 		angle = 0.0;
 		mass = 30.0;
 
@@ -72,7 +79,7 @@ public:
 		capture_modifier = default_capture_modifier * 4.0 / 3.0;
 
 		//Set Important Variables
-		Set_Texture(surface_manager->ship, 64, 64);
+		Set_Texture(surface_manager->ship, 32, 32);
 
 		weapon_pool[ENERGY_TYPE]	= new Laser();
 		weapon_pool[BALLISTIC_TYPE] = new Gauss();
@@ -110,7 +117,7 @@ public:
 		capture_modifier = default_capture_modifier;
 
 		//Set Important Variables
-		Set_Texture(surface_manager->ship, 64, 64);
+		Set_Texture(surface_manager->ship, 32, 32);
 
 		weapon_pool[ENERGY_TYPE]	= new Laser();
 		weapon_pool[BALLISTIC_TYPE] = new Gauss();
@@ -148,7 +155,7 @@ public:
 		capture_modifier = default_capture_modifier * 0.75;
 
 		//Set Important Variables
-		Set_Texture(surface_manager->ship, 64, 64);
+		Set_Texture(surface_manager->ship, 32, 32);
 
 		weapon_pool[ENERGY_TYPE]	= new Laser();
 		weapon_pool[BALLISTIC_TYPE] = new Gauss();
@@ -186,7 +193,7 @@ public:
 		capture_modifier = default_capture_modifier;
 
 		//Set Important Variables
-		Set_Texture(surface_manager->ship, 64, 64);
+		Set_Texture(surface_manager->ship, 32, 32);
 
 		weapon_pool[ENERGY_TYPE]	= new Laser();
 		weapon_pool[BALLISTIC_TYPE] = new Gauss();

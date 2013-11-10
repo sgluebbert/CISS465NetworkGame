@@ -42,6 +42,11 @@ Mix_Chunk * Sound_Manager::Load_Sound(const char * filename) {
 }
 
 void Sound_Manager::Load_Music(const char * filename) {
+	if (Music_Stream != NULL) {
+    	Mix_HaltMusic();
+		Mix_FreeMusic(Music_Stream);
+	}
+	
 	Music_Stream = Mix_LoadMUS(filename);
 		
 	if (Music_Stream == NULL) 

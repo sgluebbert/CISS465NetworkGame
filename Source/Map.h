@@ -22,6 +22,9 @@ public:
 
 	const int MAX_NUMBER_OF_PLAYERS;
 	const int WIDTH, HEIGHT;
+	const int SEED;
+
+	float * spawn_points;
 
 	std::vector<Planet *> planets;
 	std::vector<Moon *> moons;

@@ -17,6 +17,8 @@ public:
 	double Get_Progress();
 
 private:
+	bool active;
+	
 	double timer;
 	double interval;
 };

@@ -18,15 +18,15 @@ class AppStateGameServer : public AppStateBase {
 private:
         static AppStateBase * instance;
 
-		Network *network;
-		DebugLevel debugLevel;
-		time_t lastSpeedDisplay;
-		Client *clients[MaximumClients];
-		int clientCount;
+	Network *network;
+	DebugLevel debugLevel;
+	time_t lastSpeedDisplay;
+	Client *clients[MaximumClients];
+	int clientCount;
 
-		void HandleConnections();
-		void UpdateConnections();
-		void Send(NetString*);
+	void HandleConnections();
+	void UpdateConnections();
+	void Send(NetString*);
         
         AppStateGameServer(DebugLevel l = DL_MED);
 public:

@@ -2,9 +2,9 @@
 
 
 
-double Ship::default_max_resource = 100.0;
-double Ship::default_power_recharge = 0.5;
-double Ship::default_capture_modifier = 1.0;
+const float Ship::default_max_resource = 100.0;
+const float Ship::default_power_recharge = 0.5;
+const float Ship::default_capture_modifier = 1.0;
 
 
 
@@ -14,7 +14,7 @@ void Ship::Set_Texture(Texture * tex, float width, float height) {
     h = height;
 }
 
-NetString *Ship::Serialize() {
+NetString * Ship::Serialize() {
 	NetString * string = new NetString();
 
 	NetString * baseString = Entity::Serialize();
@@ -61,7 +61,23 @@ bool Ship::Fire(Weapon_Type weapon_id) {
 	return true;
 }
 
-void Ship::Damage_Armor(double damage) {
+void Ship::Accelerate(bool reverse) {
+	/*if (!reverse)
+		force = 200.0;
+	else
+		force = -200.0;*/
+
+	if (!reverse)
+		velocity += 5.0;
+	else
+		velocity -= 5.0;
+}
+
+void Ship::Decelerate() {
+	force = 0.0;
+}
+
+void Ship::Damage_Armor(float damage) {
 	if (damage < 0)
 		return;
 
@@ -74,7 +90,7 @@ void Ship::Damage_Armor(double damage) {
 	}
 }
 
-void Ship::Damage_Shields(double damage) {
+void Ship::Damage_Shields(float damage) {
 	if (damage < 0)
 		return;
 
@@ -95,7 +111,7 @@ void Ship::Damage_Shields(double damage) {
 	Damage_Hull(damage);
 }
 
-void Ship::Damage_Hull(double damage) {
+void Ship::Damage_Hull(float damage) {
 	damage /= (1.0 + (1.0 * armor / 100.0));
 
 	if (health > 0)
@@ -117,13 +133,15 @@ void Ship::Damage_Hull(double damage) {
 }
 
 void Ship::Update(double dt) {
-	Entity::Update(dt);
+	respawn_timer.Update(dt);
 
 	smoke_emitter.Update(dt);
 	explosion_emitter.Update(dt);
 
 	switch(state) {
 	case ALIVE:
+    	Entity::Update(dt);
+
 	    if (health <= 0.5 * max_health)
 	        smoke_emitter.Activate();
 
@@ -145,8 +163,10 @@ void Ship::Update(double dt) {
 		break;
 
 	case DYING:
-		if (explosion_emitter.Is_Active())
+		if (!explosion_emitter.Is_Active()) {
 			state = DEAD;
+			respawn_timer.Start();
+		}
 
 		break;
 
@@ -165,7 +185,7 @@ void Ship::Draw() {
         return;
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(x, y, -angle, 40);
+    texture->DrawCentered(x, y, -angle, w);
 }
 
 

@@ -1,88 +1,52 @@
+# This makefile builds the main resources for the game side of the final
+# project for CISS465.
+
+# Compiler for the system. For our purposes, standard g++
 CC = g++
+
+# Any relevant options for compilation. Maybe -wall? 
 CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_image -lSDL_mixer -lSDL_ttf -lSDL_net -lGL -lGLU
 
+# The directory where the object files are stored (to be stored, actually.)
+# This is the same directory as the SRCDIR for now.
+OBJDIR = Source
 
-build: Source/Application.o Source/ApplicationEvent.o Source/AppStateEvent.o Source/AppStateBase.o Source/AppStateIntro.o Source/AppStateMenu.o Source/AppStateGame.o Source/AppStateGameServer.o Source/AppStateTest.o Source/AppStateManager.o Source/Camera.o Source/Client.o Source/Clock.o Source/Collision.o Source/Draw.o Source/Entity.o Source/EventHandler.o Source/Map.o Source/Menu.o Source/Networking/NetString.o Source/Networking/NetworkParser.o Source/Networking/Network.o Source/Networking/Parser.o Source/Particle.o Source/Particle_Emitter.o Source/Progress_Bar.o Source/Progress_Circle.o Source/Quad_Tree.o Source/Ship.o Source/SoundManager.o Source/System.o Source/Text.o Source/Texture.o Source/TextureManager.o Source/Timer.o Source/Weapon.o
+# List of all objects that this makefile is concerned with.
+# Anything not immediately related to server or client is here for now ???.
+OBJECTS = Application.o ApplicationEvent.o AppStateBase.o AppStateEvent.o \
+          AppStateGame.o AppStateGameServer.o AppStateIntro.o AppStateManager.o AppStateMenu.o \
+          AppStateTest.o Camera.o Client.o Clock.o Collision.o Draw.o \
+          Entity.o EventHandler.o Map.o Menu.o Networking/NetString.o \
+          Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
+          Particle.o Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
+          Quad_Tree.o Ship.o SoundManager.o System.o Text.o Texture.o \
+          TextureManager.o Timer.o Weapon.o
 
-Application.o: Source/Application.h Source/Application.cpp
+# The main workhorse of the makefile. Builds all the object files
+# and then updates the timestamp used to update clients.
+build: $(addprefix $(OBJDIR)/, $(OBJECTS)) TimeStamp
 
-ApplicationEvent.o: Source/ApplicationEvent.h Source/ApplicationEvent.cpp
+# Just individual compilation of all objects.
+$(addprefix $(OBJDIR)/, $(OBJECTS)): %.o: %.cpp
+	$(CC) -c $(CPPFLAGS) $< -o $@
 
-AppStateEvent.o: Source/AppStateEvent.h Source/AppStateEvent.cpp
-
-AppStateBase.o: Source/AppStateBase.h Source/AppStateBase.cpp
-
-AppStateManager.o: Source/AppStateManager.h Source/AppStateManager.cpp
-
-AppStateIntro.o: Source/AppStateIntro.h Source/AppStateIntro.cpp
-
-AppStateMenu.o: Source/AppStateMenu.h Source/AppStateMenu.cpp
-
-AppStateGame.o: Source/AppStateGame.h Source/AppStateGame.cpp
-
-AppStateGameServer.o: Source/AppStateGameServer.h Source/AppStateGameServer.cpp
-
-AppStateTest.o: Source/AppStateTest.h Source/AppStateTest.cpp
-
-Camera.o: Source/Camera.cpp Source/Camera.h
-
-Client.o: Source/Client.cpp Source/Client.h
-
-Clock.o: Source/Clock.cpp Source/Clock.h
-
-Collision.o: Source/Collision.cpp Source/Collision.h
-
-Draw.o: Source/Draw.cpp Source/Draw.h
-
-Entity.o: Source/Entity.cpp Source/Entity.h
-
-EventHandler.o: Source/EventHandler.cpp Source/EventHandler.h
-
-Map.o: Source/Map.cpp Source/Map.h
-
-Menu.o: Source/Menu.cpp Source/Menu.h
-
-NetString.o: Source/Networking/NetString.cpp Source/Networking/NetString.h
-
-NetworkParser.o: Source/Networking/NetworkParser.cpp Source/Networking/NetworkParser.h
-
-Network.o: Source/Networking/Network.cpp Source/Networking/Network.h
-
-Parser.o: Source/Networking/Parser.cpp Source/Networking/Parser.h
-
-Particle.o: Source/Particle.cpp Source/Particle.h
-
-Particle_Emitter.o: Source/Particle_Emitter.cpp Source/Particle_Emitter.h
-
-Progress_Bar.o: Source/Progress_Bar.cpp Source/Progress_Bar.h
-
-Progress_Circle.o: Source/Progress_Circle.cpp Source/Progress_Circle.h
-
-Quad_Tree.o: Source/Quad_Tree.cpp Source/Quad_Tree.h
-
-Ship.o: Source/Ship.cpp Source/Ship.h
-
-SoundManager.o: Source/SoundManager.cpp Source/SoundManager.h
-
-System.o: Source/System.cpp Source/System.h
-
-Text.o: Source/Text.cpp Source/Text.h
-
-Texture.o: Source/Texture.cpp Source/Texture.h
-
-TextureManager.o: Source/TextureManager.cpp Source/TextureManager.h
-
-Timer.o: Source/Timer.cpp Source/Timer.h
-
-Weapon.o: Source/Weapon.cpp Source/Weapon.h
-
+# This updates the timestamp that is compared with to update clients if needed.
 TimeStamp: updater/source_timestamp.sh
 	(cd updater && ./source_timestamp.sh)
-clean:
-	rm -f client/a.out
-	rm -f server/a.out
-	rm -f Source/*.o
 
+# Cleans all the object files and executables.
+.PHONY: clean
+clean:
+	rm -f Source/*.o
+	rm -f server/Source/*.o
+	rm -f server/a.out
+	rm -f client/Source/*.o
+	rm -f client/a.out
+
+# This gets the repo up and ready for pushing to the master origin on github.
+# Make sure you see all your changes when the status is displayed.
+# Please provide a succinct but descriptive commit message in the *present*
+# tense because that is the standard for git commits.
 push:
 	make clean
 	git add .
