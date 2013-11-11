@@ -14,9 +14,10 @@ OBJDIR = Source
 # List of all objects that this makefile is concerned with.
 # Anything not immediately related to server or client is here for now ???.
 OBJECTS = Application.o ApplicationEvent.o AppStateBase.o AppStateEvent.o \
-          AppStateGame.o AppStateGameServer.o AppStateIntro.o AppStateManager.o AppStateMenu.o \
-          AppStateTest.o Camera.o Client.o Clock.o Collision.o Draw.o \
-          Entity.o EventHandler.o Map.o Menu.o Networking/NetString.o \
+          AppStateGame.o AppStateGameServer.o AppStateIntro.o \
+          AppStateManager.o AppStateMenu.o AppStateTest.o \
+          Camera.o Client.o Clock.o Collision.o Draw.o Entity.o \
+          EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
           Particle.o Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
           Quad_Tree.o Ship.o SoundManager.o System.o Text.o Texture.o \

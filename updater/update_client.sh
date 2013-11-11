@@ -6,8 +6,8 @@
 
 
 # Update the clientside game then their local timestamp to last update
-wget -rd --no-parent "https://raw.github.com/sgluebbert/CISS465NetworkGame/master/client/*" -p "."
+wget -rd --no-parent "https://raw.github.com/sgluebbert/CISS465NetworkGame/master/app/*" -p "."
 
-rm -rf Art/Source Source Makefile Main.cpp
+rm -rf Art/Source Makefile Main.cpp
 
 mv sTS lTS
