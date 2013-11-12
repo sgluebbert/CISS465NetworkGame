@@ -28,6 +28,7 @@ void AppStateGame::Events(SDL_Event * Event) {
 
 void AppStateGame::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
+    
     for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] == NULL)
@@ -120,7 +121,7 @@ void AppStateGame::Receive() {
                 // New Player?
                 if (players[playerId] == NULL)
                 {
-                    players[playerId] = new Ship();
+                    players[playerId] = new Ship(FIGHTER, 0, 0);
                 }
 
                 ship = players[playerId];

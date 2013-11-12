@@ -89,6 +89,7 @@ bool Initialize_System() {
     // if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
     //     return false;
     
+    Initialize_Trig_Table();
     Initialize_Key_Array();
 
     return true;

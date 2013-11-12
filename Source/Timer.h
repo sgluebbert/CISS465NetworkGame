@@ -14,6 +14,7 @@ public:
 	void Update(double);
 
 	void Set_Interval(double);
+	double Get_Interval();
 	double Get_Progress();
 
 private:

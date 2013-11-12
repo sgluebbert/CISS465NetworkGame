@@ -13,16 +13,18 @@ Quad_Tree::Quad_Tree() {
     bounds = MAX_BOUNDS;
     depth = 0;
     
+    root = NULL;
     northeast = NULL;
     northwest = NULL;
     southeast = NULL;
     southwest = NULL;
 }
 
-Quad_Tree::Quad_Tree(int ndepth, Rect<double> nbounds) {
+Quad_Tree::Quad_Tree(Quad_Tree * parent, int ndepth, Rect<double> nbounds) {
     bounds = nbounds;
     depth = ndepth;
     
+    root = parent;
     northeast = NULL;
     northwest = NULL;
     southeast = NULL;
@@ -39,12 +41,19 @@ Quad_Tree::~Quad_Tree() {
 
 bool Quad_Tree::Is_Within(Entity * item) {
     Rect<double> temp;
-    temp.x = item->x;
-    temp.y = item->y;
-    temp.w = item->w;
-    temp.h = item->h;
+    temp.x = item->drawing_box.x;
+    temp.y = item->drawing_box.y;
+    temp.w = item->drawing_box.w;
+    temp.h = item->drawing_box.h;
 
     return bounds.Within(temp);
+}
+
+void Quad_Tree::Reinsert(Entity * item) {
+    if (root == NULL)
+        Insert(item);
+    
+    root->Reinsert(item);
 }
 
 void Quad_Tree::Insert(Entity * item) {
@@ -110,19 +119,19 @@ void Quad_Tree::Subdivide() {
     
     temp.x = temp.w;
     temp.y = 0;
-    northeast = new Quad_Tree(depth + 1, temp);
+    northeast = new Quad_Tree(this, depth + 1, temp);
     
     temp.x = 0;
     temp.y = 0;
-    northwest = new Quad_Tree(depth + 1, temp);
+    northwest = new Quad_Tree(this, depth + 1, temp);
     
     temp.x = temp.w;
     temp.y = temp.h;
-    southeast = new Quad_Tree(depth + 1, temp);
+    southeast = new Quad_Tree(this, depth + 1, temp);
     
     temp.x = 0;
     temp.y = temp.h;
-    southwest = new Quad_Tree(depth + 1, temp);
+    southwest = new Quad_Tree(this, depth + 1, temp);
 }
 
 void Quad_Tree::Clear() {
@@ -135,7 +144,17 @@ void Quad_Tree::Clear() {
 
 
 
-void Quad_Tree::Update(double dt) {
+void Quad_Tree::Update() {
+    for (int i = 0; i < items.size(); i++)
+        if (items[i]->dx != 0 || items[i]->dy != 0) {
+            Reinsert(items[i]);
+            //Remove item from items
+        }
+
+    northeast->Update();
+    northwest->Update();
+    southeast->Update();
+    southwest->Update();
 }
 
 void Quad_Tree::Draw() {

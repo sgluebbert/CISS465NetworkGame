@@ -2,51 +2,170 @@
 
 
 
-const float Ship::default_max_resource = 100.0;
-const float Ship::default_power_recharge = 0.5;
-const float Ship::default_capture_modifier = 1.0;
+const float Ship::default_max_resource 		= 100.0;
+const float Ship::default_recharge_delay 	=   2.5;
+const float Ship::default_recharge_rate 	=  10.0;
+const float Ship::default_capture_modifier 	=   1.0;
 
 
 
-void Ship::Set_Texture(Texture * tex, float width, float height) {
-    texture = tex;
-    w = width;
-    h = height;
+void Ship::Setup_Interceptor() {
+	mass = 30.0;
+	Set_Inertia(bounding_volume.r);
+
+    velocity_limit = 40.0;
+    turn_rate = 50.0;
+
+	texture = surface_manager->ship;
+
+	max_health = max_shields = health = shields = default_max_resource * 0.75;
+	max_armor = max_power = armor = power = default_max_resource;
+	shield_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
+	capture_modifier = default_capture_modifier * 4.0 / 3.0;
+
+	weapon_pool[ENERGY_TYPE]	= new Laser();
+	weapon_pool[BALLISTIC_TYPE] = new Gauss();
+	weapon_pool[PROPELLED_TYPE] = new Rocket();
+	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[POWERUP_TYPE]	= NULL;
 }
+
+void Ship::Setup_Fighter() {
+	mass = 40.0;
+	Set_Inertia(bounding_volume.r);
+
+    velocity_limit = 30.0;
+    turn_rate = 40.0;
+
+	texture = surface_manager->ship;
+
+	max_health = max_shields = health = shields = default_max_resource;
+	max_armor = max_power = armor = power = default_max_resource;
+	shield_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
+	capture_modifier = default_capture_modifier;
+
+	weapon_pool[ENERGY_TYPE]	= new Laser();
+	weapon_pool[BALLISTIC_TYPE] = new Gauss();
+	weapon_pool[PROPELLED_TYPE] = new Rocket();
+	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[POWERUP_TYPE]	= NULL;
+}
+
+void Ship::Setup_Frigate() {
+	mass = 50.0;
+	Set_Inertia(bounding_volume.r);
+
+    velocity_limit = 22.5;
+    turn_rate = 30.0;
+
+	texture = surface_manager->ship;
+
+	max_health = max_shields = health = shields = default_max_resource * 4.0 / 3.0;
+	max_armor = max_power = armor = power = default_max_resource;
+	shield_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
+	capture_modifier = default_capture_modifier * 0.75;
+
+	weapon_pool[ENERGY_TYPE]	= new Laser();
+	weapon_pool[BALLISTIC_TYPE] = new Gauss();
+	weapon_pool[PROPELLED_TYPE] = new Rocket();
+	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[POWERUP_TYPE]	= NULL;
+}
+
+void Ship::Setup_Bomber() {
+	mass = 40.0;
+	Set_Inertia(bounding_volume.r);
+
+	//Motor Variables
+    velocity_limit = 30.0;
+    turn_rate = 40.0;
+
+	//Ship Variables
+	texture = surface_manager->ship;
+
+	max_health = max_shields = health = shields = default_max_resource * 0.75;
+	max_armor = max_power = armor = power = default_max_resource * 4.0 / 3.0;
+	shield_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_timer.Set_Interval(default_recharge_delay);
+	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
+	capture_modifier = default_capture_modifier;
+
+	weapon_pool[ENERGY_TYPE]	= new Laser();
+	weapon_pool[BALLISTIC_TYPE] = new Gauss();
+	weapon_pool[PROPELLED_TYPE] = new Rocket();
+	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[POWERUP_TYPE]	= NULL;
+}
+
+
+
+Ship::Ship(Ship_Type ship_type, float _x, float _y) {
+	dx = dy = force = torque = velocity = rotation = 0.0;
+
+	x = bounding_volume.x = _x;
+	y = bounding_volume.y = _y;
+	draw_scale = bounding_volume.r = 32.0;
+	draw_angle = angle = 0.0;
+	drawing_box.x = x - bounding_volume.r;
+	drawing_box.y = y - bounding_volume.r;
+	drawing_box.w = 2 * bounding_volume.r;
+	drawing_box.h = 2 * bounding_volume.r;
+
+    rotation_limit = 0.0;
+    reverse_modifier = 0.5;
+    force_motor = torque_motor = 0.0;
+
+	state = ALIVE;
+
+	switch(ship_type) {
+	case INTERCEPTOR:	Setup_Interceptor();	break;
+	case FIGHTER:		Setup_Fighter();		break;
+	case FRIGATE:		Setup_Frigate();		break;
+	case BOMBER:		Setup_Bomber();			break;
+	}
+}
+
+
 
 NetString * Ship::Serialize() {
 	NetString * string = new NetString();
 
-	NetString * baseString = Entity::Serialize();
-	if (baseString == NULL)
-		return NULL;
+	// NetString * baseString = Entity::Serialize();
+	// if (baseString == NULL)
+	// 	return NULL;
 
-	if (!(*string += *baseString)) {
-		delete string;
-		return NULL;
-	}
+	// if (!(*string += *baseString)) {
+	// 	delete string;
+	// 	return NULL;
+	// }
 
-	if (!string->WriteFloat(health)) {
-		delete string;
-		return NULL;
-	}
+	// if (!string->WriteFloat(health)) {
+	// 	delete string;
+	// 	return NULL;
+	// }
 
 	return string;
 }
 
 bool Ship::Deserialize(NetString *string) {
-	if (!Entity::Deserialize(string))
-		return false;
+	// if (!Entity::Deserialize(string))
+	// 	return false;
 
-	if (!string->ReadFloat(health))
-		return false;
+	// if (!string->ReadFloat(health))
+	// 	return false;
 
 	return true;
 }
 
-bool Ship::Fire(Weapon_Type weapon_id) {
-	// Return true for I fired something
 
+
+bool Ship::Fire(Weapon_Type weapon_id) {
 	if (weapon_id < ENERGY_TYPE)
 		return false;
 	if (weapon_id > POWERUP_TYPE)
@@ -56,26 +175,39 @@ bool Ship::Fire(Weapon_Type weapon_id) {
 	if (power < weapon_pool[weapon_id]->power)
 		return false;
 
-	if (weapon_pool[weapon_id]->Fire())
+	if (weapon_pool[weapon_id]->Fire()) {
 		power -= weapon_pool[weapon_id]->power;
-	return true;
+		power_recharge_timer.Start();
+		return true;
+	}
+
+	return false;
 }
 
 void Ship::Accelerate(bool reverse) {
-	/*if (!reverse)
-		force = 200.0;
-	else
-		force = -200.0;*/
-
 	if (!reverse)
-		velocity += 5.0;
+		force_motor = 2000.0;
 	else
-		velocity -= 5.0;
+		force_motor = -2000.0;
 }
 
 void Ship::Decelerate() {
-	force = 0.0;
+	force_motor = 0.0;
 }
+
+void Ship::Turn_Left(double dt) {
+    angle += turn_rate * dt;
+    if (angle >= 360)
+        angle = angle - 360;
+}
+
+void Ship::Turn_Right(double dt) {
+    angle -= turn_rate * dt;
+    if (angle < 0)
+        angle = 360 + angle;
+}
+
+
 
 void Ship::Damage_Armor(float damage) {
 	if (damage < 0)
@@ -93,6 +225,8 @@ void Ship::Damage_Armor(float damage) {
 void Ship::Damage_Shields(float damage) {
 	if (damage < 0)
 		return;
+
+	shield_recharge_timer.Start();
 
 	if (shields > 0)
 		shields -= damage;
@@ -132,6 +266,19 @@ void Ship::Damage_Hull(float damage) {
 		state = DYING;
 }
 
+
+
+void Ship::Limit_Motor() {
+    if (rotation > rotation_limit)
+        rotation = rotation_limit;
+    
+    if (velocity > velocity_limit)
+        velocity = velocity_limit;
+
+    if (velocity < -velocity_limit * reverse_modifier)
+        velocity = -velocity_limit * reverse_modifier;
+}
+
 void Ship::Update(double dt) {
 	respawn_timer.Update(dt);
 
@@ -140,7 +287,22 @@ void Ship::Update(double dt) {
 
 	switch(state) {
 	case ALIVE:
-    	Entity::Update(dt);
+	    velocity *= FRICTION_COEFFICIENT;
+	    rotation *= FRICTION_COEFFICIENT;
+
+	    Apply_Force(force_motor, angle, 0, 0);
+	    //Apply_Torque(torque_motor);
+
+	    Calculate_Velocity(dt);
+	    //Calculate_Rotation(dt);
+
+	    Limit_Motor();
+	    
+	    Calculate_Vector(dt);
+	    Move(dt);
+
+	    draw_angle = angle;
+	    drawing_box.Update(dx, dy);
 
 	    if (health <= 0.5 * max_health)
 	        smoke_emitter.Activate();
@@ -150,11 +312,22 @@ void Ship::Update(double dt) {
 	        state = DYING;
 	    }
 
-	    if (power < max_power)
-	    	power += power_recharge_rate;
+		shield_recharge_timer.Update(dt);
+		power_recharge_timer.Update(dt);
 
-	    if (power > max_power)
-	    	power = max_power;
+		if (shields < max_shields)
+			if (shield_recharge_timer.Ended())
+				shields += shield_recharge_rate * dt;
+
+		if (shields > max_shields)
+			shields = max_shields;
+
+		if (power < max_power)
+			if (power_recharge_timer.Ended())
+				power += power_recharge_rate * dt;
+
+		if (power > max_power)
+			power = max_power;
 
 	    for (int i = 0; i < 4; i++)
 	    	if (weapon_pool[i] != NULL)
@@ -179,13 +352,13 @@ void Ship::Update(double dt) {
 }
 
 void Ship::Draw() {
-    if (texture == NULL)
-        return;
     if (state == DEAD || state == DYING)
         return;
+    if (texture == NULL)
+        std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(x, y, -angle, w);
+    texture->DrawCentered(x, y, -draw_angle, draw_scale);
 }
 
 

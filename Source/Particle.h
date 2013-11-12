@@ -3,35 +3,33 @@
 
 
 
-#include <vector>
+#include <deque>
 
-#include "Clock.h"
 #include "Entity.h"
+#include "Motor.h"
+#include "Timer.h"
 
 
 
-class Particle : public Entity {
+class Particle : public Entity, public Motor {
 public:
 	Particle();
-	Particle(Particle &);
+	Particle(Particle *);
 	~Particle();
     
+    virtual void Limit_Motor();
     virtual void Update(double);
     virtual void Draw();
 
-    static std::vector<Particle *> particles;
-    //static Quad_Tree<Particle *> particle_tree;
-
-    static void Initialize();
-    static void Cleanup();
-
-    static void Update_Particles();
-    static void Draw_Particles();
-
-	double age;
-	double max_age;
+	Timer age_timer;
+    Color color;
 
 	bool Is_Dead();
+
+    static std::deque<Particle *> particles;
+
+    static void Update_Particles(double);
+    static void Draw_Particles();
 };
 
 

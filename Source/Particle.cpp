@@ -2,52 +2,85 @@
 
 
 
-std::vector<Particle *> Particle::particles;
-//Quad_Tree<Particle *> Particle::particle_tree;
-
-
-
 Particle::Particle() {
-	age = 0;
-	max_age = 0;
+    //Drawable Init
+    draw_scale = draw_angle = 0.0;
+
+    //RigidBody Init
+    dx = dy = force = torque = velocity = rotation = 0.0;
+    mass = inertia = 1.0;
+    x = y = angle = 0.0;
+
+    //Motor Init
+    velocity_limit = rotation_limit = reverse_modifier = force_motor = torque_motor = 0.0;
 }
 
-Particle::Particle(Particle & p) {
-    dx = dy = 0.0;
-	age = 0;
+Particle::Particle(Particle * p) {
+    //Drawable Init
+    drawing_box = p->drawing_box;
+    draw_scale = p->draw_scale;
+    draw_angle = p->draw_angle;
 
-    bounding_volume = p.bounding_volume;
+    //RigidBody Init
+    dx = dy = force = torque = velocity = rotation = 0.0;
 
-    x = p.x;
-    y = p.y;
-    w = p.w;
-    h = p.h;
-    angle = p.angle;
+    mass = p->mass;
+    inertia = p->inertia;
 
-    velocity = p.velocity;
-    max_velocity = p.max_velocity;
-    reverse_modifier = p.reverse_modifier;
-    force = p.force;
-    mass = p.mass;
-    inertia = p.inertia;
-    turn_rate = p.turn_rate;
+    x = p->x;
+    y = p->y;
+    angle = p->angle;
 
-	max_age = p.max_age;
+    //Motor Init
+    velocity_limit = p->velocity_limit;
+    rotation_limit = p->rotation_limit;
+
+    reverse_modifier = p->reverse_modifier;
+
+    force_motor = p->force_motor;
+    torque_motor = p->torque_motor;
+
+    //Particle Init
+	age_timer.Set_Interval(p->age_timer.Get_Interval());
+    age_timer.Start();
+
+    particles.push_back(this);
 }
 
 Particle::~Particle() {
 }
 
 bool Particle::Is_Dead() {
-	return (age >= max_age);
+	return (age_timer.Ended());
 }
 
 
 
-void Particle::Update(double dt) {
-    age += dt;
+void Particle::Limit_Motor() {
+    if (rotation > rotation_limit)
+        rotation = rotation_limit;
+    
+    if (velocity > velocity_limit)
+        velocity = velocity_limit;
 
-	Entity::Update(dt);
+    if (velocity < velocity_limit * reverse_modifier)
+        velocity = velocity_limit * reverse_modifier;
+}
+
+void Particle::Update(double dt) {
+    Apply_Force(force_motor, draw_angle, 0, 0);
+    Apply_Torque(torque_motor);
+
+    Calculate_Velocity(dt);
+    Calculate_Rotation(dt);
+
+    Limit_Motor();
+
+    Calculate_Vector(dt);
+    Move(dt);
+
+    drawing_box.Update(dx, dy);
+    age_timer.Update(dt);
 }
 
 void Particle::Draw() {
@@ -56,26 +89,14 @@ void Particle::Draw() {
 
 
 
-void Particle::Initialize() {
-	//Is there anything that really needs to go in here?
-}
+std::deque<Particle *> Particle::particles;
 
-void Particle::Cleanup() {
-	Particle::particles.clear();
-	//Particle::particle_tree.Clear();
-}
-
-void Particle::Update_Particles() {
-    double dt = Clock::Frame_Control.Get_Time_Per_Frame();
-
-	for (int i = particles.size() - 1; i > -1; i--) {
-		Particle::particles[i]->Update(dt);
-		if (particles[i]->Is_Dead())
-			particles.erase(particles.begin() + i);
-	}
+void Particle::Update_Particles(double dt) {
+    for (int i = 0; i < particles.size(); i++)
+        particles[i]->Update(dt);
 }
 
 void Particle::Draw_Particles() {
-	for (int i = particles.size() - 1; i > -1; i--)
-		Particle::particles[i]->Draw();
+    for (int i = 0; i < particles.size(); i++)
+        particles[i]->Draw();
 }

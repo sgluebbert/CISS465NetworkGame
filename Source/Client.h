@@ -6,6 +6,7 @@
 #include "Ship.h"
 #include "./Networking/Network.h"
 #include "Progress_Circle.h"
+#include "Chat_Feed.h"
 
 
 
@@ -28,6 +29,7 @@ public:
 	bool offline;
 	bool fired[5];
 
+	std::string callsign;
 	Ship * pawn;
 
 	// Health_Bar armor_bar;
@@ -39,6 +41,7 @@ public:
 	Health_Circle hull_circle;
 	Health_Circle shield_circle;
 	Health_Circle power_circle;
+	Chat_Feed info_feed;
 
 	Client();
 	~Client();
@@ -47,10 +50,6 @@ public:
 
 	void Update(double);
 	void Draw();
-
-	// bool Connect();
-	// bool Send();
-	// NetString * Receive();
 
 private:
 };

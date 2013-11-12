@@ -3,7 +3,7 @@
 
 
 
-#include "Entity.h"
+#include "Collidable.h"
 
 
 
@@ -11,14 +11,14 @@ class Collision {
 public:
 	Collision();
 	
-	double x, y;		//Point of contact
-
-	double lhs_normal;
-	double lhs_force;
-
-	double rhs_normal;
-	double rhs_force;
+	float x, y;		//Point of contact
+	Collidable * lhs;
+	Collidable * rhs;
 };
+
+
+
+static Collision * Collides(Collidable *, Collidable *);
 
 
 

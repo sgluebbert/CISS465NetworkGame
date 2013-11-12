@@ -16,16 +16,16 @@ OBJDIR = Source
 OBJECTS = Application.o ApplicationEvent.o AppStateBase.o AppStateEvent.o \
           AppStateGame.o AppStateGameServer.o AppStateIntro.o \
           AppStateManager.o AppStateMenu.o AppStateTest.o \
-          Camera.o Client.o Clock.o Collision.o Draw.o Entity.o \
+          Camera.o Chat_Feed.o Client.o Clock.o Collision.o Draw.o Entity.o \
           EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
           Particle.o Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
-          Quad_Tree.o Ship.o SoundManager.o System.o Text.o Texture.o \
+          Quad_Tree.o RigidBody.o Ship.o SoundManager.o System.o Text.o Texture.o \
           TextureManager.o Timer.o Weapon.o
 
 # The main workhorse of the makefile. Builds all the object files
 # and then updates the timestamp used to update clients.
-build: $(addprefix $(OBJDIR)/, $(OBJECTS)) TimeStamp
+build: $(addprefix $(OBJDIR)/, $(OBJECTS))
 
 # Just individual compilation of all objects.
 $(addprefix $(OBJDIR)/, $(OBJECTS)): %.o: %.cpp

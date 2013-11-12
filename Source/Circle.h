@@ -20,9 +20,10 @@ public:
 
 
 
-	void Update(double dt, T _x, T _y) {
-		x = _x;
-		y = _y;
+	void Update(T x_offset, T y_offset, T r_offset = 0) {
+		x += x_offset;
+		y += y_offset;
+		r += r_offset;
 	}
 
 	void Draw() {
