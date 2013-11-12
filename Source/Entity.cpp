@@ -10,6 +10,7 @@ Entity::Entity() {
     reverse_modifier = 0.0;
     mass = force = inertia = 0.0;
     turn_rate = 0.0;
+    mass = 1;
 }
 
 Entity::~Entity() {
