@@ -153,17 +153,19 @@ bool Ship::Deserialize(NetString *string) {
 
 
 
-bool Ship::Fire(Weapon_Type weapon_id) {
-	if (weapon_id < ENERGY_TYPE)
-		return false;
-	if (weapon_id > POWERUP_TYPE)
-		return false;
-	if (weapon_pool[weapon_id] == NULL)
-		return false;
-	if (power < weapon_pool[weapon_id]->power)
-		return false;
+bool Ship::Fire(Weapon_Type weapon_id, bool forced) {
+	if (!forced) {
+		if (weapon_id < ENERGY_TYPE)
+			return false;
+		if (weapon_id > POWERUP_TYPE)
+			return false;
+		if (weapon_pool[weapon_id] == NULL)
+			return false;
+		if (power < weapon_pool[weapon_id]->power)
+			return false;
+	}
 
-	if (weapon_pool[weapon_id]->Fire()) {
+	if (weapon_pool[weapon_id]->Fire(forced)) {
 		power -= weapon_pool[weapon_id]->power;
 		power_recharge_timer.Start();
 		return true;

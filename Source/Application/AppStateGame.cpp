@@ -127,12 +127,23 @@ void AppStateGame::Receive() {
                 ship = players[playerId];
                 ship->Deserialize(&netString);
 
+                // Could change this into a loop? eh..
                 bool shipFired[5];
-                netString.ReadBool(shipFired[0]);
-                netString.ReadBool(shipFired[1]);
-                netString.ReadBool(shipFired[2]);
-                netString.ReadBool(shipFired[3]);
-                netString.ReadBool(shipFired[4]);
+                netString.ReadBool(shipFired[ENERGY_TYPE]);
+                if (shipFired[ENERGY_TYPE])
+                    ship->Fire(ENERGY_TYPE, true);
+                netString.ReadBool(shipFired[BALLISTIC_TYPE]);
+                if (shipFired[BALLISTIC_TYPE])
+                    ship->Fire(BALLISTIC_TYPE, true);
+                netString.ReadBool(shipFired[PROPELLED_TYPE]);
+                if (shipFired[PROPELLED_TYPE])
+                    ship->Fire(PROPELLED_TYPE, true);
+                netString.ReadBool(shipFired[BOMB_TYPE]);
+                if (shipFired[BOMB_TYPE])
+                    ship->Fire(BOMB_TYPE, true);
+                netString.ReadBool(shipFired[POWERUP_TYPE]);
+                if (shipFired[POWERUP_TYPE])
+                    ship->Fire(POWERUP_TYPE, true);
                 break;
 
             case NCE_REMOVE_PLAYER:
@@ -171,6 +182,11 @@ void AppStateGame::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;              break;
     case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;            break;
     case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;           break;
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;             break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;          break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;          break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = true;               break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;            break;
     case SDLK_d:        player.pawn->health = 0.25 * player.pawn->max_health;           break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);    break;
@@ -185,6 +201,11 @@ void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = false;              break;
     case SDLK_UP:       player.inputs[MOVE_FORWARD] = false;            break;
     case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = false;           break;
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = false;             break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = false;          break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = false;          break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = false;               break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = false;            break;
     default:
         break;
     }

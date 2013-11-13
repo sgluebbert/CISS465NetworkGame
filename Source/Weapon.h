@@ -29,7 +29,7 @@ public:
 
 
 
-	bool Fire();
+	bool Fire(bool forced = false);
 
 	void Update(double);
 };
