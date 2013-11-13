@@ -55,7 +55,6 @@ void AppStateTest::Update() {
     map->PlanetCollision(*player.pawn);
     planetsHUD->Update(map->planets);
 
-
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
     viewport.y = player.pawn->y - viewport.h / 2.0;

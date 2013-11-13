@@ -31,6 +31,8 @@ public:
 	std::vector<Asteroid *> asteroids;
 	std::vector<Powerup *> powerups;
 
+
+	int AllPlanetsCaptured();
 	void PlanetCollision(Ship ship);
 	void AddPlanet(int id, float x, float y);
 	int NumPlanets();

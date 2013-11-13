@@ -38,6 +38,29 @@ void Map::Update(double dt) {
 		planets[i]->Update(dt);
 }
 
+int Map::AllPlanetsCaptured()
+{
+	bool blue_flag = 1;
+	bool red_flag = 1;
+	
+	for (int i = 0; i < planets.size(); i++)
+	{
+		if (planets[i]->state != BLUE_PLANET)
+			blue_flag =  0;
+
+		if (planets[i]->state != RED_PLANET)
+			red_flag =  0;
+	}
+
+	if (blue_flag == 1)
+		return 1;
+
+	if (red_flag == 1)
+		return 2;
+
+	return 0;	// Not all planets have been captured
+}
+
 void Map::PlanetCollision(Ship ship)
 {
 	for (int i = 0; i < planets.size(); i++)
