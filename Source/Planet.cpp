@@ -82,19 +82,20 @@ void Planet::DrawGravityField()
     if (capture_value > 0.0f)
     {
         // light blue color
-        const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.5f);
+        const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
         DrawCircle(x, y, r + gravity_radius, 1, &blue);
     }
     else if (capture_value < 0.0f)
     {
         // light red color
-        const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.5f);
+        const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
         DrawCircle(x, y, r + gravity_radius, 1, &red);
     }
     else
     {
         // light gray color
-        DrawCircle(x, y, r + gravity_radius, 1, &LIGHT_GRAY);
+        const Color gray(0.5f, 0.5f, 0.5f, 0.3f);
+        DrawCircle(x, y, r + gravity_radius, 1, &gray);
     }
 
 }
