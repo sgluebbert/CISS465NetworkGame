@@ -275,6 +275,10 @@ void Ship::Update(double dt) {
 	smoke_emitter.Update(dt);
 	explosion_emitter.Update(dt);
 
+	bounding_volume.x = x;
+    bounding_volume.y = y;
+    bounding_volume.r = 20;
+
 	switch(state) {
 	case ALIVE:
 	    velocity *= FRICTION_COEFFICIENT;

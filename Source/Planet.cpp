@@ -1,10 +1,19 @@
 #include "Planet.h"
 
 
-Planet::Planet(int _id, PlanetState s, float _x, float _y, float _w, float _h, float _a, float m, float _v, float _r, float gr, float cv)
-    : id(_id), state(s), Entity(/*_x, _y, _w, _h, _a, m, _v, _r + gr*/), r(_r), gravity_radius(gr), capture_value(cv)
+Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv)
+    : id(_id), state(s), r(_r), gravity_radius(gr), capture_value(cv)
 {
     texture = NULL;
+    x = _x;
+    y =  _y;
+    angle = _a;
+    mass =  m;
+    velocity = _v;
+
+    bounding_volume.r = _r + gr;
+    bounding_volume.x = x;
+    bounding_volume.y = y;
 }
 
 Planet::~Planet()
@@ -20,6 +29,10 @@ void Planet::SetTexture(Texture * tex)
 
 void Planet::UnderSiege(Ship ship)
 {
+    bounding_volume.r = r + gravity_radius;
+    bounding_volume.x = x;
+    bounding_volume.y = y;
+
     Collision * collision = new Collision();
     if (collision->DoCollide(*this, ship))
     {
@@ -100,7 +113,7 @@ void Planet::Draw()
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
     int w = 10;// ?
-    texture->DrawCentered(x, y, -angle, w);
+    texture->DrawCentered(x, y, -angle, r);
 }
 
 

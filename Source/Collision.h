@@ -15,7 +15,7 @@ public:
 	Collidable * lhs;
 	Collidable * rhs;
 
-	bool DoCollide(Entity lhs, Entity rhs);
+	bool DoCollide(Collidable lhs, Collidable rhs);
 };
 
 static Collision * Collides(Collidable *, Collidable *);

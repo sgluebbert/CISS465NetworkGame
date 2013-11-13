@@ -4,7 +4,9 @@
 #include "Drawing/Draw.h"
 #include "Drawing/Texture.h"
 #include "Entity.h"
+#include "RigidBody.h"
 #include "Clock.h"
+#include "Collidable.h"
 #include "Progress_Bar.h"
 #include "Drawing/Text.h"
 #include "Collision.h"
@@ -15,12 +17,12 @@
 
 enum PlanetState { NEUTRAL, RED_PLANET, BLUE_PLANET };
 
-class Planet : public Entity
+class Planet : public Entity, public Collidable
 {
 
 public:
 
-	Planet(int _id, PlanetState s, float _x, float _y, float _w, float _h, float _a, float m, float _v, float _r, float gr, float cv);
+	Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv);
 	~Planet();
 
 	virtual void Update(double);
