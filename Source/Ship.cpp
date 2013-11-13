@@ -135,30 +135,18 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 NetString * Ship::Serialize() {
 	NetString * string = new NetString();
-
-	// NetString * baseString = Entity::Serialize();
-	// if (baseString == NULL)
-	// 	return NULL;
-
-	// if (!(*string += *baseString)) {
-	// 	delete string;
-	// 	return NULL;
-	// }
-
-	// if (!string->WriteFloat(health)) {
-	// 	delete string;
-	// 	return NULL;
-	// }
+	
+	if (!string->WriteFloat(x) || !string->WriteFloat(y) || !string->WriteFloat(angle) || !string->WriteFloat(health)) {
+		delete string;
+		return NULL;
+	}
 
 	return string;
 }
 
 bool Ship::Deserialize(NetString *string) {
-	// if (!Entity::Deserialize(string))
-	// 	return false;
-
-	// if (!string->ReadFloat(health))
-	// 	return false;
+	if (!string->ReadFloat(x) || !string->ReadFloat(y) || !string->ReadFloat(angle) || !string->ReadFloat(health))
+		return false;
 
 	return true;
 }

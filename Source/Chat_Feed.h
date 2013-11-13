@@ -8,7 +8,7 @@
 #include <sstream>
 
 #include "Rect.h"
-#include "TextureManager.h"
+#include "Drawing/TextureManager.h"
 #include "Timer.h"
 
 

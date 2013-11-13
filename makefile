@@ -13,15 +13,15 @@ OBJDIR = Source
 
 # List of all objects that this makefile is concerned with.
 # Anything not immediately related to server or client is here for now ???.
-OBJECTS = Application.o ApplicationEvent.o AppStateBase.o AppStateEvent.o \
-          AppStateGame.o AppStateGameServer.o AppStateIntro.o \
-          AppStateManager.o AppStateMenu.o AppStateTest.o \
-          Camera.o Chat_Feed.o Client.o Clock.o Collision.o Draw.o Entity.o \
-          EventHandler.o Map.o Menu.o Networking/NetString.o \
+OBJECTS = Application/Application.o Application/ApplicationEvent.o Application/AppStateBase.o Application/AppStateEvent.o \
+          Application/AppStateGame.o Application/AppStateGameServer.o Application/AppStateIntro.o \
+          Application/AppStateManager.o Application/AppStateMenu.o Application/AppStateTest.o \
+          Camera.o Chat_Feed.o Client.o Clock.o Collision.o Drawing/Draw.o Entity.o \
+          Application/EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
-          Particle.o Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
-          Quad_Tree.o RigidBody.o Ship.o SoundManager.o System.o Text.o Texture.o \
-          TextureManager.o Timer.o Weapon.o
+          Particles/Particle.o Particles/Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
+          Quad_Tree.o RigidBody.o Ship.o SoundManager.o System.o Drawing/Text.o Drawing/Texture.o \
+          Drawing/TextureManager.o Timer.o Weapon.o
 
 # The main workhorse of the makefile. Builds all the object files
 # and then updates the timestamp used to update clients.

@@ -3,8 +3,8 @@
 
 
 
-#include "Draw.h"
-#include "Drawable.h"
+#include "Drawing/Draw.h"
+#include "Drawing/Drawable.h"
 #include "RigidBody.h"
 
 

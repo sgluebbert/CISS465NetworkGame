@@ -3,10 +3,10 @@
 
 
 #include "AppStateBase.h"
-#include "Clock.h"
-#include "System.h"
-#include "Networking/Network.h"
-#include "Client.h"
+#include "../Clock.h"
+#include "../System.h"
+#include "../Networking/Network.h"
+#include "../Client.h"
 #include <deque>
 #include <vector>
  

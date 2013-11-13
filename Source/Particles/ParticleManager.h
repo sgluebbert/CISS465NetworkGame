@@ -4,7 +4,7 @@
 
 
 #include "Particle.h"
-#include "TextureManager.h"
+#include "../TextureManager.h"
 
 
 

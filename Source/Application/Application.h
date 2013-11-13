@@ -8,8 +8,8 @@
 
 #include "AppStateManager.h"
 #include "EventHandler.h"
-#include "Timer.h"
-#include "System.h"
+#include "../Timer.h"
+#include "../System.h"
 
 
 

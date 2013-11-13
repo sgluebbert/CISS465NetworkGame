@@ -5,9 +5,9 @@
 
 #include <deque>
 
-#include "Entity.h"
-#include "Motor.h"
-#include "Timer.h"
+#include "../Entity.h"
+#include "../Motor.h"
+#include "../Timer.h"
 
 
 
