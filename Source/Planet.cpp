@@ -2,7 +2,7 @@
 
 
 Planet::Planet(int _id, PlanetState s, float _x, float _y, float _w, float _h, float _a, float m, float _v, float _r, float gr, float cv)
-    : id(_id), state(s), Entity(_x, _y, _w, _h, _a, m, _v, _r + gr), r(_r), gravity_radius(gr), capture_value(cv)
+    : id(_id), state(s), Entity(/*_x, _y, _w, _h, _a, m, _v, _r + gr*/), r(_r), gravity_radius(gr), capture_value(cv)
 {
     texture = NULL;
 }
@@ -99,6 +99,7 @@ void Planet::Draw()
     DrawGravityField();
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
+    int w = 10;// ?
     texture->DrawCentered(x, y, -angle, w);
 }
 

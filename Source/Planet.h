@@ -1,12 +1,12 @@
 #ifndef PLANET_H
 #define PLANET_H
 
-#include "Draw.h"
-#include "Texture.h"
+#include "Drawing/Draw.h"
+#include "Drawing/Texture.h"
 #include "Entity.h"
 #include "Clock.h"
 #include "Progress_Bar.h"
-#include "Text.h"
+#include "Drawing/Text.h"
 #include "Collision.h"
 #include "Ship.h"
 #include <vector>
