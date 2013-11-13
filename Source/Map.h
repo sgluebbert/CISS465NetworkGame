@@ -9,8 +9,8 @@
 #include "Moon.h"
 #include "Planet.h"
 #include "Powerup.h"
-
-
+#include "Camera.h"
+#include "Ship.h"
 
 class Map {
 public:
@@ -31,8 +31,11 @@ public:
 	std::vector<Asteroid *> asteroids;
 	std::vector<Powerup *> powerups;
 
+	void PlanetCollision(Ship ship);
+	void AddPlanet(int id, float x, float y);
+	int NumPlanets();
 	void Update(double);
-	void Draw();
+	void Draw(Camera * camera);
 };
 
 

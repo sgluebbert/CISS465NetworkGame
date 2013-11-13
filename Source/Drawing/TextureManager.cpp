@@ -22,6 +22,11 @@ void TextureManager::Load()
 	background_game 		= new Texture("./Art/Background.png");
 	button 					= new Texture("./Art/Button.png");
 	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
+	planet					= new Texture("./Art/Planet.png");
+	red_planet				= new Texture("./Art/RedPlanet.png");
+	blue_planet				= new Texture("./Art/BluePlanet.png");
+	neutral_planet			= new Texture("./Art/NeutralPlanet.png");
+
 }
 
 bool TextureManager::Resize(int new_width, int new_height)

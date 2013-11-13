@@ -19,9 +19,15 @@ OBJECTS = Application/Application.o Application/ApplicationEvent.o Application/A
           Camera.o Chat_Feed.o Client.o Clock.o Collision.o Drawing/Draw.o Entity.o \
           Application/EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
+<<<<<<< HEAD
+          Particle.o Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
+          Quad_Tree.o Ship.o SoundManager.o System.o Text.o Texture.o \
+          TextureManager.o Timer.o Weapon.o Planet.o
+=======
           Particles/Particle.o Particles/Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
           Quad_Tree.o RigidBody.o Ship.o SoundManager.o System.o Drawing/Text.o Drawing/Texture.o \
           Drawing/TextureManager.o Timer.o Weapon.o
+>>>>>>> f880b59b79fb4ff98d4747192ddee7a233ae956f
 
 # The main workhorse of the makefile. Builds all the object files
 # and then updates the timestamp used to update clients.

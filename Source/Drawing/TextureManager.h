@@ -34,7 +34,11 @@ public:
 	Texture * background_game;
 	Texture * button;
 	Texture * highlightedbutton;
-	
+	Texture * planet;
+	Texture * red_planet;
+	Texture * blue_planet;
+	Texture * neutral_planet;
+
 	void Load();
 	bool Resize(int, int);
 

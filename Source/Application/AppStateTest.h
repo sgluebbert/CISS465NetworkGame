@@ -9,8 +9,7 @@
 #include "../Clock.h"
 #include "../Map.h"
 #include "../System.h"
-
-
+#include "../Planet.h"
 
 class Star {
 public:
@@ -33,7 +32,7 @@ private:
         
         Client player;
         Map * map;
-
+        PlanetsHUD * planetsHUD;
         std::vector<Star> stars;
 public:
  
