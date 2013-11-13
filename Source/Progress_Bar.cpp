@@ -108,7 +108,7 @@ void Alignment_Bar::Draw() {
 				 true, &lhs_color);
 	else
 		DrawRect(bar_rect.x + rhs, bar_rect.y,
-				 bar_rect.x + (rhs * progress), bar_rect.y + bar_rect.h,
+				 bar_rect.x + rhs + (rhs * progress), bar_rect.y + bar_rect.h,
 				 true, &rhs_color);
 }
 

@@ -12,6 +12,15 @@ Entity::Entity() {
     turn_rate = 0.0;
 }
 
+Entity::Entity(float _x, float _y, float _w, float _h, float _angle, float _mass, float _velocity, float _r)
+    : x(_x), y(_y), w(_w), h(_h), angle(_angle), mass(_mass), velocity(_velocity)
+{
+    bounding_volume.x = _x;
+    bounding_volume.y = _y;
+    bounding_volume.r = _r;
+}
+
+
 Entity::~Entity() {
 }
 

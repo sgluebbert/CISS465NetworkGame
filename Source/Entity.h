@@ -13,6 +13,7 @@
 class Entity {
 public:
     Entity();
+    Entity(float _x, float _y, float _w, float _h, float _angle, float _mass, float _velocity, float _r);
     ~Entity();
 
     virtual NetString * Serialize();

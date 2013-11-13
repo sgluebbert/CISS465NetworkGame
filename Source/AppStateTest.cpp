@@ -26,6 +26,12 @@ AppStateTest::AppStateTest() {
 void AppStateTest::Initialize() {
     background_texture = surface_manager->background_game;
     map = new Map(0);
+    map->AddPlanet(0, 0, 0);
+    map->AddPlanet(1, 1000, 0);
+
+    player.pawn->team_id = 0;
+
+    planetsHUD = new PlanetsHUD(map->NumPlanets());
 
     srand(time(NULL));
     Initialize_Trig_Table();
@@ -45,6 +51,10 @@ void AppStateTest::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
     player.Update(dt);
+    map->Update(dt);
+    map->PlanetCollision(*player.pawn);
+    planetsHUD->Update(map->planets);
+
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
@@ -64,9 +74,14 @@ void AppStateTest::Draw() {
         temp_camera->Map_To_World(&stars[i].bounding_volume);
     }
 
+    map->Draw(temp_camera);
+
     temp_camera->Map_To_Viewport(player.pawn);
     player.Draw();
     temp_camera->Map_To_World(player.pawn);
+
+    planetsHUD->Draw();
+
 }
 
 void AppStateTest::Cleanup() {
@@ -100,7 +115,7 @@ void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_5:        player.inputs[FIRE_POWERUP] = true;             break;
     case SDLK_d:        player.pawn->Damage_Shields(10.0);              break;
     case SDLK_f:        player.pawn->Damage_Armor(10.0);                break;
-    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);        break;
+    case SDLK_t:        player.pawn->team_id ? player.pawn->team_id = 0 : player.pawn->team_id = 1; break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);        break;
     default:
         break;

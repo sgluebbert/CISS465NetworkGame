@@ -61,10 +61,10 @@ void Alignment_Circle::Set_Circle(int x_coord, int y_coord, int radius, int bord
 
 	midangle = start_angle + 180.0;
 
-	if (midangle > 359)
-		midangle -= 359;
-	else if (midangle < 0)
-		midangle += 359;
+	if (midangle > 360)
+		midangle -= 360;
+	else if (midangle <= 0)
+		midangle += 360;
 }
 
 void Alignment_Circle::Notify(double pFlag) {

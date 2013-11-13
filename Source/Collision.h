@@ -18,6 +18,8 @@ public:
 
 	double rhs_normal;
 	double rhs_force;
+
+	bool DoCollide(Entity lhs, Entity rhs);
 };
 
 
