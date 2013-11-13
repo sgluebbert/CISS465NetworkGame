@@ -9,7 +9,7 @@
 #include "Circle.h"
 #include "Entity.h"
 #include "Rect.h"
-#include "TextureManager.h"
+#include "Drawing/TextureManager.h"
 
 
 

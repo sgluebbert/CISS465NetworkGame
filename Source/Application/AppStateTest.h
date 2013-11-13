@@ -4,12 +4,12 @@
 
 
 #include "AppStateBase.h"
-#include "Camera.h"
-#include "Client.h"
-#include "System.h"
-
-#include "Map.h"
-#include "Planet.h"
+#include "../Camera.h"
+#include "../Client.h"
+#include "../Clock.h"
+#include "../Map.h"
+#include "../System.h"
+#include "../Planet.h"
 
 class Star {
 public:

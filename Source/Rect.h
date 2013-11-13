@@ -57,11 +57,11 @@ struct Rect {
 
 
 
-	void Update(double dt, T _x, T _y, T _w, T _h) {
-		x = _x;
-		y = _y;
-		w = _w;
-		h = _h;
+	void Update(T x_offset, T y_offset, T w_offset = 0, T h_offset = 0) {
+		x += x_offset;
+		y += y_offset;
+		w += w_offset;
+		h += h_offset;
 	}
 
 	void Draw() {

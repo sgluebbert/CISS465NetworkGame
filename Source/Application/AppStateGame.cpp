@@ -28,6 +28,7 @@ void AppStateGame::Events(SDL_Event * Event) {
 
 void AppStateGame::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
+    
     for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] == NULL)
@@ -40,8 +41,8 @@ void AppStateGame::Update() {
     Receive();
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
-    viewport.x = player.pawn->x + viewport.w / 2.0;
-    viewport.y = player.pawn->y + viewport.h / 2.0;
+    viewport.x = player.pawn->x - viewport.w / 2.0;
+    viewport.y = player.pawn->y - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
 }
 
@@ -55,13 +56,13 @@ void AppStateGame::Draw() {
 
     for (int i = 0; i < MaximumClients; ++i)
     {
-        if (players[i] == NULL && players[i] != player.pawn)
+        if (players[i] == NULL || players[i] == player.pawn)
             continue;
 
         temp_camera->Map_To_Viewport(players[i]);
         players[i]->Draw();
+        // std::cout << players[i]->x << ' ' << players[i]->y << '\n';
         temp_camera->Map_To_World(players[i]);
-        std::cout << players[i]->x << '\n';
     }
 }
 
@@ -120,7 +121,7 @@ void AppStateGame::Receive() {
                 // New Player?
                 if (players[playerId] == NULL)
                 {
-                    players[playerId] = new Ship();
+                    players[playerId] = new Ship(FIGHTER, 0, 0);
                 }
 
                 ship = players[playerId];

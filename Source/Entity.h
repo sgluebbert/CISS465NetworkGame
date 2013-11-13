@@ -3,16 +3,16 @@
 
 
 
-#include "Networking/NetString.h"
-
-#include "Circle.h"
-#include "Rect.h"
-
+#include "Drawing/Draw.h"
+#include "Drawing/Drawable.h"
+#include "RigidBody.h"
 
 
-class Entity {
+
+class Entity : public Drawable, public Rigid_Body {
 public:
     Entity();
+<<<<<<< HEAD
     Entity(float _x, float _y, float _w, float _h, float _angle, float _mass, float _velocity, float _r);
     ~Entity();
 
@@ -25,24 +25,11 @@ public:
     void Calculate_Velocity(double);
     void Move(double);
     
+=======
+
+>>>>>>> f880b59b79fb4ff98d4747192ddee7a233ae956f
     virtual void Update(double);
     virtual void Draw();
-    
-    Circle<double> bounding_volume;     //Hit Box for collisions
-
-    float x, y, w, h, angle;           //Center point and angle for rotation and drawing
-    float dx, dy;                      //Vector
-    float mass;                        //For physics calculations
-    float velocity, max_velocity;      //units per second
-    float reverse_modifier;            //Percent
-    float force;                       //
-    float inertia;                     //For torque calculations
-    float turn_rate;                   //Degrees per second
-
-    //static Quad_Tree drawable;
-    //static Quad_Tree collidable;
-
-    //static void Update_Trees();
 };
 
 

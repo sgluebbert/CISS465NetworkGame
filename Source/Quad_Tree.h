@@ -15,17 +15,18 @@
 class Quad_Tree {
 public:
     Quad_Tree();
-    Quad_Tree(int, Rect<double>);
+    Quad_Tree(Quad_Tree *, int, Rect<double>);
     ~Quad_Tree();
 
     bool Is_Within(Entity *);
     void Insert(Entity *);
+    void Reinsert(Entity *);
     void Get_Possibles(std::deque<Entity *> &, Rect<double> &);
 
     void Subdivide();
     void Clear();
     
-    void Update(double);
+    void Update();
     void Draw();
 
     friend std::ostream & operator<<(std::ostream &, const Quad_Tree &);
@@ -38,6 +39,7 @@ private:
     Rect<double> bounds;
     int depth;
     
+    Quad_Tree * root;
     Quad_Tree * northeast;
     Quad_Tree * northwest;
     Quad_Tree * southeast;

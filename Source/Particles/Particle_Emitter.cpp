@@ -23,8 +23,6 @@ void Particle_Emitter::Update(double dt) {
     if (!active)
     	return;
 
-    int count_var = rand() % spawn_count_variance;
-
 	if (particle_count >= max_particle_count && max_particle_count > 0) 
 		Deactivate();
 	else if (spawn_timer >= spawn_delay) {
@@ -32,7 +30,7 @@ void Particle_Emitter::Update(double dt) {
 
 		for (int i = 0; i < spawn_count + count_var; i++) {
 			Particle * temp = new Particle(*reference);
-			temp->max_age = (-max_age_variance + (float)rand() / ((float)RAND_MAX / (2 * max_age_variance)));
+			temp->age_timer.Set_Interval(-max_age_variance + (float)rand() / ((float)RAND_MAX / (2 * max_age_variance)));
 			temp->angle = (-angle_variance + (float)rand() / ((float)RAND_MAX / (2 * angle_variance)));
 			//temp->throttle = (-throttle_variance + (float)rand() / ((float)RAND_MAX / (2 * throttle_variance)));
 			temp->velocity = (-velocity_variance + (float)rand() / ((float)RAND_MAX / (2 * velocity_variance)));
@@ -88,7 +86,7 @@ void Particle_Emitter::Set_Max_Age(double new_age) {
 	if (reference == NULL)
 		return;
 
-	reference->max_age = new_age;
+	reference->age_timer.Set_Interval(new_age);
 }
 
 void Particle_Emitter::Set_Starting_Angle(double new_angle) {

@@ -57,8 +57,8 @@ void AppStateTest::Update() {
 
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
-    viewport.x = player.pawn->x + player.pawn->w / 2.0 - viewport.w / 2.0;
-    viewport.y = player.pawn->y + player.pawn->w / 2.0 - viewport.h / 2.0;
+    viewport.x = player.pawn->x - viewport.w / 2.0;
+    viewport.y = player.pawn->y - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
 }
 
@@ -103,20 +103,24 @@ AppStateBase * AppStateTest::GetInstance() {
 
 void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;                break;
-    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;               break;
-    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;             break;
-    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;            break;
-    /*Change Weapon Firing to use the PRESSED_KEY array rather than the toggles*/
-    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;              break;
-    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;           break;
-    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;           break;
-    case SDLK_4:        player.inputs[FIRE_MINE] = true;                break;
-    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;             break;
-    case SDLK_d:        player.pawn->Damage_Shields(10.0);              break;
-    case SDLK_f:        player.pawn->Damage_Armor(10.0);                break;
-    case SDLK_t:        player.pawn->team_id ? player.pawn->team_id = 0 : player.pawn->team_id = 1; break;
-    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);        break;
+    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;                            break;
+    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;                           break;
+    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;                         break;
+    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;                        break;
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;                          break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;                       break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;                       break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = true;                            break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;                         break;
+    case SDLK_d:        player.pawn->Damage_Shields(10.0);                          break;
+    case SDLK_f:        player.pawn->Damage_Armor(10.0);                            break;
+    case SDLK_t:        player.info_feed.Player_Joined("Quicksilver");              break;
+    case SDLK_y:        player.info_feed.Player_Disconnected("Quicksilver");        break;
+    case SDLK_u:        player.info_feed.Player_Died("Quicksilver");                break;
+    case SDLK_i:        player.info_feed.Player_Killed("Quicksilver", "Blah");      break;
+    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);                    break;
+    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);                    break;
+    case SDLK_p:        player.pawn->team_id ? player.pawn->team_id = 0 : player.pawn->team_id = 1; break;
     default:
         break;
     }

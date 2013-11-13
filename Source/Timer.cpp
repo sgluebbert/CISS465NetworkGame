@@ -26,7 +26,10 @@ void Timer::Update(double dt) {
 
 void Timer::Set_Interval(double _interval) {
 	interval = _interval;
-	timer = 0.0;
+}
+
+double Timer::Get_Interval() {
+	return interval;
 }
 
 double Timer::Get_Progress() {

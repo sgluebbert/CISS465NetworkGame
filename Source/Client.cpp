@@ -3,7 +3,7 @@
 
 
 Client::Client() {
-	pawn = new Fighter(0.0, 0.0);
+	pawn = new Ship(FIGHTER, 0.0, 0.0);
 
 	/*shield_bar.Set_Rect(720, 0, 80, 20, 2);
 	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
@@ -43,6 +43,8 @@ Client::Client() {
 		fired[i] = false;
 
 	offline = true;
+
+	callsign = "Default";
 }
 
 
@@ -56,23 +58,23 @@ Client::~Client() {
 }
 
 
+
 void Client::Respawn(double _x, double _y) {
 	delete pawn;
-	pawn = new Fighter(_x, _y);
+	pawn = new Ship(FIGHTER, _x, _y);
 }
+
 
 
 void Client::Update(double dt) {
 	if (offline) {
 		if (inputs[MOVE_FORWARD])
 			pawn->Accelerate(false);
-		else
-			pawn->Decelerate();
-
-		if (inputs[MOVE_BACKWARD])
+		else if (inputs[MOVE_BACKWARD])
 			pawn->Accelerate(true);
 		else
 			pawn->Decelerate();
+
 		if (inputs[TURN_LEFT])
 			pawn->Turn_Left(dt);
 		if (inputs[TURN_RIGHT])
@@ -114,6 +116,7 @@ void Client::Update(double dt) {
 	hull_circle.Update(dt);
 	shield_circle.Update(dt);
 	power_circle.Update(dt);
+	info_feed.Update(dt);
 }
 
 void Client::Draw() {
@@ -128,4 +131,5 @@ void Client::Draw() {
 	hull_circle.Draw();
 	shield_circle.Draw();
 	power_circle.Draw();
+	info_feed.Draw();
 }

@@ -5,7 +5,7 @@
 
 #include <SDL.h>
 
-#include "System.h"
+#include "../System.h"
 
 
 
