@@ -24,7 +24,7 @@ public:
 
 	float shield_modifier, hull_modifier, armor_modifier, obstacle_modifier;
 
-	bool Fire(bool forced = false);
+	bool Fire();
 
 	void Update(double, float, float);
 };

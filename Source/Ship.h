@@ -26,7 +26,7 @@ public:
     NetString * Serialize();
     bool Deserialize(NetString *);
 
-	bool Fire(Weapon_Type, bool forced = false); // if client got a ship shot from the server, we force the shot to stay in sync
+	bool Fire(Weapon_Type);
 	void Accelerate(bool);
 	void Decelerate();
     void Turn_Left(double);

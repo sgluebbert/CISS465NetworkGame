@@ -50,20 +50,15 @@ void AppStateGame::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
-    temp_camera->Map_To_Viewport(player.pawn);
-    player.Draw();
-    temp_camera->Map_To_World(player.pawn);
-
-    for (int i = 0; i < MaximumClients; ++i)
-    {
-        if (players[i] == NULL || players[i] == player.pawn)
-            continue;
-
-        temp_camera->Map_To_Viewport(players[i]);
-        players[i]->Draw();
-        // std::cout << players[i]->x << ' ' << players[i]->y << '\n';
-        temp_camera->Map_To_World(players[i]);
+    for (int i = 0; i < Drawable::objects.size(); i++) {
+        temp_camera->Map_To_Viewport(Drawable::objects[i]);
+        Drawable::objects[i]->Draw();
+        temp_camera->Map_To_World(Drawable::objects[i]);
     }
+
+    //map->Draw(temp_camera);
+
+    player.Draw();
 }
 
 void AppStateGame::Send() {
@@ -131,19 +126,19 @@ void AppStateGame::Receive() {
                 bool shipFired[5];
                 netString.ReadBool(shipFired[ENERGY_TYPE]);
                 if (shipFired[ENERGY_TYPE])
-                    ship->Fire(ENERGY_TYPE, true);
+                    ship->Fire(ENERGY_TYPE);
                 netString.ReadBool(shipFired[BALLISTIC_TYPE]);
                 if (shipFired[BALLISTIC_TYPE])
-                    ship->Fire(BALLISTIC_TYPE, true);
+                    ship->Fire(BALLISTIC_TYPE);
                 netString.ReadBool(shipFired[PROPELLED_TYPE]);
                 if (shipFired[PROPELLED_TYPE])
-                    ship->Fire(PROPELLED_TYPE, true);
+                    ship->Fire(PROPELLED_TYPE);
                 netString.ReadBool(shipFired[BOMB_TYPE]);
                 if (shipFired[BOMB_TYPE])
-                    ship->Fire(BOMB_TYPE, true);
+                    ship->Fire(BOMB_TYPE);
                 netString.ReadBool(shipFired[POWERUP_TYPE]);
                 if (shipFired[POWERUP_TYPE])
-                    ship->Fire(POWERUP_TYPE, true);
+                    ship->Fire(POWERUP_TYPE);
                 break;
 
             case NCE_REMOVE_PLAYER:

@@ -2,8 +2,8 @@
 
 
 
-bool Weapon::Fire(bool forced) {
-	if (state != WEAPON_READY && !forced)
+bool Weapon::Fire() {
+	if (state != WEAPON_READY)
 		return false;
 
 	state = WEAPON_FIRING;
