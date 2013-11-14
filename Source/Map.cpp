@@ -33,9 +33,6 @@ int Map::NumPlanets()
 }
 
 void Map::Update(double dt) {
-	//Update all items
-	for (int i = 0; i < planets.size(); i++)
-		planets[i]->Update(dt);
 }
 
 int Map::AllPlanetsCaptured()
@@ -69,11 +66,4 @@ void Map::PlanetCollision(Ship ship)
 
 
 void Map::Draw(Camera * camera) {
-	//Draw all items
-	for (int i = 0; i < planets.size(); i++)
-	{
-		camera->Map_To_Viewport(planets[i]);
-		planets[i]->Draw();
-		camera->Map_To_World(planets[i]);
-	}
 }

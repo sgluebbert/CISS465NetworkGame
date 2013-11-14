@@ -106,6 +106,10 @@ void Ship::Setup_Bomber() {
 
 
 Ship::Ship(Ship_Type ship_type, float _x, float _y) {
+    Drawable::objects.push_back(this);
+    Rigid_Body::objects.push_back(this);
+    Collidable::objects.push_back(this);
+
 	dx = dy = force = torque = velocity = rotation = 0.0;
 
 	x = bounding_volume.x = _x;
@@ -122,6 +126,16 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
     force_motor = torque_motor = 0.0;
 
 	state = ALIVE;
+
+	smoke_emitter.Set_Particle(Create_Smoke_Particle());
+
+	//Configuration Methods
+	smoke_emitter.Set_Particle_Count(50);
+	smoke_emitter.Set_Spawn_Count(1);
+	smoke_emitter.Set_Spawn_Delay(0.1);
+	smoke_emitter.Set_Max_Age(1.0);
+	smoke_emitter.Set_Starting_Angle(-draw_angle);
+	smoke_emitter.Set_Starting_Angle_Variance(45.0);
 
 	switch(ship_type) {
 	case INTERCEPTOR:	Setup_Interceptor();	break;
@@ -189,12 +203,16 @@ void Ship::Turn_Left(double dt) {
     angle += turn_rate * dt;
     if (angle >= 360)
         angle = angle - 360;
+
+	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 void Ship::Turn_Right(double dt) {
     angle -= turn_rate * dt;
     if (angle < 0)
         angle = 360 + angle;
+
+	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 
@@ -272,12 +290,8 @@ void Ship::Limit_Motor() {
 void Ship::Update(double dt) {
 	respawn_timer.Update(dt);
 
-	smoke_emitter.Update(dt);
-	explosion_emitter.Update(dt);
-
-	bounding_volume.x = x;
-    bounding_volume.y = y;
-    bounding_volume.r = 20;
+	smoke_emitter.Update(dt, x, y);
+	explosion_emitter.Update(dt, x, y);
 
 	switch(state) {
 	case ALIVE:
@@ -285,25 +299,27 @@ void Ship::Update(double dt) {
 	    rotation *= FRICTION_COEFFICIENT;
 
 	    Apply_Force(force_motor, angle, 0, 0);
-	    //Apply_Torque(torque_motor);
+	    Apply_Torque(torque_motor);
 
 	    Calculate_Velocity(dt);
-	    //Calculate_Rotation(dt);
+	    Calculate_Rotation(dt);
 
 	    Limit_Motor();
 	    
 	    Calculate_Vector(dt);
 	    Move(dt);
 
+	    bounding_volume.Update(dx, -dy);
+	    drawing_box.Update(dx, -dy);
 	    draw_angle = angle;
-	    drawing_box.Update(dx, dy);
 
-	    if (health <= 0.5 * max_health)
-	        smoke_emitter.Activate();
+	    /*if (health <= 0.5 * max_health)
+	        smoke_emitter.Activate();*/
 
 	    if (health <= 0.0) {
-	        explosion_emitter.Activate();
+	        smoke_emitter.Activate();
 	        state = DYING;
+			respawn_timer.Start();
 	    }
 
 		shield_recharge_timer.Update(dt);
@@ -325,15 +341,13 @@ void Ship::Update(double dt) {
 
 	    for (int i = 0; i < 4; i++)
 	    	if (weapon_pool[i] != NULL)
-	    		weapon_pool[i]->Update(dt);
+	    		weapon_pool[i]->Update(dt, x, y);
 
 		break;
 
 	case DYING:
-		if (!explosion_emitter.Is_Active()) {
+		if (!smoke_emitter.Is_Active())
 			state = DEAD;
-			respawn_timer.Start();
-		}
 
 		break;
 
@@ -352,7 +366,7 @@ void Ship::Draw() {
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(x, y, -draw_angle, draw_scale);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 

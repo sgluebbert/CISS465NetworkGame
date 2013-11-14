@@ -3,22 +3,18 @@
 
 
 
-#include <deque>
-#include <SDL.h>
-
 #include "Circle.h"
-#include "Entity.h"
+#include "Drawing/Drawable.h"
 #include "Rect.h"
-#include "Drawing/TextureManager.h"
 
 
 
 class Camera {
 public:
-	static Camera * getInstance();
+    static Camera * getInstance();
 
-    void Map_To_Viewport(Entity *);
-    void Map_To_World(Entity *);
+    void Map_To_Viewport(Drawable *);
+    void Map_To_World(Drawable *);
 
     void Map_To_Viewport(Circle<double> *);
     void Map_To_World(Circle<double> *);
@@ -34,8 +30,8 @@ private:
     Camera();
     Rect<double> viewport;
 
-	static bool instanceFlag;
-	static Camera *single;
+    static bool instanceFlag;
+    static Camera *single;
 };
 
 

@@ -2,6 +2,10 @@
 
 
 
+std::deque<Rigid_Body *> Rigid_Body::objects;
+
+
+
 void Rigid_Body::Set_Inertia(float radius) {
 	inertia = (2.0 * mass * radius * radius) / 3.0;
 }

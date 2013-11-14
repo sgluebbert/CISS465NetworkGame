@@ -18,20 +18,15 @@ public:
 	Timer recharge_timer;
 	Particle_Emitter emitter;
 
-	double damage;
-	double range;
-	double power;
+	float x, y;
 
-	double shield_modifier;
-	double hull_modifier;
-	double armor_modifier;
-	double obstacle_modifier;
+	float damage, range, power;
 
-
+	float shield_modifier, hull_modifier, armor_modifier, obstacle_modifier;
 
 	bool Fire(bool forced = false);
 
-	void Update(double);
+	void Update(double, float, float);
 };
 
 

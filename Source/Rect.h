@@ -3,11 +3,6 @@
 
 
 
-#include <SDL.h>
-#include <iostream>
-
-
-
 template <class T>
 struct Rect {
 	T x, y, w, h;
@@ -28,13 +23,6 @@ struct Rect {
 			w = _w;
 			h = _h;
 		}
-	}
-
-	Rect & operator=(SDL_Rect & other) {
-		x = other.x;
-		y = other.y;
-		w = other.w;
-		h = other.h;
 	}
 
 
@@ -93,16 +81,6 @@ private:
 	}
 
 };
-
-
-
-template <class T>
-std::ostream & operator<<(std::ostream & cout, const Rect<T> & rhs) {
-    std::cout << "Position: [" << rhs.x << ", " << rhs.y << "]\t";
-    std::cout << "Bounds: [" << rhs.w << ", " << rhs.h << ']' << std::endl;
-
-    return cout;
-}
 
 
 

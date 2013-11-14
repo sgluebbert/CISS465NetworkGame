@@ -3,6 +3,8 @@
 
 
 
+#include <deque>
+
 #include "Math.h"
 
 
@@ -36,6 +38,8 @@ public:
     float rotation;
 
     float dx, dy;
+
+    static std::deque<Rigid_Body *> objects;
 
 private:
 };

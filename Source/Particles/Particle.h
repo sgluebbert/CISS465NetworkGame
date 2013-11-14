@@ -14,7 +14,7 @@
 class Particle : public Entity, public Motor {
 public:
 	Particle();
-	Particle(Particle *);
+	Particle(Particle *, float &, float &);
 	~Particle();
     
     virtual void Limit_Motor();
@@ -27,9 +27,6 @@ public:
 	bool Is_Dead();
 
     static std::deque<Particle *> particles;
-
-    static void Update_Particles(double);
-    static void Draw_Particles();
 };
 
 
