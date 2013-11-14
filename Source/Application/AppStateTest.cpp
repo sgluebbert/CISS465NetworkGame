@@ -28,7 +28,12 @@ AppStateTest::AppStateTest() {
 
 void AppStateTest::Initialize() {
     std::cout << "Beginning Initialization..." << std::endl;
-    background_texture = surface_manager->background_game;
+
+    //Just makes sure the instance is initialized before gameplay begins
+    std::cout << "Beginning Collision_Manager Initialization..." << std::endl;
+    Collision_Manager::Get_Instance();
+
+    //background_texture = surface_manager->background_game;
 
     std::cout << "Beginning Map Initialization..." << std::endl;
     map = new Map(0);
@@ -36,6 +41,7 @@ void AppStateTest::Initialize() {
     map->AddPlanet(1, 1000, 0);
 
     player.pawn->team_id = 0;
+    player.pawn->Set_Group(SHIP_GROUP);
 
     std::cout << "Beginning Planet HUD Initialization..." << std::endl;
     planetsHUD = new PlanetsHUD(map->NumPlanets());
@@ -43,10 +49,6 @@ void AppStateTest::Initialize() {
     std::cout << "Beginning Math Initialization..." << std::endl;
     srand(time(NULL));
     Initialize_Trig_Table();
-
-    //Just makes sure the instance is initialized before gameplay begins
-    std::cout << "Beginning Collision_Manager Initialization..." << std::endl;
-    Collision_Manager::Get_Instance();
     
     //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
     //sound_manager->Play_Music();
@@ -69,7 +71,7 @@ void AppStateTest::Update() {
             for (int j = Drawable::objects.size() - 1; j >= 0; j--)
                 if (Particle::particles[i] == Drawable::objects[j])
                     Drawable::objects.erase(Drawable::objects.begin() + j);
-         delete Particle::particles[i];
+            //delete Particle::particles[i];
             Particle::particles.erase(Particle::particles.begin() + i);
         }
 
@@ -102,7 +104,7 @@ void AppStateTest::Update() {
     planetsHUD->Update(map->planets);
 
     std::cout << "Beginning Planet Collision Updates..." << std::endl;
-    map->PlanetCollision(*player.pawn);
+    map->PlanetCollision(player.pawn);
 
     std::cout << "Beginning Collision Updates..." << std::endl;
     Collision_Manager::Get_Instance()->Update(dt);
@@ -119,7 +121,7 @@ void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
-    for (int i = 0; i < Drawable::objects.size(); i++) {
+    for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
         Drawable::objects[i]->Draw();
         temp_camera->Map_To_World(Drawable::objects[i]);

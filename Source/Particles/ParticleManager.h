@@ -15,30 +15,57 @@ static Particle * Create_Thrust_Particle() {
 }
 
 static Particle * Create_Smoke_Particle() {
-	Particle * smoke_particle = new Particle();
+	Particle * temp_particle = new Particle();
 
     //Drawable Init
-    smoke_particle->texture = surface_manager->smoke;
-    smoke_particle->draw_angle = smoke_particle->angle = 0.0;
-    smoke_particle->draw_scale = 16.0;
-    smoke_particle->drawing_box.w = smoke_particle->drawing_box.h = 2 * smoke_particle->draw_scale;
+    temp_particle->texture = surface_manager->smoke;
+    temp_particle->draw_angle = temp_particle->angle = 0.0;
+    temp_particle->draw_scale = 16.0;
+    temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
 
     //RigidBody Init
-    smoke_particle->velocity = 10.0;
-    smoke_particle->dx = smoke_particle->dy = smoke_particle->force = smoke_particle->torque = smoke_particle->rotation = 0.0;
-    smoke_particle->mass = 1.0;
-	smoke_particle->Set_Inertia(smoke_particle->draw_scale);
-    smoke_particle->x = smoke_particle->y = smoke_particle->drawing_box.x = smoke_particle->drawing_box.y = 0.0;
+    temp_particle->velocity = 10.0;
+    temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
+    temp_particle->mass = 1.0;
+	temp_particle->Set_Inertia(temp_particle->draw_scale);
+    temp_particle->x = temp_particle->y = temp_particle->drawing_box.x = temp_particle->drawing_box.y = 0.0;
 
     //Motor Init
-	smoke_particle->velocity_limit = smoke_particle->velocity;
-	smoke_particle->force_motor = 200.0;
-    smoke_particle->rotation_limit = smoke_particle->reverse_modifier = smoke_particle->torque_motor = 0.0;
+	temp_particle->velocity_limit = temp_particle->velocity;
+	temp_particle->force_motor = 0.0;
+    temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
 
     //Particle Init
-	smoke_particle->age_timer.Set_Interval(2.0);
+	temp_particle->age_timer.Set_Interval(2.0);
 
-	return smoke_particle;
+	return temp_particle;
+}
+
+static Particle * Create_Shatter_Particle() {
+	Particle * temp_particle = new Particle();
+
+    //Drawable Init
+    temp_particle->texture = surface_manager->smoke;
+    temp_particle->draw_angle = temp_particle->angle = 0.0;
+    temp_particle->draw_scale = 8.0;
+    temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
+
+    //RigidBody Init
+    temp_particle->velocity = 30.0;
+    temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
+    temp_particle->mass = 1.0;
+	temp_particle->Set_Inertia(temp_particle->draw_scale);
+    temp_particle->x = temp_particle->y = temp_particle->drawing_box.x = temp_particle->drawing_box.y = 0.0;
+
+    //Motor Init
+	temp_particle->velocity_limit = temp_particle->velocity;
+	temp_particle->force_motor = 0.0;
+    temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
+
+    //Particle Init
+	temp_particle->age_timer.Set_Interval(1.0);
+
+	return temp_particle;
 }
 
 static Particle * Create_Explosion_Particle() {
@@ -48,9 +75,30 @@ static Particle * Create_Explosion_Particle() {
 }
 
 static Particle * Create_Laser_Particle() {
-	Particle * laser_particle = new Particle();
+	Particle * temp_particle = new Particle();
 
-	return laser_particle;
+    //Drawable Init
+    temp_particle->texture = surface_manager->bullet;
+    temp_particle->draw_angle = temp_particle->angle = 0.0;
+    temp_particle->draw_scale = 8.0;
+    temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
+
+    //RigidBody Init
+    temp_particle->velocity = 100.0;
+    temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
+    temp_particle->mass = 1.0;
+	temp_particle->Set_Inertia(temp_particle->draw_scale);
+    temp_particle->x = temp_particle->y = temp_particle->drawing_box.x = temp_particle->drawing_box.y = 0.0;
+
+    //Motor Init
+	temp_particle->velocity_limit = temp_particle->velocity;
+	temp_particle->force_motor = 200.0;
+    temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
+
+    //Particle Init
+	temp_particle->age_timer.Set_Interval(2.0);
+
+	return temp_particle;
 }
 
 static Particle * Create_Gauss_Particle() {

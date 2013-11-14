@@ -29,11 +29,24 @@ void Particle_Emitter::Update(double dt, float _x, float _y) {
     	int count_var = 0;//rand() % spawn_count_variance;
 
 		for (int i = 0; i < spawn_count + count_var; i++) {
+			double variance;
 			Particle * temp = new Particle(reference, _x, _y);
-			//temp->age_timer.Set_Interval(-max_age_variance + (float)rand() / ((float)RAND_MAX / (2 * max_age_variance)));
-			temp->angle = (-angle_variance + (float)rand() / ((float)RAND_MAX / (2 * angle_variance)));
-			//temp->throttle = (-throttle_variance + (float)rand() / ((float)RAND_MAX / (2 * throttle_variance)));
-			//temp->velocity = (-velocity_variance + (float)rand() / ((float)RAND_MAX / (2 * velocity_variance)));
+
+			if (max_age_variance != 0) {
+				variance = (float(rand()) / float(RAND_MAX) * 2 * max_age_variance) - max_age_variance + reference->age_timer.Get_Interval();
+				temp->age_timer.Set_Interval(variance);
+			}
+
+			if (angle_variance != 0) {
+				variance = (float(rand()) / float(RAND_MAX) * 2 * angle_variance) - angle_variance;
+				temp->angle += variance;
+			}
+
+			if (velocity_variance != 0) {
+				variance = (float(rand()) / float(RAND_MAX) * 2 * velocity_variance) - velocity_variance;
+				temp->velocity += variance;
+			}
+
 			particle_count += 1;
 		}
 		

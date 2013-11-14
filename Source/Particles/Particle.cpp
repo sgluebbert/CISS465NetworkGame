@@ -7,10 +7,6 @@ std::deque<Particle *> Particle::particles;
 
 
 Particle::Particle() {
-    //Collidable::objects.push_back(this);
-    Drawable::objects.push_back(this);
-    Rigid_Body::objects.push_back(this);
-
     //Drawable Init
     drawing_box.x = drawing_box.y = drawing_box.w = drawing_box.h = 0.0;
     draw_scale = draw_angle = 0.0;
@@ -38,8 +34,10 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     draw_angle = p->draw_angle;
 
     //RigidBody Init
-    dx = dy = force = torque = velocity = rotation = 0.0;
+    dx = dy = force = torque = 0.0;
 
+    velocity = p->velocity;
+    rotation = p->rotation;
     mass = p->mass;
     inertia = p->inertia;
 

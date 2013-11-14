@@ -29,7 +29,7 @@ public:
     virtual void Draw();
 
 	void SetTexture(Texture *);
-    void UnderSiege(Ship);
+    void UnderSiege(Ship *);
     void DrawGravityField();
 
     int id;

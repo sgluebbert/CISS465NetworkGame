@@ -127,15 +127,22 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 	state = ALIVE;
 
-	/*smoke_emitter.Set_Particle(Create_Smoke_Particle());
+	smoke_emitter.Set_Particle(Create_Smoke_Particle());
+	shatter_emitter.Set_Particle(Create_Shatter_Particle());
 
 	//Configuration Methods
-	smoke_emitter.Set_Particle_Count(50);
 	smoke_emitter.Set_Spawn_Count(1);
 	smoke_emitter.Set_Spawn_Delay(0.1);
 	smoke_emitter.Set_Max_Age(1.0);
-	smoke_emitter.Set_Starting_Angle(-draw_angle);
-	smoke_emitter.Set_Starting_Angle_Variance(45.0);*/
+	smoke_emitter.Set_Starting_Angle(0.0);
+	smoke_emitter.Set_Starting_Angle_Variance(360.0);
+	shatter_emitter.Set_Spawn_Count(10);
+	shatter_emitter.Set_Spawn_Delay(0.1);
+	shatter_emitter.Set_Max_Age(1.0);
+	shatter_emitter.Set_Starting_Angle(0.0);
+	shatter_emitter.Set_Max_Age_Variance(0.25);
+	shatter_emitter.Set_Starting_Angle_Variance(360.0);
+	shatter_emitter.Set_Starting_Velocity_Variance(20.0);
 
 	switch(ship_type) {
 	case INTERCEPTOR:	Setup_Interceptor();	break;
@@ -167,17 +174,19 @@ bool Ship::Deserialize(NetString *string) {
 
 
 
-bool Ship::Fire(Weapon_Type weapon_id) {
-	if (weapon_id < ENERGY_TYPE)
-		return false;
-	if (weapon_id > POWERUP_TYPE)
-		return false;
-	if (weapon_pool[weapon_id] == NULL)
-		return false;
-	if (power < weapon_pool[weapon_id]->power)
-		return false;
+bool Ship::Fire(Weapon_Type weapon_id, bool forced) {
+	if (!forced) {
+		if (weapon_id < ENERGY_TYPE)
+			return false;
+		if (weapon_id > POWERUP_TYPE)
+			return false;
+		if (weapon_pool[weapon_id] == NULL)
+			return false;
+		if (power < weapon_pool[weapon_id]->power)
+			return false;
+	}
 
-	if (weapon_pool[weapon_id]->Fire()) {
+	if (weapon_pool[weapon_id]->Fire(forced)) {
 		power -= weapon_pool[weapon_id]->power;
 		power_recharge_timer.Start();
 		return true;
@@ -201,16 +210,12 @@ void Ship::Turn_Left(double dt) {
     angle += turn_rate * dt;
     if (angle >= 360)
         angle = angle - 360;
-
-	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 void Ship::Turn_Right(double dt) {
     angle -= turn_rate * dt;
     if (angle < 0)
         angle = 360 + angle;
-
-	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 
@@ -222,9 +227,13 @@ void Ship::Damage_Armor(float damage) {
 	if (armor > 0)
 		armor -= damage;
 
-	if (armor < 0) {
+	if (armor < 0.0) {
 		damage = 0 - armor;
-		armor = 0;
+		armor = -0.1;
+	}
+	else {
+		shatter_emitter.Set_Particle_Count(int(damage / 10) * 10);
+		shatter_emitter.Activate();
 	}
 }
 
@@ -261,6 +270,11 @@ void Ship::Damage_Hull(float damage) {
 		return;
 	}
 
+	if (health < max_health * 0.5) {
+		smoke_emitter.Set_Particle_Count(500 / health);
+	    smoke_emitter.Activate();
+	}
+
 	if (health < 0) {
 		damage = 0 - health;
 		health = 0;
@@ -289,7 +303,7 @@ void Ship::Update(double dt) {
 	respawn_timer.Update(dt);
 
 	smoke_emitter.Update(dt, x, y);
-	explosion_emitter.Update(dt, x, y);
+	shatter_emitter.Update(dt, x, y);
 
 	switch(state) {
 	case ALIVE:
@@ -311,11 +325,7 @@ void Ship::Update(double dt) {
 	    drawing_box.Update(dx, -dy);
 	    draw_angle = angle;
 
-	    /*if (health <= 0.5 * max_health)
-	        smoke_emitter.Activate();*/
-
 	    if (health <= 0.0) {
-	        smoke_emitter.Activate();
 	        state = DYING;
 			respawn_timer.Start();
 	    }
@@ -344,14 +354,13 @@ void Ship::Update(double dt) {
 		break;
 
 	case DYING:
-		if (!smoke_emitter.Is_Active())
-			state = DEAD;
+		state = DEAD;
 
 		break;
 
 	case DEAD:
 		smoke_emitter.Deactivate();
-		explosion_emitter.Deactivate();
+		shatter_emitter.Deactivate();
 
 		break;
 	}
@@ -364,9 +373,9 @@ void Ship::Draw() {
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
     if (team_id == 0)
-		glColor4f(0.0, 0.0, 1.0, 1.0);
+		glColor4f(0.25, 0.25, 1.0, 1.0);
 	else if (team_id == 1)
-		glColor4f(1.0, 0.0, 0.0, 1.0);
+		glColor4f(1.0, 0.25, 0.25, 1.0);
 
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }

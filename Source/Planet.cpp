@@ -7,6 +7,7 @@ Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, fl
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    Set_Group(PLANET_GROUP);
 
     dx = dy = force = torque = rotation = 0.0;
     
@@ -36,15 +37,15 @@ void Planet::SetTexture(Texture * tex)
 }
 
 
-void Planet::UnderSiege(Ship ship)
+void Planet::UnderSiege(Ship * ship)
 {
     bounding_volume.r = r + gravity_radius;
     bounding_volume.x = x;
     bounding_volume.y = y;
 
-    if (DoCollide(this, &ship))
+    if (DoCollide(this, ship))
     {
-        if (ship.team_id == 1)
+        if (ship->team_id == 1)
         {
             capture_value -= 0.001f;
         }
@@ -91,19 +92,19 @@ void Planet::DrawGravityField()
     {
         // light blue color
         const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &blue);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &blue);
     }
     else if (capture_value < 0.0f)
     {
         // light red color
         const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &red);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &red);
     }
     else
     {
         // light gray color
         const Color gray(0.5f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &gray);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &gray);
     }
 
 }
@@ -123,7 +124,7 @@ void Planet::Draw()
     DrawGravityField();
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
 }
 
 

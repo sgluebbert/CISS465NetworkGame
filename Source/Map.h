@@ -33,7 +33,7 @@ public:
 
 
 	int AllPlanetsCaptured();
-	void PlanetCollision(Ship ship);
+	void PlanetCollision(Ship *);
 	void AddPlanet(int id, float x, float y);
 	int NumPlanets();
 	void Update(double);

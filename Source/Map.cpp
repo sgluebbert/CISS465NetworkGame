@@ -58,7 +58,7 @@ int Map::AllPlanetsCaptured()
 	return 0;	// Not all planets have been captured
 }
 
-void Map::PlanetCollision(Ship ship)
+void Map::PlanetCollision(Ship * ship)
 {
 	for (int i = 0; i < planets.size(); i++)
 		planets[i]->UnderSiege(ship);

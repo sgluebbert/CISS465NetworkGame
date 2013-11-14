@@ -27,12 +27,11 @@ void Collision_Manager::Update(double dt) {
 		//possibles = collidable_tree.Get_Possibles(objects[i]);
 
 		//NARROW PHASE OF COLLISION DETECTION
-		for (int j = 0; j < Collidable::objects.size(); j++) {
-			if (i == j)
-				continue;
-			
+		for (int j = i + 1; j < Collidable::objects.size(); j++) {
 			if (!DoCollide(Collidable::objects[i], Collidable::objects[j]))
 				continue;
+			else
+				std::cout << "COLLISION!" << std::endl;
 
 			if (Collidable::objects[i]->group < Collidable::objects[j]->group)
 				collisions.push_back(std::make_pair(Collidable::objects[i], Collidable::objects[j]));

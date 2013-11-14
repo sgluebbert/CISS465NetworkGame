@@ -20,7 +20,7 @@
 
 class Collision {
 public:
-	//void ResolveCollision(Collidable *, Collidable *, float, float) = 0;
+	//void ResolveCollision(Collidable *, Collidable *) = 0;
 };
 
 
