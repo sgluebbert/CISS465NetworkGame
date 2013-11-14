@@ -3,12 +3,8 @@
 
 
 
-#include <deque>
-#include <iostream>
-
-#include "Entity.h"
+#include "Collidable.h"
 #include "Rect.h"
-#include "System.h"
 
 
 
@@ -18,10 +14,10 @@ public:
     Quad_Tree(Quad_Tree *, int, Rect<double>);
     ~Quad_Tree();
 
-    bool Is_Within(Entity *);
-    void Insert(Entity *);
-    void Reinsert(Entity *);
-    void Get_Possibles(std::deque<Entity *> &, Rect<double> &);
+    bool Is_Within(Collidable *);
+    void Insert(Collidable *);
+    void Reinsert(Collidable *);
+    void Get_Possibles(std::deque<Collidable *> &, Rect<double> &);
 
     void Subdivide();
     void Clear();
@@ -29,7 +25,7 @@ public:
     void Update();
     void Draw();
 
-    friend std::ostream & operator<<(std::ostream &, const Quad_Tree &);
+    static Quad_Tree object_tree;
 
 private:
     static int MAX_DEPTH;
@@ -45,7 +41,7 @@ private:
     Quad_Tree * southeast;
     Quad_Tree * southwest;
 
-    std::deque<Entity *> items;
+    std::deque<Collidable *> items;
 };
 
 

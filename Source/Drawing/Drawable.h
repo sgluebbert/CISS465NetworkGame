@@ -3,6 +3,8 @@
 
 
 
+#include <deque>
+
 #include "../Rect.h"
 #include "Texture.h"
 
@@ -16,6 +18,8 @@ public:
     Texture * texture;
 
     float draw_scale, draw_angle;
+
+    static std::deque<Drawable *> objects;
 };
 
 

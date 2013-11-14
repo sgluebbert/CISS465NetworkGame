@@ -4,7 +4,8 @@
 
 int Quad_Tree::MAX_DEPTH = 4;
 int Quad_Tree::MAX_SIZE = 4;
-Rect<double> Quad_Tree::MAX_BOUNDS = Rect<double>(0, 0, 800, 600);
+Rect<double> Quad_Tree::MAX_BOUNDS = Rect<double>(0, 0, 2000, 2000);
+Quad_Tree Quad_Tree::object_tree;
 
 
 
@@ -39,24 +40,24 @@ Quad_Tree::~Quad_Tree() {
     items.clear();
 }
 
-bool Quad_Tree::Is_Within(Entity * item) {
+bool Quad_Tree::Is_Within(Collidable * item) {
     Rect<double> temp;
-    temp.x = item->drawing_box.x;
-    temp.y = item->drawing_box.y;
-    temp.w = item->drawing_box.w;
-    temp.h = item->drawing_box.h;
+    temp.x = item->bounding_volume.x;
+    temp.y = item->bounding_volume.y;
+    temp.w = item->bounding_volume.r;
+    temp.h = item->bounding_volume.r;
 
     return bounds.Within(temp);
 }
 
-void Quad_Tree::Reinsert(Entity * item) {
+void Quad_Tree::Reinsert(Collidable * item) {
     if (root == NULL)
         Insert(item);
     
     root->Reinsert(item);
 }
 
-void Quad_Tree::Insert(Entity * item) {
+void Quad_Tree::Insert(Collidable * item) {
     if (northeast == NULL)
         items.push_back(item);
     else if (northeast->Is_Within(item))
@@ -73,7 +74,7 @@ void Quad_Tree::Insert(Entity * item) {
     if (items.size() > MAX_SIZE && northeast == NULL) {
         Subdivide();
 
-        std::deque<Entity *> temp = items;
+        std::deque<Collidable *> temp = items;
         items.clear();
 
         for (int i = temp.size() - 1; i >= 0; i--) {
@@ -85,7 +86,7 @@ void Quad_Tree::Insert(Entity * item) {
     }
 }
 
-void Quad_Tree::Get_Possibles(std::deque<Entity *> & possibles, Rect<double> & item) {
+void Quad_Tree::Get_Possibles(std::deque<Collidable *> & possibles, Rect<double> & item) {
     if (northeast == NULL) {
         for (int i = 0; i < items.size(); i++)
             possibles.push_back(items[i]);
@@ -146,9 +147,10 @@ void Quad_Tree::Clear() {
 
 void Quad_Tree::Update() {
     for (int i = 0; i < items.size(); i++)
-        if (items[i]->dx != 0 || items[i]->dy != 0) {
-            Reinsert(items[i]);
-            //Remove item from items
+        if (!Is_Within(items[i])) {
+            Collidable * temp = items[i];
+            items.erase(items.begin() + i);
+            Reinsert(temp);
         }
 
     northeast->Update();
@@ -186,41 +188,4 @@ void Quad_Tree::Draw() {
         southeast->Draw();
         southwest->Draw();
     }
-}
-
-
-
-std::ostream & operator<<(std::ostream & cout, const Quad_Tree & rhs) {
-    for (int t = 0; t < rhs.depth; t++)
-        std::cout << '\t';
-    std::cout << "Quad Tree::Depth " << rhs.depth << std::endl;
-
-    for (int t = 0; t < rhs.depth; t++)
-        std::cout << '\t';
-    std::cout << "Position: [" << rhs.bounds.x << ", " << rhs.bounds.y << ']' << std::endl;
-
-    for (int t = 0; t < rhs.depth; t++)
-        std::cout << '\t';
-    std::cout << "Bounds: [" << rhs.bounds.w << ", " << rhs.bounds.h << ']' << std::endl;
-
-    for (int t = 0; t < rhs.depth; t++)
-        std::cout << '\t';
-    std::cout << "Items:" << std::endl;
-
-    for (int i = 0; i < rhs.items.size(); i++) {
-        for (int t = 0; t < rhs.depth; t++)
-            std::cout << '\t';
-
-        std::cout << rhs.items[i] << std::endl;
-    }
-
-    if (rhs.northeast == NULL)
-        return cout;
-
-    std::cout << *rhs.northeast << std::endl;
-    std::cout << *rhs.northwest << std::endl;
-    std::cout << *rhs.southeast << std::endl;
-    std::cout << *rhs.southwest << std::endl;
-
-    return cout;
 }

@@ -11,13 +11,11 @@
 #include "../System.h"
 #include "../Planet.h"
 
-class Star {
+class Star : public Drawable {
 public:
         Star();
 
         void Draw();
-
-        Circle<double> bounding_volume;
 };
 
 

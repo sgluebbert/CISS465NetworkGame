@@ -8,7 +8,6 @@
 #include "Motor.h"
 #include "Serializable.h"
 #include "System.h"
-#include "Drawing/Texture.h"
 #include "Weapon.h"
 
 

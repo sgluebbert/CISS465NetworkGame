@@ -4,6 +4,10 @@
 Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv)
     : id(_id), state(s), r(_r), gravity_radius(gr), capture_value(cv)
 {
+    Collidable::objects.push_back(this);
+    Drawable::objects.push_back(this);
+    Rigid_Body::objects.push_back(this);
+    
     texture = NULL;
     x = _x;
     y =  _y;
@@ -33,8 +37,7 @@ void Planet::UnderSiege(Ship ship)
     bounding_volume.x = x;
     bounding_volume.y = y;
 
-    Collision * collision = new Collision();
-    if (collision->DoCollide(*this, ship))
+    if (DoCollide(this, &ship))
     {
         if (ship.team_id == 1)
         {

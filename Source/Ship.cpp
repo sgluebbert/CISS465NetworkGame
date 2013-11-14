@@ -106,6 +106,10 @@ void Ship::Setup_Bomber() {
 
 
 Ship::Ship(Ship_Type ship_type, float _x, float _y) {
+    Drawable::objects.push_back(this);
+    Rigid_Body::objects.push_back(this);
+    Collidable::objects.push_back(this);
+
 	dx = dy = force = torque = velocity = rotation = 0.0;
 
 	x = bounding_volume.x = _x;
@@ -275,28 +279,25 @@ void Ship::Update(double dt) {
 	smoke_emitter.Update(dt);
 	explosion_emitter.Update(dt);
 
-	bounding_volume.x = x;
-    bounding_volume.y = y;
-    bounding_volume.r = 20;
-
 	switch(state) {
 	case ALIVE:
 	    velocity *= FRICTION_COEFFICIENT;
 	    rotation *= FRICTION_COEFFICIENT;
 
 	    Apply_Force(force_motor, angle, 0, 0);
-	    //Apply_Torque(torque_motor);
+	    Apply_Torque(torque_motor);
 
 	    Calculate_Velocity(dt);
-	    //Calculate_Rotation(dt);
+	    Calculate_Rotation(dt);
 
 	    Limit_Motor();
 	    
 	    Calculate_Vector(dt);
 	    Move(dt);
 
+	    bounding_volume.Update(dx, -dy);
+	    drawing_box.Update(dx, -dy);
 	    draw_angle = angle;
-	    drawing_box.Update(dx, dy);
 
 	    if (health <= 0.5 * max_health)
 	        smoke_emitter.Activate();
@@ -352,7 +353,7 @@ void Ship::Draw() {
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(x, y, -draw_angle, draw_scale);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 

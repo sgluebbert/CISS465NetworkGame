@@ -9,12 +9,18 @@
 
 
 
+enum Team {	NO_TEAM, RED_TEAM, BLUE_TEAM, NEUTRAL_TEAM	};
+
+
+
 class Entity : public Drawable, public Rigid_Body {
 public:
     Entity();
     
     virtual void Update(double);
     virtual void Draw();
+
+    Team team_id;
 };
 
 

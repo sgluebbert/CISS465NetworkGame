@@ -1,15 +1,18 @@
 #include "AppStateTest.h"
+//#include "../CollisionManager.h"
+#include "../Debug.h"
 
 
 
 Star::Star() {
-    bounding_volume.x = rand() % 2000;
-    bounding_volume.y = rand() % 2000;
-    bounding_volume.r = rand() % 3;
+    Drawable::objects.push_back(this);
+    drawing_box.x = rand() % 2000;
+    drawing_box.y = rand() % 2000;
+    drawing_box.w = rand() % 3;
 }
 
 void Star::Draw() {
-    DrawCircle(bounding_volume.x, bounding_volume.y, bounding_volume.r, true, &WHITE);
+    DrawCircle(drawing_box.x, drawing_box.y, drawing_box.w, true, &WHITE);
 }
 
 
@@ -36,8 +39,11 @@ void AppStateTest::Initialize() {
     srand(time(NULL));
     Initialize_Trig_Table();
 
-    for (int i = 0; i < 500; i++)
-        stars.push_back(Star());
+    //for (int i = 0; i < 500; i++)
+        //stars.push_back(Star());
+
+    //Just makes sure the instance is initialized before gameplay begins
+    //Collision_Manager::Get_Instance();
     
     //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
     //sound_manager->Play_Music();
@@ -50,10 +56,18 @@ void AppStateTest::Events(SDL_Event * Event) {
 void AppStateTest::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
+    for (int i = 0; i < Rigid_Body::objects.size(); i++)
+        Rigid_Body::objects[i]->Update(dt);
+
     player.Update(dt);
-    map->Update(dt);
-    map->PlanetCollision(*player.pawn);
+
+    //map->Update(dt);
+    
     planetsHUD->Update(map->planets);
+
+    map->PlanetCollision(*player.pawn);
+
+    //Collision_Manager::Get_Instance()->Update(dt);
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
@@ -65,19 +79,15 @@ void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
-    for (int i = 0; i < stars.size(); i++) {
-        temp_camera->Map_To_Viewport(&stars[i].bounding_volume);
-        if (!(stars[i].bounding_volume.x < 0 || stars[i].bounding_volume.x > 800 ||
-              stars[i].bounding_volume.y < 0 || stars[i].bounding_volume.y > 600))
-            stars[i].Draw();
-        temp_camera->Map_To_World(&stars[i].bounding_volume);
+    for (int i = 0; i < Drawable::objects.size(); i++) {
+        temp_camera->Map_To_Viewport(Drawable::objects[i]);
+        Drawable::objects[i]->Draw();
+        temp_camera->Map_To_World(Drawable::objects[i]);
     }
 
-    map->Draw(temp_camera);
+    //map->Draw(temp_camera);
 
-    temp_camera->Map_To_Viewport(player.pawn);
     player.Draw();
-    temp_camera->Map_To_World(player.pawn);
 
     planetsHUD->Draw();
 
@@ -86,6 +96,9 @@ void AppStateTest::Draw() {
 void AppStateTest::Cleanup() {
     delete map;
     sound_manager->Stop_Music();
+    Drawable::objects.clear();
+    Rigid_Body::objects.clear();
+    Collidable::objects.clear();
 }
 
 

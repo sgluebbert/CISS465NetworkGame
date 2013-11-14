@@ -5,29 +5,17 @@
 Client::Client() {
 	pawn = new Ship(FIGHTER, 0.0, 0.0);
 
-	/*shield_bar.Set_Rect(720, 0, 80, 20, 2);
+	shield_bar.Set_Rect(0, 0, 80, 20, 2);
 	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
 
-	hull_bar.Set_Rect(720, 20, 80, 20, 2);
+	hull_bar.Set_Rect(0, 20, 80, 20, 2);
 	hull_bar.Set_Color(Color(0.50, 0.00, 0.00));
 
-	armor_bar.Set_Rect(720, 40, 80, 20, 2);
+	armor_bar.Set_Rect(0, 40, 80, 20, 2);
 	armor_bar.Set_Color(Color(0.00, 0.50, 0.00));
 
-	power_bar.Set_Rect(720, 60, 80, 20, 2);
-	power_bar.Set_Color(Color(0.50, 0.50, 0.00));*/
-
-	shield_circle.Set_Circle(32, 32, 32, 2, 16, 0);
-	shield_circle.Set_Color(Color(0.00, 0.00, 0.50));
-
-	hull_circle.Set_Circle(96, 32, 32, 2, 16, 0);
-	hull_circle.Set_Color(Color(0.50, 0.00, 0.00));
-
-	armor_circle.Set_Circle(96, 96, 32, 2, 16, 0);
-	armor_circle.Set_Color(Color(0.00, 0.50, 0.00));
-
-	power_circle.Set_Circle(32, 96, 32, 2, 16, 0);
-	power_circle.Set_Color(Color(0.50, 0.50, 0.00));
+	power_bar.Set_Rect(0, 60, 80, 20, 2);
+	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
 
 	pawn->respawn_timer.Set_Interval(5.0);
 
@@ -88,44 +76,25 @@ void Client::Update(double dt) {
 			fired[POWERUP_TYPE] = pawn->Fire(POWERUP_TYPE);
 	}
 
-	/*armor_bar.Notify(pawn->armor / pawn->max_armor);
+	armor_bar.Notify(pawn->armor / pawn->max_armor);
 	hull_bar.Notify(pawn->health / pawn->max_health);
 	shield_bar.Notify(pawn->shields / pawn->max_shields);
-	power_bar.Notify(pawn->power / pawn->max_power);*/
-
-	armor_circle.Notify(pawn->armor / pawn->max_armor);
-	hull_circle.Notify(pawn->health / pawn->max_health);
-	shield_circle.Notify(pawn->shields / pawn->max_shields);
-	power_circle.Notify(pawn->power / pawn->max_power);
-
-	pawn->Update(dt);
+	power_bar.Notify(pawn->power / pawn->max_power);
 
 	if (pawn->state == DEAD && pawn->respawn_timer.Ended())
 		Respawn(0.0, 0.0);
 
-	/*armor_bar.Update(dt);
+	armor_bar.Update(dt);
 	hull_bar.Update(dt);
 	shield_bar.Update(dt);
-	power_bar.Update(dt);*/
-
-	armor_circle.Update(dt);
-	hull_circle.Update(dt);
-	shield_circle.Update(dt);
-	power_circle.Update(dt);
+	power_bar.Update(dt);
 	info_feed.Update(dt);
 }
 
 void Client::Draw() {
-	pawn->Draw();
-
-	/*armor_bar.Draw();
+	armor_bar.Draw();
 	hull_bar.Draw();
 	shield_bar.Draw();
-	power_bar.Draw();*/
-
-	armor_circle.Draw();
-	hull_circle.Draw();
-	shield_circle.Draw();
-	power_circle.Draw();
+	power_bar.Draw();
 	info_feed.Draw();
 }

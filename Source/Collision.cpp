@@ -2,39 +2,10 @@
 
 
 
-Collision::Collision() {
-	x = y = 0.0;
-	lhs = rhs = NULL;
-}
-
-
-
-static Collision * Collides(Collidable * lhs, Collidable * rhs) {
-	Collision * temp = new Collision();
-
-	float dx = lhs->bounding_volume.x - rhs->bounding_volume.x;
-	float dy = lhs->bounding_volume.y - rhs->bounding_volume.y;
-	float dr = lhs->bounding_volume.r + rhs->bounding_volume.r;
-
-	if (dx * dx + dy * dy >= dr * dr) //If they don't collide, return NULL pointer
-		return NULL;
-
-	temp->lhs = lhs;
-	temp->rhs = rhs;
-
-	return temp;
-}
-
-bool Collision::DoCollide(Collidable lhs, Collidable rhs)
-{
-	double dx = lhs.bounding_volume.x - rhs.bounding_volume.x;
-	double dy = lhs.bounding_volume.y - rhs.bounding_volume.y;
-	double dr = lhs.bounding_volume.r + rhs.bounding_volume.r;
-
-	if (dx * dx + dy * dy >= dr * dr)
-	{ 
-		return 0;
-	}
-
-	return 1;
+std::pair<Collision_Group, Collision_Group> Collision::Get_Pair() {
+	//Always keep the lesser group id in front
+	if (lhs->group < rhs->group)
+		return std::make_pair(lhs->group, rhs->group);
+	else
+		return std::make_pair(rhs->group, lhs->group);
 }
