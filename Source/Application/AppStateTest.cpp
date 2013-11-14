@@ -60,6 +60,19 @@ void AppStateTest::Update() {
     std::cout << "Beginning Updates..." << std::endl;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
+    std::cout << "Beginning Particle Culling..." << Particle::particles.size() << std::endl;
+    for (int i = Particle::particles.size() - 1; i >= 0; i--)
+        if (Particle::particles[i]->Is_Dead()) {
+            for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
+                if (Particle::particles[i] == Rigid_Body::objects[j])
+                    Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
+            for (int j = Drawable::objects.size() - 1; j >= 0; j--)
+                if (Particle::particles[i] == Drawable::objects[j])
+                    Drawable::objects.erase(Drawable::objects.begin() + j);
+         delete Particle::particles[i];
+            Particle::particles.erase(Particle::particles.begin() + i);
+        }
+
     std::cout << "Beginning Collidable Culling..." << std::endl;
     for (int i = Collidable::objects.size() - 1; i >= 0; i--)
         if (Collidable::objects[i] == NULL)
@@ -75,19 +88,6 @@ void AppStateTest::Update() {
         if (Rigid_Body::objects[i] == NULL)
             Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
 
-    std::cout << "Beginning Particle Culling..." << Particle::particles.size() << std::endl;
-    for (int i = Particle::particles.size() - 1; i >= 0; i--)
-        if (Particle::particles[i]->Is_Dead()) {
-        for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
-            if (Particle::particles[i] == Rigid_Body::objects[j])
-                Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
-        for (int j = Drawable::objects.size() - 1; j >= 0; j--)
-            if (Particle::particles[i] == Drawable::objects[j])
-                Drawable::objects.erase(Drawable::objects.begin() + j);
-            
-            Particle::particles.erase(Particle::particles.begin() + i);
-        }
-
     std::cout << "Beginning Rigid Body Updates..." << std::endl;
     for (int i = 0; i < Rigid_Body::objects.size(); i++)
         if (Rigid_Body::objects[i] != NULL)
@@ -102,10 +102,10 @@ void AppStateTest::Update() {
     planetsHUD->Update(map->planets);
 
     std::cout << "Beginning Planet Collision Updates..." << std::endl;
-    //map->PlanetCollision(*player.pawn);
+    map->PlanetCollision(*player.pawn);
 
     std::cout << "Beginning Collision Updates..." << std::endl;
-    //Collision_Manager::Get_Instance()->Update(dt);
+    Collision_Manager::Get_Instance()->Update(dt);
 
     std::cout << "Beginning Camera Updates..." << std::endl;
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
@@ -125,8 +125,6 @@ void AppStateTest::Draw() {
         temp_camera->Map_To_World(Drawable::objects[i]);
     }
 
-    //map->Draw(temp_camera);
-
     player.Draw();
 
     planetsHUD->Draw();
@@ -136,9 +134,12 @@ void AppStateTest::Cleanup() {
     Drawable::objects.clear();
     Rigid_Body::objects.clear();
     Collidable::objects.clear();
+
+    for (int i = 0; i < Particle::particles.size(); i++)
+        delete Particle::particles[i];
+
     Particle::particles.clear();
     delete map;
-    //sound_manager->Stop_Music();
 }
 
 
