@@ -2,23 +2,39 @@
 
 
 
+std::deque<Particle *> Particle::particles;
+
+
+
 Particle::Particle() {
+    //Collidable::objects.push_back(this);
+    Drawable::objects.push_back(this);
+    Rigid_Body::objects.push_back(this);
+
     //Drawable Init
+    drawing_box.x = drawing_box.y = drawing_box.w = drawing_box.h = 0.0;
     draw_scale = draw_angle = 0.0;
 
     //RigidBody Init
     dx = dy = force = torque = velocity = rotation = 0.0;
     mass = inertia = 1.0;
     x = y = angle = 0.0;
-
+    
     //Motor Init
     velocity_limit = rotation_limit = reverse_modifier = force_motor = torque_motor = 0.0;
 }
 
-Particle::Particle(Particle * p) {
+Particle::Particle(Particle * p, float & _x, float & _y) {
+    Particle::particles.push_back(this);
+    //Collidable::objects.push_back(this);
+    Drawable::objects.push_back(this);
+    Rigid_Body::objects.push_back(this);
+
     //Drawable Init
-    drawing_box = p->drawing_box;
-    draw_scale = p->draw_scale;
+    texture = p->texture;
+    drawing_box.x = _x - p->draw_scale / 2.0;
+    drawing_box.y = _y - p->draw_scale / 2.0;
+    drawing_box.w = drawing_box.h = draw_scale = p->draw_scale;
     draw_angle = p->draw_angle;
 
     //RigidBody Init
@@ -27,8 +43,8 @@ Particle::Particle(Particle * p) {
     mass = p->mass;
     inertia = p->inertia;
 
-    x = p->x;
-    y = p->y;
+    x = _x;
+    y = _y;
     angle = p->angle;
 
     //Motor Init
@@ -43,8 +59,6 @@ Particle::Particle(Particle * p) {
     //Particle Init
 	age_timer.Set_Interval(p->age_timer.Get_Interval());
     age_timer.Start();
-
-    particles.push_back(this);
 }
 
 Particle::~Particle() {
@@ -79,24 +93,11 @@ void Particle::Update(double dt) {
     Calculate_Vector(dt);
     Move(dt);
 
-    drawing_box.Update(dx, dy);
+    draw_angle = angle;
+    drawing_box.Update(dx, -dy);
     age_timer.Update(dt);
 }
 
 void Particle::Draw() {
     Entity::Draw();
-}
-
-
-
-std::deque<Particle *> Particle::particles;
-
-void Particle::Update_Particles(double dt) {
-    for (int i = 0; i < particles.size(); i++)
-        particles[i]->Update(dt);
-}
-
-void Particle::Draw_Particles() {
-    for (int i = 0; i < particles.size(); i++)
-        particles[i]->Draw();
 }

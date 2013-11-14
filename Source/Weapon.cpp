@@ -10,7 +10,10 @@ bool Weapon::Fire(bool forced) {
 	return true;
 }
 
-void Weapon::Update(double dt) {
+void Weapon::Update(double dt, float _x, float _y) {
+	x = _x;
+	y = _y;
+	
 	switch(state) {
 	case WEAPON_READY:
 
@@ -37,7 +40,7 @@ void Weapon::Update(double dt) {
 		break;
 	}
 	
-	emitter.Update(dt);
+	emitter.Update(dt, x, y);
 }
 
 

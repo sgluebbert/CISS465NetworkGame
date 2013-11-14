@@ -127,6 +127,16 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 	state = ALIVE;
 
+	smoke_emitter.Set_Particle(Create_Smoke_Particle());
+
+	//Configuration Methods
+	smoke_emitter.Set_Particle_Count(50);
+	smoke_emitter.Set_Spawn_Count(1);
+	smoke_emitter.Set_Spawn_Delay(0.1);
+	smoke_emitter.Set_Max_Age(1.0);
+	smoke_emitter.Set_Starting_Angle(-draw_angle);
+	smoke_emitter.Set_Starting_Angle_Variance(45.0);
+
 	switch(ship_type) {
 	case INTERCEPTOR:	Setup_Interceptor();	break;
 	case FIGHTER:		Setup_Fighter();		break;
@@ -193,12 +203,16 @@ void Ship::Turn_Left(double dt) {
     angle += turn_rate * dt;
     if (angle >= 360)
         angle = angle - 360;
+
+	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 void Ship::Turn_Right(double dt) {
     angle -= turn_rate * dt;
     if (angle < 0)
         angle = 360 + angle;
+
+	smoke_emitter.Set_Starting_Angle(-angle);
 }
 
 
@@ -276,8 +290,8 @@ void Ship::Limit_Motor() {
 void Ship::Update(double dt) {
 	respawn_timer.Update(dt);
 
-	smoke_emitter.Update(dt);
-	explosion_emitter.Update(dt);
+	smoke_emitter.Update(dt, x, y);
+	explosion_emitter.Update(dt, x, y);
 
 	switch(state) {
 	case ALIVE:
@@ -299,12 +313,13 @@ void Ship::Update(double dt) {
 	    drawing_box.Update(dx, -dy);
 	    draw_angle = angle;
 
-	    if (health <= 0.5 * max_health)
-	        smoke_emitter.Activate();
+	    /*if (health <= 0.5 * max_health)
+	        smoke_emitter.Activate();*/
 
 	    if (health <= 0.0) {
-	        explosion_emitter.Activate();
+	        smoke_emitter.Activate();
 	        state = DYING;
+			respawn_timer.Start();
 	    }
 
 		shield_recharge_timer.Update(dt);
@@ -326,15 +341,13 @@ void Ship::Update(double dt) {
 
 	    for (int i = 0; i < 4; i++)
 	    	if (weapon_pool[i] != NULL)
-	    		weapon_pool[i]->Update(dt);
+	    		weapon_pool[i]->Update(dt, x, y);
 
 		break;
 
 	case DYING:
-		if (!explosion_emitter.Is_Active()) {
+		if (!smoke_emitter.Is_Active())
 			state = DEAD;
-			respawn_timer.Start();
-		}
 
 		break;
 

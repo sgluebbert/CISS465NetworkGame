@@ -19,25 +19,24 @@ Particle_Emitter::~Particle_Emitter() {
 
 
 
-void Particle_Emitter::Update(double dt) {
+void Particle_Emitter::Update(double dt, float _x, float _y) {
     if (!active)
     	return;
 
 	if (particle_count >= max_particle_count && max_particle_count > 0) 
 		Deactivate();
 	else if (spawn_timer >= spawn_delay) {
-    	int count_var = rand() % spawn_count_variance;
+    	int count_var = 0;//rand() % spawn_count_variance;
 
 		for (int i = 0; i < spawn_count + count_var; i++) {
-			Particle * temp = new Particle(*reference);
-			temp->age_timer.Set_Interval(-max_age_variance + (float)rand() / ((float)RAND_MAX / (2 * max_age_variance)));
+			Particle * temp = new Particle(reference, _x, _y);
+			//temp->age_timer.Set_Interval(-max_age_variance + (float)rand() / ((float)RAND_MAX / (2 * max_age_variance)));
 			temp->angle = (-angle_variance + (float)rand() / ((float)RAND_MAX / (2 * angle_variance)));
 			//temp->throttle = (-throttle_variance + (float)rand() / ((float)RAND_MAX / (2 * throttle_variance)));
-			temp->velocity = (-velocity_variance + (float)rand() / ((float)RAND_MAX / (2 * velocity_variance)));
-			Particle::particles.push_back(temp);
+			//temp->velocity = (-velocity_variance + (float)rand() / ((float)RAND_MAX / (2 * velocity_variance)));
+			particle_count += 1;
 		}
 		
-		particle_count += (spawn_count + count_var);
 		spawn_timer = 0.0;
 	}
 	else
@@ -56,7 +55,7 @@ void Particle_Emitter::Activate() {
 		return;
 
 	active = true;
-	spawn_timer = spawn_delay - spawn_timer_variance + (float)rand() / ((float)RAND_MAX / (2 * spawn_timer_variance));
+	spawn_timer = spawn_delay;// - spawn_timer_variance + (float)rand() / ((float)RAND_MAX / (2 * spawn_timer_variance));
 	particle_count = 0;
 }
 
@@ -93,7 +92,7 @@ void Particle_Emitter::Set_Starting_Angle(double new_angle) {
 	if (reference == NULL)
 		return;
 	
-	reference->angle = new_angle;
+	reference->angle = reference->draw_angle = new_angle;
 }
 
 void Particle_Emitter::Set_Starting_Throttle(double throttle) {

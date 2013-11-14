@@ -6,6 +6,7 @@
 #include "Collidable.h"
 #include "Entity.h"
 #include "Motor.h"
+#include "Particles/ParticleManager.h"
 #include "Serializable.h"
 #include "System.h"
 #include "Weapon.h"

@@ -7,17 +7,22 @@ Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, fl
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+
+    dx = dy = force = torque = rotation = 0.0;
     
     texture = NULL;
-    x = _x;
-    y =  _y;
-    angle = _a;
+    x = bounding_volume.x = _x;
+    y = bounding_volume.y = _y;
+    draw_angle = angle = _a;
+    draw_scale = bounding_volume.r = _r + gr;
+    drawing_box.x = x - bounding_volume.r;
+    drawing_box.y = y - bounding_volume.r;
+    drawing_box.w = 2 * bounding_volume.r;
+    drawing_box.h = 2 * bounding_volume.r;
+
     mass =  m;
     velocity = _v;
 
-    bounding_volume.r = _r + gr;
-    bounding_volume.x = x;
-    bounding_volume.y = y;
 }
 
 Planet::~Planet()
@@ -86,19 +91,19 @@ void Planet::DrawGravityField()
     {
         // light blue color
         const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
-        DrawCircle(x, y, r + gravity_radius, 1, &blue);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &blue);
     }
     else if (capture_value < 0.0f)
     {
         // light red color
         const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(x, y, r + gravity_radius, 1, &red);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &red);
     }
     else
     {
         // light gray color
         const Color gray(0.5f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(x, y, r + gravity_radius, 1, &gray);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale + gravity_radius, 1, &gray);
     }
 
 }
@@ -106,6 +111,8 @@ void Planet::DrawGravityField()
 void Planet::Update(double dt)
 {
     Entity::Update(dt);
+    drawing_box.Update(dx, -dy);
+    bounding_volume.Update(dx, -dy);
 }
 
 void Planet::Draw() 
@@ -116,8 +123,7 @@ void Planet::Draw()
     DrawGravityField();
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
-    int w = 10;// ?
-    texture->DrawCentered(x, y, -angle, r);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 
@@ -130,9 +136,9 @@ PlanetsHUD::PlanetsHUD(int num)
     int h = 10;
     int b = 0;
 
-    Color lhs(1.0f, 0.0f, 0.0f, 1.0f);
-    Color rhs(0.0f, 0.0f, 1.0f, 1.0f);
-    Color back_color(0.5f, 0.5f, 0.5f, 1.0f);
+    Color lhs(0.5f, 0.0f, 0.0f, 1.0f);
+    Color rhs(0.0f, 0.0f, 0.5f, 1.0f);
+    Color back_color(0.25f, 0.25f, 0.25f, 1.0f);
 
     for (int i = 0; i < num; i++)
     {

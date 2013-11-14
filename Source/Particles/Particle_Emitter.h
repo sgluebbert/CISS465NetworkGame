@@ -14,7 +14,7 @@ public:
 	Particle_Emitter();
 	~Particle_Emitter();
     
-    virtual void Update(double);
+    virtual void Update(double, float, float);
     virtual void Draw();
 
     //Activation Methods

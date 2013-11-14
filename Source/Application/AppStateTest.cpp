@@ -1,5 +1,5 @@
 #include "AppStateTest.h"
-//#include "../CollisionManager.h"
+#include "../CollisionManager.h"
 #include "../Debug.h"
 
 
@@ -27,23 +27,26 @@ AppStateTest::AppStateTest() {
 
 
 void AppStateTest::Initialize() {
+    std::cout << "Beginning Initialization..." << std::endl;
     background_texture = surface_manager->background_game;
+
+    std::cout << "Beginning Map Initialization..." << std::endl;
     map = new Map(0);
     map->AddPlanet(0, 0, 0);
     map->AddPlanet(1, 1000, 0);
 
     player.pawn->team_id = 0;
 
+    std::cout << "Beginning Planet HUD Initialization..." << std::endl;
     planetsHUD = new PlanetsHUD(map->NumPlanets());
 
+    std::cout << "Beginning Math Initialization..." << std::endl;
     srand(time(NULL));
     Initialize_Trig_Table();
 
-    //for (int i = 0; i < 500; i++)
-        //stars.push_back(Star());
-
     //Just makes sure the instance is initialized before gameplay begins
-    //Collision_Manager::Get_Instance();
+    std::cout << "Beginning Collision_Manager Initialization..." << std::endl;
+    Collision_Manager::Get_Instance();
     
     //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
     //sound_manager->Play_Music();
@@ -54,25 +57,62 @@ void AppStateTest::Events(SDL_Event * Event) {
 }
 
 void AppStateTest::Update() {
+    std::cout << "Beginning Updates..." << std::endl;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
-    for (int i = 0; i < Rigid_Body::objects.size(); i++)
-        Rigid_Body::objects[i]->Update(dt);
+    std::cout << "Beginning Collidable Culling..." << std::endl;
+    for (int i = Collidable::objects.size() - 1; i >= 0; i--)
+        if (Collidable::objects[i] == NULL)
+            Collidable::objects.erase(Collidable::objects.begin() + i);
 
+    std::cout << "Beginning Drawable Culling..." << std::endl;
+    for (int i = Drawable::objects.size() - 1; i >= 0; i--)
+        if (Drawable::objects[i] == NULL)
+            Drawable::objects.erase(Drawable::objects.begin() + i);
+
+    std::cout << "Beginning Rigid Body Culling..." << std::endl;
+    for (int i = Rigid_Body::objects.size() - 1; i >= 0; i--)
+        if (Rigid_Body::objects[i] == NULL)
+            Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
+
+    std::cout << "Beginning Particle Culling..." << Particle::particles.size() << std::endl;
+    for (int i = Particle::particles.size() - 1; i >= 0; i--)
+        if (Particle::particles[i]->Is_Dead()) {
+        for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
+            if (Particle::particles[i] == Rigid_Body::objects[j])
+                Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
+        for (int j = Drawable::objects.size() - 1; j >= 0; j--)
+            if (Particle::particles[i] == Drawable::objects[j])
+                Drawable::objects.erase(Drawable::objects.begin() + j);
+            
+            Particle::particles.erase(Particle::particles.begin() + i);
+        }
+
+    std::cout << "Beginning Rigid Body Updates..." << std::endl;
+    for (int i = 0; i < Rigid_Body::objects.size(); i++)
+        if (Rigid_Body::objects[i] != NULL)
+            Rigid_Body::objects[i]->Update(dt);
+
+    std::cout << "Beginning Player Updates..." << std::endl;
     player.Update(dt);
 
     //map->Update(dt);
     
+    std::cout << "Beginning Planet HUD Updates..." << std::endl;
     planetsHUD->Update(map->planets);
 
-    map->PlanetCollision(*player.pawn);
+    std::cout << "Beginning Planet Collision Updates..." << std::endl;
+    //map->PlanetCollision(*player.pawn);
 
+    std::cout << "Beginning Collision Updates..." << std::endl;
     //Collision_Manager::Get_Instance()->Update(dt);
 
+    std::cout << "Beginning Camera Updates..." << std::endl;
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
     viewport.y = player.pawn->y - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
+    std::cout << "End of Updates..." << std::endl;
 }
 
 void AppStateTest::Draw() {
@@ -90,15 +130,15 @@ void AppStateTest::Draw() {
     player.Draw();
 
     planetsHUD->Draw();
-
 }
 
 void AppStateTest::Cleanup() {
-    delete map;
-    sound_manager->Stop_Music();
     Drawable::objects.clear();
     Rigid_Body::objects.clear();
     Collidable::objects.clear();
+    Particle::particles.clear();
+    delete map;
+    //sound_manager->Stop_Music();
 }
 
 

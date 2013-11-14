@@ -3,6 +3,8 @@
 
 
 
+#include <iostream>
+
 #include "Collision.h"
 
 
@@ -18,10 +20,10 @@ private:
     Collision_Manager();
     ~Collision_Manager();
 
-	std::deque<Collision *> collisions;
+	std::deque< std::pair<Collidable *, Collidable *> > collisions;
 
 	static Collision_Manager * instance;
-	static std::map<std::pair<Collision_Group, Collision_Group>, Collision_Event *> collision_pair_map; 
+	static std::map< std::pair<Collision_Group, Collision_Group>, Collision *> collision_pair_map; 
 };
 
 
