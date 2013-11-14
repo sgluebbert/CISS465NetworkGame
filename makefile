@@ -39,6 +39,7 @@ TimeStamp: updater/source_timestamp.sh
 .PHONY: clean
 clean:
 	rm -f Source/*.o
+	rm -f Source/*/*.o
 	rm -f app/a.out
 
 # This gets the repo up and ready for pushing to the master origin on github.

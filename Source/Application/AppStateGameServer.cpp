@@ -8,6 +8,8 @@ AppStateBase * AppStateGameServer::instance = NULL;
 AppStateGameServer::AppStateGameServer(DebugLevel l)
 	: debugLevel(l), clientCount(0)
 {
+	for (int i = 0; i < MaximumClients; i++)
+		clients[i] = NULL;
 }
 
 void AppStateGameServer::Initialize() {

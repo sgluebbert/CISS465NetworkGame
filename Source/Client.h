@@ -25,7 +25,6 @@ public:
 	Network * network;
 	NetString netString;
 
-	int ready;
 	bool offline;
 	bool fired[5];
 

@@ -50,11 +50,7 @@ Client::Client() {
 
 
 Client::~Client() {
-	if (ready != 1)
- 		return;
- 	
 	network->Close();
-	ready = 2;
 }
 
 
