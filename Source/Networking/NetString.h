@@ -16,6 +16,8 @@ struct NetString
 
 	void ClearBuffer();
 	bool AddUChars(unsigned char *buf, int length);
+	bool AddNetworkBuffer(unsigned char *buf, int length);
+	NetString *ToNetworkBuffer();
 
 	// These functions return true if it was able to read or write
 	bool WriteBool(bool);
@@ -36,6 +38,9 @@ struct NetString
 private:
 	bool Expand(int);
 
+	int fullCount1, fullCount2; // used for getting network frames
+	bool count;
+	
 	unsigned char * buffer;
 	int bufferLength;
 	int bufferSize;

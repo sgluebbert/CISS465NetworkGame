@@ -50,7 +50,7 @@ Client::Client() {
 
 
 Client::~Client() {
-	network->Close();
+	delete pawn;
 }
 
 

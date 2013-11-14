@@ -102,6 +102,7 @@ void AppStateGameServer::HandleConnections()
 		if (receiveId == -1)
 			break;
 
+
 		// Read that new message
 		client = clients[receiveId];
 		time(&client->last_input);

@@ -1,13 +1,13 @@
 #include "NetString.h"
 
 NetString::NetString()
-	: buffer(NULL), bufferSize(0), bufferLength(0), bufferIndex(0)
+	: buffer(NULL), bufferSize(0), bufferLength(0), bufferIndex(0), fullCount1(0), fullCount2(0), count(false)
 {
 	ClearBuffer();
 }
 
 NetString::NetString(unsigned char *buf, int length)
-	: buffer(buf), bufferSize(length), bufferLength(length), bufferIndex(0)
+	: buffer(buf), bufferSize(length), bufferLength(length), bufferIndex(0), fullCount1(0), fullCount2(0), count(false)
 {
 }
 
@@ -17,8 +17,6 @@ NetString::~NetString()
 		delete [] buffer;	
 }
 
-
-
 bool NetString::Seek(int i)
 {
 	if (i < 0 || i >= bufferLength)
@@ -27,8 +25,6 @@ bool NetString::Seek(int i)
 	bufferIndex = i;
 	return true;
 }
-
-
 
 void NetString::ClearBuffer()
 {
@@ -57,6 +53,131 @@ bool NetString::AddUChars(unsigned char *buf, int length)
 
 	bufferIndex = temp;
 	return true;
+}
+
+bool NetString::AddNetworkBuffer(unsigned char *buf, int length)
+{
+	for (int i = 0; i < length; i++)
+	{
+		if (buf[i] == 0)
+			count = true;
+		else if (count && (buf[i] != 255 || buf[i] != 254))
+		{
+			count = false;
+			fullCount1 = 0;
+			fullCount2 = 0;
+		}
+
+		if (buf[i] != 255)
+			fullCount1 = 0;
+		else
+			fullCount1++;
+
+		if (fullCount1 == 2 && i != length - 1)
+		{
+			fullCount1 = 0;
+			fullCount2 = 0;
+			if (buf[i + 1] == 0)
+			{
+				// the 0 is faked; ignore it
+				WriteUChar(buf[i]);
+				i++;
+				continue;
+			}
+			else if (buf[i + 1] == 255)
+			{
+				// frame start
+				ClearBuffer();
+				i++;
+				continue;
+			}
+		}
+
+		if (buf[i] != 254)
+			fullCount2 = 0;
+		else
+			fullCount2++;
+
+		if (fullCount2 == 2 && i != length - 1)
+		{
+			fullCount1 = 0;
+			fullCount2 = 0;
+			if (buf[i + 1] == 0)
+			{
+				// the 0 is faked; ignore it
+				WriteUChar(buf[i]);
+				i++;
+				continue;
+			}
+			else if (buf[i + 1] == 254)
+			{
+				// frame end
+				bufferLength -= 2;
+				return true;
+			}
+		}
+
+		WriteUChar(buf[i]);
+	}
+
+	return false;
+}
+
+NetString *NetString::ToNetworkBuffer()
+{
+	NetString *stream = new NetString();
+
+	// Encode Start Sequence
+	stream->WriteUChar(0);
+	stream->WriteUChar(255);
+	stream->WriteUChar(255);
+	stream->WriteUChar(255);
+
+	bool _count = false;
+	int _fullCount1 = 0, _fullCount2 = 0;
+	for (int i = 0; i < bufferLength; i++)
+	{
+		stream->WriteUChar(buffer[i]);
+
+		if (buffer[i] == 0)
+			_count = true;
+		else if (_count && (buffer[i] != 255 || buffer[i] != 254))
+		{
+			_count = false;
+			_fullCount1 = 0;
+			_fullCount2 = 0;
+		}
+
+		if (buffer[i] != 255)
+			_fullCount1 = 0;
+		else
+			_fullCount1++;
+
+		if (_fullCount1 >= 2)
+		{
+			stream->WriteUChar(0);
+			_fullCount1 = 0;
+		}
+
+		if (buffer[i] != 254)
+			_fullCount2 = 0;
+		else
+			_fullCount2++;
+
+		if (_fullCount2 >= 2)
+		{
+			stream->WriteUChar(0);
+			_fullCount2 = 0;
+		}
+	}
+
+	// Encode End Sequence
+	stream->WriteUChar(0);
+	stream->WriteUChar(254);
+	stream->WriteUChar(254);
+	stream->WriteUChar(254);
+
+	return stream;
 }
 
 bool NetString::WriteBool(bool value)

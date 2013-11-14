@@ -56,8 +56,12 @@ int UDPNetwork::Init(bool isServer)
 		return -1;
 	}
 
+	_lastPendingIndex = 0;
 	for (int i = 0; i < _setSize; ++i)
+	{
 		_usedSockets[i] = NULL;
+		_pendingData[i] = false;
+	}
 
 	_receive->address.host = host_address.host;
 	_receive->address.port = host_address.port;
@@ -85,10 +89,20 @@ bool UDPNetwork::SendData(NetString* stream, int id)
 		_send->address.port = _receive->address.port;        /* And destination port */
 	}
 
-	memcpy(_send->data, stream->Buffer(), std::min(512, stream->BufferLength()));
-	_send->len = std::min(512, stream->BufferLength());
+	NetString *framed = stream->ToNetworkBuffer();
+	int dataToSend = framed->BufferLength();
 
-	SDLNet_UDP_Send(_sd, id, _send);
+	int dataSent = 0;
+	while (dataSent < dataToSend)
+	{
+		memcpy(_send->data, framed->Buffer() + dataSent, std::min(512, dataToSend - dataSent));
+		_send->len = std::min(512, dataToSend - dataSent);
+		SDLNet_UDP_Send(_sd, id, _send);
+		dataSent += std::min(512, dataToSend - dataSent);
+	}
+
+	delete framed;
+
 	return true;
 }
 
@@ -141,21 +155,46 @@ int UDPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 		}
 	}
 
-	// std::cout << "Received From: " << id << '\n';
-	_string.ClearBuffer();
-	_string.AddUChars(_receive->data, _receive->len);
+	_pendingData[id] = _netStrings[id].AddNetworkBuffer(_receive->data, _receive->len);
+	if (_pendingData[id])
+		_netStrings[id].Seek(0);
 
-	return id;
+	// Loop through the pending data and pick one, but start from the next position each time.
+	int i = _lastPendingIndex;
+	if (i >= _setSize)
+		i = 0;
+	do
+	{
+		if (_pendingData[i])
+		{
+			_pendingData[i] = false;
+			_lastPendingIndex++;
+			if (_lastPendingIndex >= _setSize)
+				_lastPendingIndex = 0;
+			return i;
+		}
+
+		i++;
+		if (i >= _setSize)
+			i = 0;
+	}
+	while (i != _lastPendingIndex);
+
+	_lastPendingIndex++;
+	if (_lastPendingIndex >= _setSize)
+		_lastPendingIndex = 0;
+
+	return -1;
 }
 
 NetString *UDPNetwork::GetData(int id)
 {
-	return &_string;
+	return &_netStrings[id];
 }
 
 int UDPNetwork::GetDataLength(int id)
 {
-	return _string.BufferLength();
+	return _netStrings[id].BufferLength();
 }
 
 void UDPNetwork::RemoveConnection(int id)
@@ -176,7 +215,7 @@ int TCPNetwork::Init(bool isServer)
 {
 	_isServer = isServer;
 	_setSize = (isServer ? MaximumClients : 1);
-		NetworkParser * networkParser = new NetworkParser();
+	NetworkParser * networkParser = new NetworkParser();
 
 	if (SDLNet_Init() < 0)
 	{
@@ -187,12 +226,12 @@ int TCPNetwork::Init(bool isServer)
 	const char * host_ipaddress = networkParser->GetHostAddress();
 	if (isServer)
 		host_ipaddress = NULL;
-		IPaddress host_address;
-		Uint16 listen_port;
-		if (isServer)
-			listen_port = networkParser->GetServerPort();
-		else
-			listen_port = networkParser->GetClientPort();
+	IPaddress host_address;
+	Uint16 listen_port;
+	if (isServer)
+		listen_port = networkParser->GetServerPort();
+	else
+		listen_port = networkParser->GetClientPort();
 
 	if (SDLNet_ResolveHost(&host_address, host_ipaddress, listen_port) == -1) 
 	{
@@ -242,17 +281,29 @@ void TCPNetwork::Close()
 
 bool TCPNetwork::SendData(NetString* stream, int id)
 {
-	if (_isServer)
+	NetString *framed = stream->ToNetworkBuffer();
+	int dataToSend = framed->BufferLength();
+
+	int dataSent = 0;
+	while (dataSent < dataToSend)
 	{
-		if (_listenSockets[id] == NULL)
-			return false;
+		if (_isServer)
+		{
+			if (_listenSockets[id] == NULL)
+			{
+				delete framed;
+				return false;
+			}
 
-		if (SDLNet_TCP_Send(_listenSockets[id], stream->Buffer(), stream->BufferLength()) < stream->BufferLength())
-			return false;
+			dataSent += SDLNet_TCP_Send(_listenSockets[id], framed->Buffer() + dataSent, std::min(512, dataToSend - dataSent));
+		}
+		else
+		{
+			dataSent += SDLNet_TCP_Send(_sd, framed->Buffer() + dataSent, std::min(512, dataToSend - dataSent));
+		}
 	}
-	else if (SDLNet_TCP_Send(_sd, stream->Buffer(), stream->BufferLength()) < stream->BufferLength())
-		return false;
 
+	delete framed;
 	return true;
 }
 
@@ -307,7 +358,7 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 		}
 	}
 
-	unsigned char buffer[1024];
+	unsigned char buffer[512];
 	if (_isServer)
 	{
  		for (int i = 0; i < _setSize; ++i)
@@ -320,7 +371,7 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
  			// Socket has stuff to say
  			if (socketReady != 0)
  			{
- 				int receivedCount = SDLNet_TCP_Recv(_listenSockets[i], buffer, 1024);
+ 				int receivedCount = SDLNet_TCP_Recv(_listenSockets[i], buffer, 512);
 
  				// Did connection disconnect?
  				if (receivedCount <= 0)
@@ -335,10 +386,9 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
  				}
  				else
  				{
- 					if (!_pendingData[i])
- 						_connectionStrings[i].ClearBuffer();
- 					_connectionStrings[i].AddUChars(buffer, receivedCount);
- 					_pendingData[i] = true;
+ 					_pendingData[i] = _netStrings[i].AddNetworkBuffer(buffer, receivedCount);
+					if (_pendingData[i])
+						_netStrings[i].Seek(0);
  				}
  			}
  		}
@@ -348,11 +398,21 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
  		int socketReady = SDLNet_SocketReady(_sd);
  		if (socketReady != 0)
 		{
-			int receivedCount = SDLNet_TCP_Recv(_sd, buffer, 1024);
+			int receivedCount = SDLNet_TCP_Recv(_sd, buffer, 512);
 
-			_connectionStrings[0].ClearBuffer();
-			_connectionStrings[0].AddUChars(buffer, receivedCount);
-			return 0;
+			if (receivedCount <= 0)
+			{
+				// Handle server closing connection
+			}
+			else
+			{
+				_pendingData[0] = _netStrings[0].AddNetworkBuffer(buffer, receivedCount);
+				if (_pendingData[0])
+				{
+					_netStrings[0].Seek(0);
+					return 0;
+				}
+			}
 		}
 
 		return -1;
@@ -386,12 +446,12 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 
 NetString *TCPNetwork::GetData(int id)
 {
-	return &_connectionStrings[id];
+	return &_netStrings[id];
 }
 
 int TCPNetwork::GetDataLength(int id)
 {
-	return _connectionStrings[id].BufferLength();
+	return _netStrings[id].BufferLength();
 }
 
 void TCPNetwork::RemoveConnection(int id)

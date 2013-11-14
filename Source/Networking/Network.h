@@ -36,6 +36,10 @@ public:
 	virtual Uint16 GetRecvPort() = 0;
 	virtual Uint32 GetSendHost() = 0;
 	virtual Uint16 GetSendPort() = 0;
+
+	NetString _netStrings[MaximumClients];
+	bool _pendingData[MaximumClients];
+	int _lastPendingIndex;
 };
 
 //----------------------------------------------------------------------------------------------------------
@@ -119,9 +123,6 @@ private:
 	TCPsocket _sd;
 	TCPsocket _listenSockets[MaximumClients];
 	bool _freeSockets[MaximumClients];
-	bool _pendingData[MaximumClients];
-	int _lastPendingIndex;
-	NetString _connectionStrings[MaximumClients];
 	int _listnerCount;
 	SDLNet_SocketSet _set;
 	int _setSize;
