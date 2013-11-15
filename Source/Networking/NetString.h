@@ -38,13 +38,17 @@ struct NetString
 private:
 	bool Expand(int);
 
-	int fullCount1, fullCount2; // used for getting network frames
-	bool count;
+	NetString(const NetString &other);
+	NetString &operator=(const NetString &other);
 	
 	unsigned char * buffer;
 	int bufferLength;
 	int bufferSize;
 	int bufferIndex;
+
+	// These Attributes are used for the byte stuffing (keeping a memory between AddNetworkBuffers)
+	int fullCount1, fullCount2;
+	bool count;
 };
 
 std::ostream &operator<<(std::ostream &stream, NetString &);

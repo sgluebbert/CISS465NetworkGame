@@ -143,11 +143,12 @@ void AppStateGame::Receive() {
 
             case NCE_REMOVE_PLAYER:
                 netString.ReadUChar(playerId);
-                if (players[playerId] != NULL)
+                if (players[playerId] != NULL && players[playerId] != player.pawn)
                 {
                     delete players[playerId];
                     players[playerId] = NULL;
                 }
+                break;
 
             default:
                 reading = false;

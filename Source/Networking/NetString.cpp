@@ -36,6 +36,10 @@ void NetString::ClearBuffer()
 
 	bufferLength = 0;
 	bufferIndex = 0;
+
+	fullCount1 = 0;
+	fullCount2 = 0;
+	count = false;
 }
 
 bool NetString::AddUChars(unsigned char *buf, int length)

@@ -22,6 +22,7 @@ enum Weapon_Type {	ENERGY_TYPE, BALLISTIC_TYPE, PROPELLED_TYPE, BOMB_TYPE, POWER
 class Ship : public Entity, public Collidable, public Motor, public Serializable {
 public:
 	Ship(Ship_Type, float, float);
+	~Ship();
 
     NetString * Serialize();
     bool Deserialize(NetString *);

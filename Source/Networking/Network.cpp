@@ -228,11 +228,9 @@ int TCPNetwork::Init(bool isServer)
 		host_ipaddress = NULL;
 	IPaddress host_address;
 	Uint16 listen_port;
-	if (isServer)
-		listen_port = networkParser->GetServerPort();
-	else
-		listen_port = networkParser->GetClientPort();
+	listen_port = networkParser->GetServerPort();
 
+	// std::cout << host_ipaddress << ' ' << listen_port << '\n';
 	if (SDLNet_ResolveHost(&host_address, host_ipaddress, listen_port) == -1) 
 	{
 		fprintf(stderr, "SDLNet_ResolveHost(%s %d): %s\n", "", listen_port, SDLNet_GetError());
