@@ -5,6 +5,7 @@
 
 #include "Timer.h"
 #include "Particles/Particle_Emitter.h"
+#include "Particles/ParticleManager.h"
 
 
 
@@ -26,7 +27,7 @@ public:
 
 	bool Fire(bool forced = false);
 
-	void Update(double, float, float);
+	void Update(double, float, float, float);
 };
 
 
