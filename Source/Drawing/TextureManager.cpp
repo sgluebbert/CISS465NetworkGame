@@ -26,7 +26,6 @@ void TextureManager::Load()
 	red_planet				= new Texture("./Art/RedPlanet.png");
 	blue_planet				= new Texture("./Art/BluePlanet.png");
 	neutral_planet			= new Texture("./Art/NeutralPlanet.png");
-	planet_glow				= new Texture("./Art/PlanetGravityGlow.png");
 
 }
 
@@ -103,4 +102,7 @@ void Fonts::init()
 
 	font_Impact_20 = TTF_OpenFont("Font/impact.ttf", 20);
 	if(!font_Impact_20) printf("TTF_OpenFont: %s\n", TTF_GetError());
+
+	font_Impact_80 = TTF_OpenFont("Font/impact.ttf", 80);
+	if(!font_Impact_80) printf("TTF_OpenFont: %s\n", TTF_GetError());
 }

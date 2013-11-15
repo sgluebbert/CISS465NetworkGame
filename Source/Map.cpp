@@ -8,7 +8,7 @@ const int Map::Y_COORD = 1;
 
 
 Map::Map(int seed)
-	: SEED(seed), WIDTH(4000), HEIGHT(2000), MAX_NUMBER_OF_PLAYERS(32) {
+	: SEED(seed), WIDTH(4000), HEIGHT(2000), MAX_NUMBER_OF_PLAYERS(32), MIN_NUMBER_OF_PLAYERS_PER_TEAM(1) {
 	spawn_points = new float[MAX_NUMBER_OF_PLAYERS * 2];
 }
 
@@ -22,6 +22,8 @@ void Map::AddPlanet(int id, float x, float y)
 	float size = 200.0f;
 	PlanetState s = NEUTRAL;
 	Planet * planet = new Planet(id, s, x, y, 0.0f, 1000.0f, 0.0f, size, 100.0f, 0.0f);
+	planet->SetTexture(surface_manager->neutral_planet);
+
 	planets.push_back(planet);
 }
 

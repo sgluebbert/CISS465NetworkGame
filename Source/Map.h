@@ -21,6 +21,7 @@ public:
 	~Map();
 
 	const int MAX_NUMBER_OF_PLAYERS;
+	const int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
 	const int WIDTH, HEIGHT;
 	const int SEED;
 

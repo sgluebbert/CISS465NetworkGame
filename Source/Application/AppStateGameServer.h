@@ -7,6 +7,8 @@
 #include "../System.h"
 #include "../Networking/Network.h"
 #include "../Client.h"
+#include "../Map.h"
+
 #include <deque>
 #include <vector>
  
@@ -24,9 +26,15 @@ private:
 	Client *clients[MaximumClients];
 	int clientCount;
 
+        time_t secondsToStartLastTick;
+        unsigned char secondsToStart;
+
+        Map map;
+
 	void HandleConnections();
 	void UpdateConnections();
-	void Send(NetString*);
+        void SendSecondsToStart(int id = -1);
+	void SendToAll(NetString*);
         
         AppStateGameServer(DebugLevel l = DL_MED);
 public:

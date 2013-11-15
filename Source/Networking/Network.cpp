@@ -1,7 +1,7 @@
 #include "Network.h"
 
-Network* NetworkFactory::instance = NULL;
-NetworkType NetworkFactory::networkType = UNDEFINED;
+// Network* NetworkFactory::instance = NULL;
+// NetworkType NetworkFactory::networkType = UNDEFINED;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // UDP
@@ -11,11 +11,11 @@ int UDPNetwork::Init(bool isServer)
 	
 	NetworkParser * networkParser = new NetworkParser();
 
-		Uint16 listen_port;
-		if (isServer)
-			listen_port = networkParser->GetServerPort();
-		else
-			listen_port = networkParser->GetClientPort();
+	Uint16 listen_port;
+	if (isServer)
+		listen_port = networkParser->GetServerPort();
+	else
+		listen_port = networkParser->GetClientPort();
 	if (SDLNet_Init() < 0)
 	{
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
@@ -40,7 +40,7 @@ int UDPNetwork::Init(bool isServer)
 		exit(EXIT_FAILURE);
 	}
 
-		IPaddress host_address;
+	IPaddress host_address;
 	const char * host_ipaddress = networkParser->GetHostAddress();
 	if (isServer)
 		host_ipaddress = NULL;

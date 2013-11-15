@@ -13,6 +13,9 @@ AppStateGame::AppStateGame() {
     {
         players[i] = NULL;
     }
+
+    time(&secondsToStartLastTick);
+    secondsToStart = 100;
 }
 
 void AppStateGame::Initialize() {
@@ -28,7 +31,21 @@ void AppStateGame::Events(SDL_Event * Event) {
 
 void AppStateGame::Update() {
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
-    
+
+    Send();
+    Receive();
+
+    if (secondsToStart >= 0 && secondsToStart < 100)
+    {
+        time_t now;
+        time(&now);
+        if (now - secondsToStartLastTick >= 1)
+        {
+            time(&secondsToStartLastTick);
+            secondsToStart--;
+        }
+    }
+
     for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] == NULL)
@@ -36,9 +53,6 @@ void AppStateGame::Update() {
 
         players[i]->Update(dt);
     }
-
-    Send();
-    Receive();
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
@@ -50,15 +64,26 @@ void AppStateGame::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
-    for (int i = 0; i < Drawable::objects.size(); i++) {
+    for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
         Drawable::objects[i]->Draw();
         temp_camera->Map_To_World(Drawable::objects[i]);
     }
 
-    //map->Draw(temp_camera);
-
     player.Draw();
+
+    if (secondsToStart >= 0 && secondsToStart < 100)
+    {
+        std::stringstream s;
+        if (secondsToStart > 0)
+            s << (int)secondsToStart;
+        else
+            s << "GO";
+        std::string buf = s.str();
+        int length = buf.length();
+        Color color(1, 1, 1, .5);
+        DrawText(temp_rect.w / 2.0 - length * 20, temp_rect.h / 2.0 - 40, buf.c_str(), TextureManager::GetInstance()->fonts.font_Impact_80, &color);
+    }
 }
 
 void AppStateGame::Send() {
@@ -150,6 +175,13 @@ void AppStateGame::Receive() {
                 }
                 break;
 
+            case NCE_START_GAME_TIMER:
+                int tempI;
+                unsigned char tempC;
+                netString.ReadUChar(tempC);
+                secondsToStart = tempC;
+                netString.ReadInt(tempI);
+                secondsToStartLastTick = tempI;
             default:
                 reading = false;
         }

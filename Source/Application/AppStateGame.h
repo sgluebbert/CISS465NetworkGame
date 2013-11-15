@@ -30,6 +30,9 @@ private:
         void Receive();
         Client player;
         Ship *players[MaximumClients];
+
+        time_t secondsToStartLastTick;
+        int secondsToStart;
 public:
  
         void Initialize();

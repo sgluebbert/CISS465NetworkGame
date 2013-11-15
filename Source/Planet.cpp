@@ -9,20 +9,18 @@ Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, fl
     Rigid_Body::objects.push_back(this);
     Set_Group(PLANET_GROUP);
 
-    planet = surface_manager->neutral_planet;
-    glow = surface_manager->planet_glow;
-
     dx = dy = force = torque = rotation = 0.0;
-    x = bounding_volume.x = _x;
-    y = bounding_volume.y = _y;    
     
+    texture = NULL;
+    x = bounding_volume.x = _x;
+    y = bounding_volume.y = _y;
     draw_angle = angle = _a;
     draw_scale = bounding_volume.r = _r + gr;
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
     drawing_box.w = 2 * bounding_volume.r;
     drawing_box.h = 2 * bounding_volume.r;
-    
+
     mass =  m;
     velocity = _v;
 
@@ -33,15 +31,11 @@ Planet::~Planet()
 
 }
 
-void Planet::SetPlanetTexture(Texture * tex) 
+void Planet::SetTexture(Texture * tex) 
 {
-    planet = tex;
+    texture = tex;
 }
 
-void Planet::SetGlowTexture(Texture * tex) 
-{
-    glow = tex;
-}
 
 void Planet::UnderSiege(Ship * ship)
 {
@@ -64,14 +58,14 @@ void Planet::UnderSiege(Ship * ship)
         {
             capture_value = 1.0f;
             state = BLUE_PLANET;
-            SetPlanetTexture(surface_manager->blue_planet);
+            SetTexture(surface_manager->blue_planet);
         }
 
         if (capture_value < -1.0f)
         {
             capture_value = -1.0f;
             state = RED_PLANET;
-            SetPlanetTexture(surface_manager->red_planet);
+            SetTexture(surface_manager->red_planet);
         }
 
         if (state == BLUE_PLANET && capture_value < 0.0f)
@@ -87,7 +81,7 @@ void Planet::UnderSiege(Ship * ship)
         if (capture_value == 0.0f || state == NEUTRAL)
         {
             state = NEUTRAL;
-            SetPlanetTexture(surface_manager->neutral_planet);
+            SetTexture(surface_manager->neutral_planet);
         }
     }
 }
@@ -97,21 +91,20 @@ void Planet::DrawGravityField()
     if (capture_value > 0.0f)
     {
         // light blue color
-        glColor4f(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
-        glow->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
-
+        const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &blue);
     }
     else if (capture_value < 0.0f)
     {
         // light red color
-        glColor4f(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
-        glow->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+        const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &red);
     }
     else
     {
         // light gray color
-        glColor4f(0.5f, 0.5f, 0.5f, 0.3f);
-        glow->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+        const Color gray(0.5f, 0.5f, 0.5f, 0.3f);
+        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &gray);
     }
 
 }
@@ -125,13 +118,13 @@ void Planet::Update(double dt)
 
 void Planet::Draw() 
 {
-    if (planet == NULL)
+    if (texture == NULL)
         return;
 
     DrawGravityField();
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
-    planet->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
 }
 
 

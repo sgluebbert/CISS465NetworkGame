@@ -21,11 +21,11 @@ class Network
 {
 
 public:
-    virtual const char * get_type() const = 0;
-    virtual int Init(bool isServer = false) = 0;
+	virtual const char * get_type() const = 0;
+	virtual int Init(bool isServer = false) = 0;
 
-    virtual void Close() = 0;
-    virtual bool SendData(NetString* stream, int id) = 0;
+	virtual void Close() = 0;
+	virtual bool SendData(NetString* stream, int id) = 0;
 	virtual int ReceiveData(std::vector<int> *newClients = NULL, std::vector<int> *removedClients = NULL) = 0;
 	virtual NetString *GetData(int id = 0) = 0;
 	virtual int GetDataLength(int id = 0) = 0;
@@ -58,10 +58,10 @@ class UDPNetwork : public Network
 {
 
 public:
-    virtual const char * get_type() const { return "UDP"; }
-    virtual int Init(bool isServer);
-    virtual void Close();
- 	virtual bool SendData(NetString* stream, int id);
+	virtual const char * get_type() const { return "UDP"; }
+	virtual int Init(bool isServer);
+	virtual void Close();
+	virtual bool SendData(NetString* stream, int id);
 	virtual int ReceiveData(std::vector<int> *newClients = NULL, std::vector<int> *removedClients = NULL);
 	virtual NetString * GetData(int id = 0);
 	virtual int GetDataLength(int id = 0);
@@ -91,22 +91,15 @@ class TCPNetwork : public Network
 {
 
 public:
-    virtual const char * get_type() const { return "TCP"; }
+	virtual const char * get_type() const { return "TCP"; }
 
-    virtual int Init(bool isServer);
-
-    virtual void Close();
-
-    virtual bool SendData(NetString* stream, int id);
-
+	virtual int Init(bool isServer);
+	virtual void Close();
+	virtual bool SendData(NetString* stream, int id);
 	virtual int ReceiveData(std::vector<int> *newClients = NULL, std::vector<int> *removedClients = NULL);
-
 	virtual NetString * GetData(int id = 0);
-
 	virtual int GetDataLength(int id = 0);
-
 	virtual void RemoveConnection(int id);
-
 	virtual void Bind(int id)
 	{
 	}
@@ -135,62 +128,59 @@ private:
 enum NetworkType
 {
 	 UNDEFINED,
-     UDP,
-     TCP
+	 UDP,
+	 TCP
 };
 
 class NetworkFactory 
 {
 public:
-    static Network* getInstance()
-    {    
-    	if (instance == NULL)
-    	{
-	        ChooseConnectionType();
+	static Network* getInstance(const char *config = NULL)
+	{    
+		// if (instance == NULL)
+		// {
 
-	        switch (networkType)
-	        {
-	        	case UNDEFINED:
-	        		instance = NULL;
-	        		break;
-	            case UDP:
-	                instance = new UDPNetwork();
-	                break;
-	            case TCP:
-	                instance = new TCPNetwork();
-	        }
-	    }
+		switch (ChooseConnectionType(config))
+		{
+			case UNDEFINED:
+				return NULL;
+			case UDP:
+				return new UDPNetwork();
+			case TCP:
+				return new TCPNetwork();
+		}
+		// }
 
-        return instance;
-    }
+		// return instance;
+	}
 
-    static NetworkType getNetworkType() { return networkType; }
+	// static NetworkType getNetworkType() { return networkType; }
 
 private:
 	NetworkFactory() {} // prevent users from creating a NetworkFactory instance.
 
-    static void ChooseConnectionType()
-    {
-    	NetworkParser * networkParser = new NetworkParser();
+	static NetworkType ChooseConnectionType(const char *config)
+	{
+		NetworkParser * networkParser = new NetworkParser(config);
 
-    	std::string text = networkParser->GetNetworkType();
+		std::string text = networkParser->GetNetworkType();
 
-        if (text == "UDP") 
-        {
-            networkType = UDP;
-        }
-        else if (text == "TCP")
-        {
-            networkType = TCP;
-        }
-        else
-        {
-            throw NetworkError();
-        }
-    }
+		if (text == "UDP") 
+		{
+			return UDP;
+		}
+		else if (text == "TCP")
+		{
+			return TCP;
+		}
+		else
+		{
+			throw NetworkError();
+		}
+	}
 
-    static Network *instance;
-    static NetworkType networkType;
+	// static Network *instance;
+	// static NetworkType networkType;
 };
 
 #endif

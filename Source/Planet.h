@@ -28,15 +28,13 @@ public:
 	virtual void Update(double);
     virtual void Draw();
 
-	void SetPlanetTexture(Texture *);	
-	void SetGlowTexture(Texture *);
+	void SetTexture(Texture *);
     void UnderSiege(Ship *);
     void DrawGravityField();
 
     int id;
     float r;
-	Texture * planet;
-	Texture * glow;
+	Texture * texture;
 	float capture_value;
 	float gravity_radius;
 	PlanetState state;

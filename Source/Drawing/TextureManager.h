@@ -21,6 +21,7 @@ struct Fonts
 	TTF_Font *font_Impact_16;
 	TTF_Font *font_Impact_18;
 	TTF_Font *font_Impact_20;
+	TTF_Font *font_Impact_80;
 };
 
 class TextureManager {
@@ -38,7 +39,6 @@ public:
 	Texture * red_planet;
 	Texture * blue_planet;
 	Texture * neutral_planet;
-	Texture * planet_glow;
 
 	void Load();
 	bool Resize(int, int);

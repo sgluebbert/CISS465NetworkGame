@@ -6,8 +6,9 @@ AppStateBase * AppStateGameServer::instance = NULL;
 
 
 AppStateGameServer::AppStateGameServer(DebugLevel l)
-	: debugLevel(l), clientCount(0)
+	: debugLevel(l), clientCount(0), secondsToStart(10), map(100)
 {
+	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
 }
@@ -39,15 +40,33 @@ void AppStateGameServer::Update() {
 	// Handle new/removed connections and their input
 	HandleConnections();
 
+	// Fix this
+	if (clientCount < map.MIN_NUMBER_OF_PLAYERS_PER_TEAM)
+		return;
+
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Game Logic
 	double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
-	for (int i = 0; i < MaximumClients; i++)
+	if (secondsToStart == 0)
 	{
-		if (clients[i] == NULL)
-			continue;
-	    clients[i]->Update(dt);
+		for (int i = 0; i < MaximumClients; i++)
+		{
+			if (clients[i] == NULL)
+				continue;
+		    clients[i]->Update(dt);
+		}
+	}
+	else
+	{
+		time_t now;
+		time(&now);
+		if (now - secondsToStartLastTick >= 1)
+		{
+			time(&secondsToStartLastTick);
+			secondsToStart--;
+			SendSecondsToStart();
+		}
 	}
 
 	for (int i = 0; i < Rigid_Body::objects.size(); i++)
@@ -84,6 +103,8 @@ void AppStateGameServer::HandleConnections()
 			network->Bind(*it);
 			clientCount++;
 			clients[*it] = client;
+
+			SendSecondsToStart(*it);
 
 			if (debugLevel > DL_NONE)
 				std::cout << "[ New Client Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
@@ -146,7 +167,7 @@ void AppStateGameServer::HandleConnections()
 	if (string.BufferLength() > 0)
 	{
 		string.WriteUChar(NCE_END);
-		Send(&string);
+		SendToAll(&string);
 	}
 }
 
@@ -176,11 +197,25 @@ void AppStateGameServer::UpdateConnections()
 	if (string.BufferLength() > 0)
 	{
 		string.WriteUChar(NCE_END);
-		Send(&string);
+		SendToAll(&string);
 	}
 }
 
-void AppStateGameServer::Send(NetString *string)
+void AppStateGameServer::SendSecondsToStart(int id)
+{
+	NetString string;
+	string.WriteUChar(NCE_START_GAME_TIMER);
+	string.WriteUChar(secondsToStart);
+	string.WriteInt(secondsToStartLastTick);
+	string.WriteUChar(NCE_END);
+
+	if (id == -1)
+		SendToAll(&string);
+	else
+		network->SendData(&string, id);
+}
+
+void AppStateGameServer::SendToAll(NetString *string)
 {
 	for (int i = 0; i < MaximumClients; ++i)
 	{

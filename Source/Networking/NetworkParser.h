@@ -13,10 +13,13 @@ class NetworkParser
 
 public:
 
-	NetworkParser()
+	NetworkParser(const char *config = NULL)
 	{
+		if (config == NULL)
+			config = "./conf/network.conf";
+
 		std::string line;
-        std::ifstream config_file("./conf/network.conf");
+        std::ifstream config_file(config);
         if (config_file.is_open())
         {
         	while (std::getline(config_file, line))
