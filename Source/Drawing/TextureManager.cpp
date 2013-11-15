@@ -17,6 +17,7 @@ void TextureManager::Load()
 
 	bullet 					= new Texture("./Art/PPC_Shot.png");
 	smoke 					= new Texture("./Art/smoke.png");
+	shatter 				= new Texture("./Art/Shatter.png");
 	ship 					= new Texture("./Art/ship01.png");
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
 	background_game 		= new Texture("./Art/Background.png");

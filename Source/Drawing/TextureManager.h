@@ -29,6 +29,7 @@ public:
 
 	Texture * bullet;
 	Texture * smoke;
+	Texture * shatter;
 	Texture * ship;
 	Texture * background_main_menu;
 	Texture * background_game;

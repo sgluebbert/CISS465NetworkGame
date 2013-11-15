@@ -380,7 +380,7 @@ void Ship::Update(double dt) {
 
 	    for (int i = 0; i < 4; i++)
 	    	if (weapon_pool[i] != NULL)
-	    		weapon_pool[i]->Update(dt, x, y);
+	    		weapon_pool[i]->Update(dt, angle, x, y);
 
 		break;
 
