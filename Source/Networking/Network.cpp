@@ -340,7 +340,7 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 				netString.WriteUChar(NCE_NEW_PLAYER);
 				netString.WriteUChar(freeSpot);
 				netString.WriteUChar(NCE_END);
-				SDLNet_TCP_Send(_listenSockets[freeSpot], netString.Buffer(), netString.BufferLength());
+				SendData(&netString, freeSpot);
 				_listnerCount++;
 			}
 			else
@@ -350,7 +350,10 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 				NetString netString;
 				netString.WriteUChar(NCE_TOO_MANY_PLAYERS);
 				netString.WriteUChar(NCE_END);
-				SDLNet_TCP_Send(temp, netString.Buffer(), netString.BufferLength());
+				
+				NetString *framed = netString.ToNetworkBuffer();
+				SDLNet_TCP_Send(temp, framed->Buffer(), framed->BufferLength());
+				delete framed;
 				SDLNet_TCP_Close(temp);
 			}
 		}

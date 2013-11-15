@@ -39,6 +39,7 @@ void AppStateGameServer::Update() {
 	// Handle new/removed connections and their input
 	HandleConnections();
 
+	/////////////////////////////////////////////////////////////////////////////////////////
 	// Game Logic
 	double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
@@ -48,6 +49,11 @@ void AppStateGameServer::Update() {
 			continue;
 	    clients[i]->Update(dt);
 	}
+
+	for (int i = 0; i < Rigid_Body::objects.size(); i++)
+		if (Rigid_Body::objects[i] != NULL)
+			Rigid_Body::objects[i]->Update(dt);
+    /////////////////////////////////////////////////////////////////////////////////////////
 
 	// Update all of the connections to the game state
 	UpdateConnections();
