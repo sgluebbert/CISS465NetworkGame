@@ -38,6 +38,7 @@ public:
 	Texture * red_planet;
 	Texture * blue_planet;
 	Texture * neutral_planet;
+	Texture * planet_glow;
 
 	void Load();
 	bool Resize(int, int);

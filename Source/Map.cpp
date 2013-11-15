@@ -22,8 +22,6 @@ void Map::AddPlanet(int id, float x, float y)
 	float size = 200.0f;
 	PlanetState s = NEUTRAL;
 	Planet * planet = new Planet(id, s, x, y, 0.0f, 1000.0f, 0.0f, size, 100.0f, 0.0f);
-	planet->SetTexture(surface_manager->neutral_planet);
-
 	planets.push_back(planet);
 }
 

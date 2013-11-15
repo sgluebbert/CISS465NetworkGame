@@ -26,6 +26,7 @@ void TextureManager::Load()
 	red_planet				= new Texture("./Art/RedPlanet.png");
 	blue_planet				= new Texture("./Art/BluePlanet.png");
 	neutral_planet			= new Texture("./Art/NeutralPlanet.png");
+	planet_glow				= new Texture("./Art/PlanetGravityGlow.png");
 
 }
 
