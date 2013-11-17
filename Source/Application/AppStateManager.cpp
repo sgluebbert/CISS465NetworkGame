@@ -47,6 +47,9 @@ void AppStateManager::Set_Active_State(AppState NewStateID) {
     case APPSTATE_MENU:
         instance = AppStateMenu::GetInstance();
         break;
+    case APPSTATE_LOBBY:
+        instance = AppStateLobby::GetInstance();
+        break;
     case APPSTATE_GAME:
         instance = AppStateGame::GetInstance();
         break;

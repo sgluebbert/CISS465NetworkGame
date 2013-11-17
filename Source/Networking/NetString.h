@@ -24,14 +24,17 @@ struct NetString
 	bool WriteUChar(unsigned char);
 	bool WriteInt(int);
 	bool WriteFloat(float);
+	bool WriteString(std::string &);
 
 	bool ReadBool(bool &);
 	bool ReadUChar(unsigned char &);
 	bool ReadInt(int &);
 	bool ReadFloat(float &);
+	bool ReadString(std::string &);
 
 	int BufferLength() const { return bufferLength; }
 	unsigned char *Buffer() const { return buffer; }
+	bool IsWhole() const { return whole; }
 
 	bool operator+=(const NetString &other);
 
@@ -45,6 +48,7 @@ private:
 	int bufferLength;
 	int bufferSize;
 	int bufferIndex;
+	bool whole;
 
 	// These Attributes are used for the byte stuffing (keeping a memory between AddNetworkBuffers)
 	int fullCount1, fullCount2;

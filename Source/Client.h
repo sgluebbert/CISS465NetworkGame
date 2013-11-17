@@ -18,12 +18,10 @@ class Client {
 public:
 	bool inputs[NUMBER_OF_INPUTS];
 	char channel_id;
-	Uint8 player_id;
-	Uint8 team_id;
+	char player_id;
+	char team_id;
+	std::string player_name;
 	time_t last_input;
-
-	Network * network;
-	NetString netString;
 
 	bool offline;
 	bool fired[5];

@@ -8,6 +8,10 @@ AppStateBase * AppStateGame::instance = NULL;
 
 AppStateGame::AppStateGame() {
     player.offline = false;
+    player.player_name = Get_Username();
+
+    map = new Map(0);
+    requestingGreeting = true;
 
     for (int i = 0; i < MaximumClients; ++i)
     {
@@ -87,17 +91,27 @@ void AppStateGame::Draw() {
 }
 
 void AppStateGame::Send() {
-    Parser parser;
-    if (!parser.SerializeInput(player.inputs, NUMBER_OF_INPUTS))
-        return;
-    parser.End();
+    if (!requestingGreeting)
+    {
+        Parser parser;
+        if (!parser.SerializeInput(player.inputs, NUMBER_OF_INPUTS))
+            return;
+        parser.End();
 
-    network->SendData(parser.GetStream(), player.channel_id);
+        network->SendData(parser.GetStream(), player.channel_id);
+    }
+    else
+    {
+        NetString string;
+        string.WriteUChar(NCE_PLAYER_GREETING);
+        string.WriteString(player.player_name);
+        string.WriteUChar(NCE_END);
+        network->SendData(&string, player.channel_id);
+    }
 }
 
 void AppStateGame::Receive() {
     NetString netString;
-
     while (network->ReceiveData() != -1)
     {
         NetString *temp = network->GetData();
@@ -105,10 +119,11 @@ void AppStateGame::Receive() {
             netString += *temp;
     }
 
+    netString.Seek(0);
     if (netString.BufferLength() == 0)
         return;
 
-    netString.Seek(0);
+    // std::cout << "Got: " << netString << '\n';
 
     bool reading = true;
     while (reading)
@@ -118,23 +133,76 @@ void AppStateGame::Receive() {
         if (!netString.ReadUChar(temp))
             break;
 
-        unsigned char playerId = 0;
         type = (NetworkChunkEnums)temp;
 
         switch (type)
         {
-            case NCE_NEW_PLAYER:
-                netString.ReadUChar(playerId);
+            case NCE_NEW_CONNECTION:
+            {
+                unsigned char channelId = 0;
+                netString.ReadUChar(channelId);
 
                 if (player.channel_id == -1)
                 {
-                    player.channel_id = playerId;
-                    network->Bind(playerId);
-                    players[playerId] = player.pawn;
+                    player.channel_id = channelId;
+                    network->Bind(channelId);
                 }
                 break;
+            }
+
+            case NCE_PLAYER_GREETING:
+            {
+                int temp;
+                netString.ReadInt(temp);
+                player.player_id = temp;
+                netString.ReadInt(temp);
+                player.team_id = temp;
+                netString.ReadInt(temp);
+                players[player.player_id] = player.pawn;
+
+                if (requestingGreeting)
+                {
+                    delete map;
+                    map = new Map(temp);
+                    std::cout << "I am player: " << (int)player.player_id << "; team: " << (int)player.team_id << '\n';
+                    std::cout << "Map: " << temp << '\n';
+                }
+
+                requestingGreeting = false;
+                break;
+            }
+
+            case NCE_NEW_PLAYER:
+            {
+                int temp, team_id, player_id, i;
+                netString.ReadInt(player_id);
+                netString.ReadInt(team_id);
+
+                std::string player_name;
+                netString.ReadString(player_name);
+
+                std::cout << "New Player Joined: " << player_name << "; ID: " << player_id << "; team: " << team_id << '\n';
+                break;
+            }
+
+            case NCE_LOOKUP_PLAYER:
+            {
+                int temp, i, player_id, team_id;
+                netString.ReadInt(player_id);
+                netString.ReadInt(team_id);
+                if (players[player_id] != NULL)
+                    players[player_id]->team_id = team_id;
+
+                std::string player_name;
+                netString.ReadString(player_name);
+                
+                std::cout << "New Player Joined: " << player_name << "; ID: " << player_id << "; team: " << team_id << '\n';
+                break;
+            }
 
             case NCE_PLAYER:
+            {
+                unsigned char playerId;
                 netString.ReadUChar(playerId);
                 Ship *ship;
 
@@ -142,6 +210,12 @@ void AppStateGame::Receive() {
                 if (players[playerId] == NULL)
                 {
                     players[playerId] = new Ship(FIGHTER, 0, 0);
+                    NetString query;
+                    query.WriteUChar(NCE_LOOKUP_PLAYER);
+                    query.WriteUChar(playerId);
+                    query.WriteUChar(NCE_END);
+                    network->SendData(&query, player.channel_id);
+                    std::cout << "Requesting lookup on player: " << (int)playerId << '\n';
                 }
 
                 ship = players[playerId];
@@ -165,23 +239,49 @@ void AppStateGame::Receive() {
                 if (shipFired[POWERUP_TYPE])
                     ship->Fire(POWERUP_TYPE);
                 break;
+            }
 
             case NCE_REMOVE_PLAYER:
+            {
+                unsigned char playerId;
                 netString.ReadUChar(playerId);
                 if (players[playerId] != NULL && players[playerId] != player.pawn)
                 {
                     delete players[playerId];
                     players[playerId] = NULL;
+                
+                    std::cout << "Player Removed: " << playerId << '\n';
                 }
                 break;
+            }
 
-            case NCE_START_GAME_TIMER:
-                int tempI;
-                unsigned char tempC;
-                netString.ReadUChar(tempC);
-                secondsToStart = tempC;
-                netString.ReadInt(tempI);
-                secondsToStartLastTick = tempI;
+            case NCE_LOBBY_STATE_SYNC:
+            {
+                GameServerEnums serverState;
+                unsigned char temp;
+                if (!netString.ReadUChar(temp))
+                    break;
+                serverState = (GameServerEnums)temp;
+
+                switch (serverState)
+                {
+                    case GSE_GAME_COUNTDOWN:
+                    {
+                        int tempI;
+                        unsigned char tempC;
+                        netString.ReadUChar(tempC);
+                        secondsToStart = tempC;
+                        netString.ReadInt(tempI);
+                        secondsToStartLastTick = tempI;
+                        break;
+                    }
+                }
+            }
+
+            case NCE_END:
+
+                break;
+
             default:
                 reading = false;
         }
@@ -194,6 +294,9 @@ void AppStateGame::Cleanup() {
         if (players[i] != NULL && players[i] != player.pawn)
             delete players[i];
     }
+
+    network->Close();
+    delete network;
 }
 
 AppStateBase * AppStateGame::GetInstance() {

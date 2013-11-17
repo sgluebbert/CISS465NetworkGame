@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <queue>
 #include "NetworkParser.h"
 #include "Parser.h"
 
@@ -37,8 +38,7 @@ public:
 	virtual Uint32 GetSendHost() = 0;
 	virtual Uint16 GetSendPort() = 0;
 
-	NetString _netStrings[MaximumClients];
-	bool _pendingData[MaximumClients];
+	std::queue<NetString*> _pendingData[MaximumClients];
 	int _lastPendingIndex;
 };
 

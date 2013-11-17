@@ -11,9 +11,11 @@
 
 #include <deque>
 #include <vector>
+#include <bitset>
  
 
 enum DebugLevel { DL_NONE, DL_LOW, DL_MED, DL_HIGH };
+enum GameServerEnums { GSE_WAITING, GSE_LOBBY_COUNTDOWN, GSE_TRANSITION, GSE_GAME_COUNTDOWN, GSE_GAME };
  
  
 class AppStateGameServer : public AppStateBase {
@@ -24,17 +26,30 @@ private:
 	DebugLevel debugLevel;
 	time_t lastSpeedDisplay;
 	Client *clients[MaximumClients];
+        std::vector<Client*> expectedClients;
 	int clientCount;
+        bool inLobby;
 
         time_t secondsToStartLastTick;
         unsigned char secondsToStart;
+        int team1Count, team2Count;
+        GameServerEnums state;
+        std::bitset<MaximumClients> availablePlayerIds;
 
-        Map map;
+        Map *map;
 
-	void HandleConnections();
-	void UpdateConnections();
-        void SendSecondsToStart(int id = -1);
-	void SendToAll(NetString*);
+        unsigned char GetNextPlayerId();
+        void HandleLobbyConnections();
+        void UpdateLobby();
+        void SendLobbyPlayersToAll();
+        void MakeTeamsEven(int id = -1);
+        void SendStateUpdate(int id = -1);
+
+        void HandleGameConnections();
+        void UpdateGameConnections();
+        void SendToAll(NetString*);
+        void SwitchToGameMode();
+        void UpdateGame();
         
         AppStateGameServer(DebugLevel l = DL_MED);
 public:

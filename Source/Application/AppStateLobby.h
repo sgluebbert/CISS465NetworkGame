@@ -1,6 +1,5 @@
-#ifndef APPSTATEGAME_H
-#define APPSTATEGAME_H
-
+#ifndef APPSTATELOBBY
+#define APPSTATELOBBY
 
 
 #include <stdio.h>
@@ -18,22 +17,22 @@
 
 
 
-class AppStateGame : public AppStateBase {
+class AppStateLobby : public AppStateBase {
 private:
         static AppStateBase * instance;
-        AppStateGame();
+        AppStateLobby();
         
-        Texture * background_texture;
-        Rect<double> background_rect;
+        // Texture * background_texture;
+        // Rect<double> background_rect;
         Network *network;
         
-        // static const char * MUSIC_FILENAME;
         void Send();
         void Receive();
         Client player;
-        Ship *players[MaximumClients];
-        bool requestingGreeting;
+        Client *clients[MaximumClients];
+        GameServerEnums state;
         Map *map;
+        bool lobbyIsReady;
 
         time_t secondsToStartLastTick;
         int secondsToStart;

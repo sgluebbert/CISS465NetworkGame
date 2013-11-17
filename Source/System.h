@@ -28,17 +28,6 @@ static const char * APPLICATION_VERSION = "0.0.0.0";
 
 static bool IS_KEY_PRESSED[SDLK_LAST];
 
-// static UDPsocket socket;
-// static UDPpacket * recieve;
-// static UDPpacket * send;
-
-// static IPaddress server_address;
-// static IPaddress client_address;
-
-// Network* NetworkFactory::instance = NULL;
-// NetworkType NetworkFactory::networkType = UNDEFINED;
-// Network *network = NetworkFactory::getInstance();
-
 static Sound_Manager * sound_manager;
 
 static const int ROOM_WIDTH = 2000;
@@ -75,25 +64,20 @@ void Initialize_Key_Array() {
 bool Initialize_System() {
     InitWindow();
 
-    // std::cout << "Ready\n";
     surface_manager->Load();
-
-    // if (!Initialize_UDP_Network())
-    //     return false;
 
     Initialize_Managers();
 
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
-
-    // if((WINDOW = SDL_SetVideoMode(WINDOW_BOUNDING_BOX.w, WINDOW_BOUNDING_BOX.h, 32, SDL_ANYFORMAT | SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL)
-    //     return false;
     
     Initialize_Trig_Table();
     Initialize_Key_Array();
 
     return true;
 }
+
+std::string Get_Username();
 
 void Cleanup_SDL() {
     Cleanup_SDL_Modules();

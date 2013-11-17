@@ -7,6 +7,7 @@
 #include "AppStateIntro.h"
 #include "AppStateMenu.h"
 #include "AppStateGame.h"
+#include "AppStateLobby.h"
 #include "AppStateGameServer.h"
 #include "AppStateTest.h"
  

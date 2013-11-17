@@ -19,25 +19,25 @@ int UDPNetwork::Init(bool isServer)
 	if (SDLNet_Init() < 0)
 	{
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 	
 	if (!(_sd = SDLNet_UDP_Open(listen_port)))
 	{
 		fprintf(stderr, "SDLNet_UDP_Open: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
  
 	if (!(_receive = SDLNet_AllocPacket(512)))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
  
 	if (!(_send = SDLNet_AllocPacket(512)))
 	{
 		fprintf(stderr, "SDLNet_AllocPacket: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 
 	IPaddress host_address;
@@ -60,7 +60,6 @@ int UDPNetwork::Init(bool isServer)
 	for (int i = 0; i < _setSize; ++i)
 	{
 		_usedSockets[i] = NULL;
-		_pendingData[i] = false;
 	}
 
 	_receive->address.host = host_address.host;
@@ -76,6 +75,15 @@ int UDPNetwork::Init(bool isServer)
 
 void UDPNetwork::Close()
 {
+	for (int i = 0; i < _setSize; ++i)
+	{
+		while (!_pendingData[i].empty())
+		{
+			delete _pendingData[i].front();
+			_pendingData[i].pop();
+		}
+	}
+
 	SDLNet_FreePacket(_receive);
 	SDLNet_FreePacket(_send);
 	SDLNet_Quit();
@@ -140,7 +148,7 @@ int UDPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 				newClients->push_back(id);
 
 			NetString netString;
-			netString.WriteUChar(NCE_NEW_PLAYER);
+			netString.WriteUChar(NCE_NEW_CONNECTION);
 			netString.WriteUChar(id);
 			netString.WriteUChar(NCE_END);
 			SendData(&netString, -1);
@@ -155,9 +163,29 @@ int UDPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 		}
 	}
 
-	_pendingData[id] = _netStrings[id].AddNetworkBuffer(_receive->data, _receive->len);
-	if (_pendingData[id])
-		_netStrings[id].Seek(0);
+	int leftover = _receive->len;
+	while (leftover > 0)
+	{
+		bool isNew = false;
+		NetString *string;
+		if (_pendingData[id].empty() || _pendingData[id].back()->IsWhole())
+		{
+			string = new NetString();
+			isNew = true;
+		}
+		else
+			string = _pendingData[id].back();
+		if (string->AddNetworkBuffer(_receive->data + _receive->len - leftover, leftover))
+			string->Seek(0);
+		leftover -= string->BufferLength() + 8; // 8 because of framing bytes
+		if (isNew)
+		{
+			if (string->BufferLength() > 0)
+				_pendingData[id].push(string);
+			else
+				delete string;
+		}
+	}
 
 	// Loop through the pending data and pick one, but start from the next position each time.
 	int i = _lastPendingIndex;
@@ -165,9 +193,8 @@ int UDPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 		i = 0;
 	do
 	{
-		if (_pendingData[i])
+		if (!_pendingData[i].empty() && _pendingData[i].front()->IsWhole())
 		{
-			_pendingData[i] = false;
 			_lastPendingIndex++;
 			if (_lastPendingIndex >= _setSize)
 				_lastPendingIndex = 0;
@@ -189,12 +216,18 @@ int UDPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 
 NetString *UDPNetwork::GetData(int id)
 {
-	return &_netStrings[id];
+	if (_pendingData[id].empty() || !_pendingData[id].front()->IsWhole())
+		return NULL;
+	NetString *string = _pendingData[id].front();
+	_pendingData[id].pop();
+	return string;
 }
 
 int UDPNetwork::GetDataLength(int id)
 {
-	return _netStrings[id].BufferLength();
+	if (_pendingData[id].empty() || !_pendingData[id].front()->IsWhole())
+		return 0;
+	return _pendingData[id].front()->BufferLength();
 }
 
 void UDPNetwork::RemoveConnection(int id)
@@ -220,7 +253,7 @@ int TCPNetwork::Init(bool isServer)
 	if (SDLNet_Init() < 0)
 	{
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 
 	const char * host_ipaddress = networkParser->GetHostAddress();
@@ -240,7 +273,7 @@ int TCPNetwork::Init(bool isServer)
 	if (!(_sd = SDLNet_TCP_Open(&host_address)))
 	{
 		fprintf(stderr, "SDLNet_TCP_Open: %s\n", SDLNet_GetError());
-		exit(EXIT_FAILURE);
+		return -1;
 	}
 
 	// If we are the server, we want to listen to be able to listen to multiple connections
@@ -257,7 +290,6 @@ int TCPNetwork::Init(bool isServer)
 	{
 		_listenSockets[i] = NULL;
 		_freeSockets[i] = true;
-		_pendingData[i] = false;
 	}
 
 	// Listen to our socket
@@ -273,6 +305,15 @@ int TCPNetwork::Init(bool isServer)
 
 void TCPNetwork::Close()
 {
+	for (int i = 0; i < _setSize; ++i)
+	{
+		while (!_pendingData[i].empty())
+		{
+			delete _pendingData[i].front();
+			_pendingData[i].pop();
+		}
+	}
+
 	SDLNet_TCP_Close(_sd);
 	SDLNet_Quit();
 }
@@ -301,15 +342,15 @@ bool TCPNetwork::SendData(NetString* stream, int id)
 		}
 	}
 
+	// std::cout << "Sent " << *stream << " to " << id << '\n';
+
 	delete framed;
 	return true;
 }
 
 int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *removedClients)
 {
-	int readyCount = SDLNet_CheckSockets(_set, 0); // listen for connections up to 500 ms
-	// if (readyCount == 0)
-	// 	return 0;
+	int readyCount = SDLNet_CheckSockets(_set, 0);
 
 	// Is there a new client?
 	int newSocketReady = SDLNet_SocketReady(_sd);
@@ -337,7 +378,7 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 				if (newClients != NULL)
 					newClients->push_back(freeSpot);
 				NetString netString;
-				netString.WriteUChar(NCE_NEW_PLAYER);
+				netString.WriteUChar(NCE_NEW_CONNECTION);
 				netString.WriteUChar(freeSpot);
 				netString.WriteUChar(NCE_END);
 				SendData(&netString, freeSpot);
@@ -387,9 +428,29 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
  				}
  				else
  				{
- 					_pendingData[i] = _netStrings[i].AddNetworkBuffer(buffer, receivedCount);
-					if (_pendingData[i])
-						_netStrings[i].Seek(0);
+ 					int leftover = receivedCount;
+ 					while (leftover > 0)
+ 					{
+ 						bool isNew = false;
+	 					NetString *string;
+	 					if (_pendingData[i].empty() || _pendingData[i].back()->IsWhole())
+	 					{
+	 						string = new NetString();
+	 						isNew = true;
+	 					}
+	 					else
+	 						string = _pendingData[i].back();
+	 					if (string->AddNetworkBuffer(buffer + receivedCount - leftover, leftover))
+	 						string->Seek(0);
+	 					leftover -= string->BufferLength() + 8; // 8 because of framing bytes
+	 					if (isNew)
+						{
+							if (string->BufferLength() > 0)
+	 							_pendingData[i].push(string);
+							else
+								delete string;
+						}
+					}
  				}
  			}
  		}
@@ -407,26 +468,43 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 			}
 			else
 			{
-				_pendingData[0] = _netStrings[0].AddNetworkBuffer(buffer, receivedCount);
-				if (_pendingData[0])
+				int leftover = receivedCount;
+				while (leftover > 0)
 				{
-					_netStrings[0].Seek(0);
-					return 0;
+					bool isNew = false;
+					NetString *string;
+					if (_pendingData[0].empty() || _pendingData[0].back()->IsWhole())
+					{
+						string = new NetString();
+						isNew = true;
+					}
+					else
+						string = _pendingData[0].back();
+					if (string->AddNetworkBuffer(buffer + receivedCount - leftover, leftover))
+						string->Seek(0);
+					leftover -= string->BufferLength() + 8; // 8 because of framing bytes
+					if (isNew)
+					{
+						if (string->BufferLength() > 0)
+							_pendingData[0].push(string);
+						else
+							delete string;
+					}
 				}
 			}
 		}
-
-		return -1;
  	}
+
+ 	if (!_isServer)
+ 		return (!_pendingData[0].empty() && _pendingData[0].front()->IsWhole() ? 0 : -1);
 
 	int i = _lastPendingIndex;
 	if (i >= _setSize)
 		i = 0;
 	do
 	{
-		if (_pendingData[i])
+		if (!_pendingData[i].empty() && _pendingData[i].front()->IsWhole())
 		{
-			_pendingData[i] = false;
 			_lastPendingIndex++;
 			if (_lastPendingIndex >= _setSize)
 				_lastPendingIndex = 0;
@@ -447,12 +525,18 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 
 NetString *TCPNetwork::GetData(int id)
 {
-	return &_netStrings[id];
+	if (_pendingData[id].empty() || !_pendingData[id].front()->IsWhole())
+		return NULL;
+	NetString *string = _pendingData[id].front();
+	_pendingData[id].pop();
+	return string;
 }
 
 int TCPNetwork::GetDataLength(int id)
 {
-	return _netStrings[id].BufferLength();
+	if (_pendingData[id].empty() || !_pendingData[id].front()->IsWhole())
+		return 0;
+	return _pendingData[id].front()->BufferLength();
 }
 
 void TCPNetwork::RemoveConnection(int id)

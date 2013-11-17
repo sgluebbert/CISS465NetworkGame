@@ -1,13 +1,13 @@
 #include "NetString.h"
 
 NetString::NetString()
-	: buffer(NULL), bufferSize(0), bufferLength(0), bufferIndex(0), fullCount1(0), fullCount2(0), count(false)
+	: buffer(NULL), bufferSize(0), bufferLength(0), bufferIndex(0), fullCount1(0), fullCount2(0), count(false), whole(false)
 {
 	ClearBuffer();
 }
 
 NetString::NetString(unsigned char *buf, int length)
-	: buffer(buf), bufferSize(length), bufferLength(length), bufferIndex(0), fullCount1(0), fullCount2(0), count(false)
+	: buffer(buf), bufferSize(length), bufferLength(length), bufferIndex(0), fullCount1(0), fullCount2(0), count(false), whole(false)
 {
 }
 
@@ -55,7 +55,6 @@ bool NetString::AddUChars(unsigned char *buf, int length)
 		}
 	}
 
-	bufferIndex = temp;
 	return true;
 }
 
@@ -117,6 +116,7 @@ bool NetString::AddNetworkBuffer(unsigned char *buf, int length)
 			{
 				// frame end
 				bufferLength -= 2;
+				whole = true;
 				return true;
 			}
 		}
@@ -234,9 +234,29 @@ bool NetString::WriteFloat(float value)
 	return true;
 }
 
+bool NetString::WriteString(std::string &text)
+{
+	if (bufferIndex >= bufferSize - text.length() - 1)
+	{
+		if (!Expand(std::max(bufferSize * 2, (int)text.length() * 2)))
+			return false;
+	}
+
+	for (int i = 0; i < text.length(); i++)
+	{
+		if (!WriteUChar(text[i]))
+			return false;
+	}
+
+	if (!WriteUChar(0))
+		return false;
+
+	return true;
+}
+
 bool NetString::ReadBool(bool &out)
 {
-	if (bufferIndex >= bufferLength - 1)
+	if (bufferIndex >= bufferLength)
 		return false;
 
 	out = buffer[bufferIndex++];
@@ -245,7 +265,7 @@ bool NetString::ReadBool(bool &out)
 
 bool NetString::ReadUChar(unsigned char &out)
 {
-	if (bufferIndex >= bufferLength - 1)
+	if (bufferIndex >= bufferLength)
 		return false;
 
 	out = buffer[bufferIndex++];
@@ -272,6 +292,33 @@ bool NetString::ReadFloat(float &out)
 	bufferIndex += 4;
     memcpy(&t, &temp, sizeof(float));
     out = t;
+	return true;
+}
+
+bool NetString::ReadString(std::string &text)
+{
+	unsigned char temp;
+	int i = 0, bufferSize = 20;
+	char *buffer = new char[bufferSize];
+	while (true)
+	{
+		if (!ReadUChar(temp))
+			return false;
+		buffer[i++] = (char)temp;
+		if (temp == 0)
+			break;
+
+		if (i == bufferSize)
+		{
+			char *t = new char[bufferSize * 2];
+			memcpy(t, buffer, bufferSize);
+			delete [] buffer;
+			buffer = t;
+		}
+	}
+
+	text = std::string(buffer);
+	delete [] buffer;
 	return true;
 }
 

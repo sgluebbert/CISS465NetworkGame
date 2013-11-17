@@ -1,5 +1,19 @@
 #include "System.h"
 
+std::string Get_Username() {
+    static int i = rand() % 8;
+    switch (i)
+    {
+        case 0: return "Sam";
+        case 1: return "Ujjwal";
+        case 2: return "Mark";
+        case 3: return "Trevin";
+        case 4: return "Other1";
+        case 5: return "Other2";
+        case 6: return "Other3";
+        case 7: return "Other4";
+    }
+}
 
 /*
 static void Reset_Window(SDL_Rect new_bounding_box = DEFAULT_WINDOW_BOUNDING_BOX) {
