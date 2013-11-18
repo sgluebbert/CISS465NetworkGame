@@ -213,7 +213,6 @@ unsigned char AppStateGameServer::GetNextPlayerId()
 		if (availablePlayerIds[i])
 		{
 			availablePlayerIds[i] = false;
-			std::cout << i << " is available\n";
 			return i;
 		}
 	}

@@ -28,14 +28,18 @@ private:
         
         void Send();
         void Receive();
+        void EvaluateNeededPlayers();
         Client player;
         Client *clients[MaximumClients];
+        int team1Count, team2Count;
         GameServerEnums state;
         Map *map;
         bool lobbyIsReady;
 
         time_t secondsToStartLastTick;
         int secondsToStart;
+
+        Text stateText;
 public:
  
         void Initialize();

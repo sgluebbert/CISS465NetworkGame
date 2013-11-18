@@ -1,7 +1,14 @@
 #include "System.h"
 
 std::string Get_Username() {
-    static int i = rand() % 8;
+    static int i = -1;
+
+    if (i == -1)
+    {
+        srand(time(NULL));
+        i = rand() % 8;
+    }
+
     switch (i)
     {
         case 0: return "Sam";

@@ -4,6 +4,7 @@
 
 
 #include <string>
+#include <ctime>
 #include <cmath>
 
 #include "SDL_net.h"

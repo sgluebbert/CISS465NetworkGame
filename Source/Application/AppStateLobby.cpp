@@ -6,7 +6,8 @@ AppStateBase * AppStateLobby::instance = NULL;
 
 
 AppStateLobby::AppStateLobby()
-	: secondsToStart(100), state(GSE_WAITING), lobbyIsReady(false)
+	: secondsToStart(100), state(GSE_WAITING), lobbyIsReady(false), stateText("Waiting for additional players...", TextureManager::GetInstance()->fonts.font_FreeMono_18, WHITE),
+      team1Count(0), team2Count(0)
 {
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
@@ -53,7 +54,10 @@ void AppStateLobby::Update() {
 		{
 			time(&secondsToStartLastTick);
 			secondsToStart--;
-			std::cout << "Seconds to start: " << (int)secondsToStart << '\n';
+            std::stringstream stream;
+            stream << "Seconds to start: " << (int)secondsToStart;
+            stateText.Reload(stream.str().c_str());
+			std::cout << stream.str() << '\n';
 		}
 	}
 }
@@ -61,6 +65,59 @@ void AppStateLobby::Update() {
 void AppStateLobby::Draw() {
 	if (!lobbyIsReady)
 		return;
+
+    Rect<double> viewport = Camera::getInstance()->Get_Viewport();
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Draw players table
+    TextureManager *textureManager = TextureManager::GetInstance();
+
+    int drawx = viewport.w - 300;
+    int drawy = 50;
+
+    DrawText(drawx, drawy - 22, "Team Red", textureManager->fonts.font_Impact_20, &WHITE);
+
+    // Draw all team 0 players; not the fastest way, but we don't need speed.
+    int offset = 0;
+    for (int i = 0; i < MaximumClients; i++)
+    {
+        if (clients[i] == NULL || clients[i]->team_id != 0)
+            continue;
+
+        // Add other things like exp lvl?
+        std::stringstream stream;
+        stream << clients[i]->player_name;
+        DrawText(drawx, drawy + offset * 18, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+        offset++;
+    }
+
+    drawy += offset * 18 + 40;
+    DrawText(drawx, drawy - 22, "Team Blue", textureManager->fonts.font_Impact_20, &WHITE);
+
+    // Draw all team 1 players
+    offset = 0;
+    for (int i = 0; i < MaximumClients; i++)
+    {
+        if (clients[i] == NULL || clients[i]->team_id != 1)
+            continue;
+
+        // Add other things like exp lvl?
+        std::stringstream stream;
+        stream << clients[i]->player_name;
+        DrawText(drawx, drawy + offset * 18, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+        offset++;
+    }
+    ////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Draw Map
+    DrawRect(10, 10, 480, 400, false, &WHITE);
+    std::stringstream stream;
+    stream << "Map seed: " << map->SEED;
+    DrawText(14, 14, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+    ////////////////////////////////////////////////////////////////////////////
+
+    stateText.Draw(viewport.w / 2 - stateText.width / 2, viewport.h - stateText.height - 10);
 }
 
 void AppStateLobby::Receive() {
@@ -124,6 +181,9 @@ void AppStateLobby::Receive() {
             			clients[i] = NULL;
             		}
             	}
+
+                team1Count = 0;
+                team2Count = 0;
             	break;
 
             case NCE_PLAYER:
@@ -140,11 +200,16 @@ void AppStateLobby::Receive() {
                 int temp1;
                 netString.ReadInt(temp1);
                 clients[playerId]->team_id = temp1;
+                if (temp1 == 0)
+                    team1Count++;
+                else
+                    team2Count++;
                 netString.ReadInt(temp1);
                 clients[playerId]->player_id = temp1;
 				netString.ReadString(clients[playerId]->player_name);
 
                 std::cout << "Player: " << clients[playerId]->player_name << "; Id: " << (int)clients[playerId]->player_id << "; Team: " << (int)clients[playerId]->team_id << '\n';
+                EvaluateNeededPlayers();
                 break;
             }
 
@@ -156,6 +221,8 @@ void AppStateLobby::Receive() {
                     delete clients[playerId];
                     clients[playerId] = NULL;
                 }
+
+                EvaluateNeededPlayers();
                 break;
 
             case NCE_LOBBY_STATE_SYNC:
@@ -170,7 +237,7 @@ void AppStateLobby::Receive() {
 				{
 					case GSE_WAITING:
 						state = GSE_WAITING;
-						std::cout << "Waiting for more players...\n";
+                        EvaluateNeededPlayers();
 						break;
 
 					case GSE_LOBBY_COUNTDOWN:
@@ -182,7 +249,10 @@ void AppStateLobby::Receive() {
 						secondsToStart = tempC;
 						netString.ReadInt(tempI);
 						secondsToStartLastTick = tempI;
-						std::cout << "Seconds to start: " << (int)secondsToStart << '\n';
+                        std::stringstream stream;
+						stream << "Seconds to start: " << (int)secondsToStart;
+                        stateText.Reload(stream.str().c_str());
+                        std::cout << stream.str() << '\n';
 						break;
 					}
 
@@ -211,6 +281,16 @@ void AppStateLobby::Receive() {
                 reading = false;
         }
     }
+}
+
+void AppStateLobby::EvaluateNeededPlayers() {
+    if (state != GSE_WAITING)
+        return;
+    std::stringstream stream;
+    int needed = map->MIN_NUMBER_OF_PLAYERS_PER_TEAM * 2 - (team1Count + team2Count);
+    stream << "Waiting for " << needed << " additional players...";
+    stateText.Reload(stream.str().c_str());
+    std::cout << stream.str() << '\n';\
 }
 
 void AppStateLobby::Cleanup() {
