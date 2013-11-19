@@ -34,6 +34,7 @@ public:
 	Texture * ship;
 	Texture * background_main_menu;
 	Texture * background_game;
+	Texture * background_game2;
 	Texture * button;
 	Texture * highlightedbutton;
 	Texture * planet;

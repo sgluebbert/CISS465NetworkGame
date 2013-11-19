@@ -39,6 +39,9 @@ void AppStateGame::Update() {
     Send();
     Receive();
 
+    if (requestingGreeting)
+        return;
+
     if (secondsToStart >= 0 && secondsToStart < 100)
     {
         time_t now;
@@ -58,6 +61,10 @@ void AppStateGame::Update() {
         players[i]->Update(dt);
     }
 
+    for (int i = 0; i < Rigid_Body::objects.size(); i++)
+        if (Rigid_Body::objects[i] != NULL)
+            Rigid_Body::objects[i]->Update(dt);
+
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
     viewport.y = player.pawn->y - viewport.h / 2.0;
@@ -65,8 +72,20 @@ void AppStateGame::Update() {
 }
 
 void AppStateGame::Draw() {
+    TextureManager *textureManager = TextureManager::GetInstance();
+
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
+
+    if (requestingGreeting)
+    {
+        DrawText(20, temp_rect.h - 40, "Connecting...", textureManager->fonts.font_Impact_20, &WHITE);
+        return;
+    }
+
+    Texture *backgroundTexture = textureManager->background_game2;
+    glColor4f(1, 1, 1, 1);
+    backgroundTexture->DrawAtRect(0, 0, 1024, 1024);
 
     for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
@@ -86,7 +105,7 @@ void AppStateGame::Draw() {
         std::string buf = s.str();
         int length = buf.length();
         Color color(1, 1, 1, .5);
-        DrawText(temp_rect.w / 2.0 - length * 20, temp_rect.h / 2.0 - 40, buf.c_str(), TextureManager::GetInstance()->fonts.font_Impact_80, &color);
+        DrawText(temp_rect.w / 2.0 - length * 20, temp_rect.h / 2.0 - 40, buf.c_str(), textureManager->fonts.font_Impact_80, &color);
     }
 }
 

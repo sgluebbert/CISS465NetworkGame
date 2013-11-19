@@ -39,6 +39,7 @@ public:
 	int NumPlanets();
 	void Update(double);
 	void Draw(Camera * camera);
+	void DrawLobbyPreview(int x, int y, int w, int h);
 };
 
 

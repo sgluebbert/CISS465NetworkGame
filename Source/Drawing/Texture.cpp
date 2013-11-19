@@ -147,7 +147,7 @@ GLuint Texture::LoadTexture(const char *c)
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
 		// Edit the texture object's image data using the information SDL_Surface gives us
-		glTexImage2D(GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
 
 		SDL_FreeSurface(surface);
 	} 
@@ -230,7 +230,15 @@ void InitWindow()
 		exit(1);
 	}
 
-	if (TTF_Init() != 0 )
+	int imgFlags = IMG_INIT_PNG;
+	int initited = IMG_Init(imgFlags);
+	if (initited & imgFlags != imgFlags)
+	{
+		printf("Unable to initialize IMG: %s\n", IMG_GetError());
+		exit(1);
+	}
+
+	if (TTF_Init() != 0)
 	{
 		printf("Unable to initialize TTF: %s\n", TTF_GetError());
 		exit(1);
@@ -250,6 +258,7 @@ void InitWindow()
 		exit(1);
 	}
 
+	atexit(IMG_Quit);
 	atexit(TTF_Quit);
 	atexit(SDL_Quit);
 

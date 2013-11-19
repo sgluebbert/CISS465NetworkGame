@@ -6,9 +6,9 @@ AppStateBase * AppStateGameServer::instance = NULL;
 
 
 AppStateGameServer::AppStateGameServer(DebugLevel l)
-	: debugLevel(l), clientCount(0), secondsToStart(10), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
+	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
 {
-	map = new Map(10);
+	map = new Map(rand());
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
@@ -73,7 +73,7 @@ void AppStateGameServer::UpdateLobby() {
 
 	if (state == GSE_WAITING && team1Count >= map->MIN_NUMBER_OF_PLAYERS_PER_TEAM && team2Count >= map->MIN_NUMBER_OF_PLAYERS_PER_TEAM)
 	{
-		secondsToStart = 5;
+		secondsToStart = 15;
 		state = GSE_LOBBY_COUNTDOWN;
 		SendStateUpdate();
 	}
@@ -190,11 +190,36 @@ void AppStateGameServer::HandleLobbyConnections() {
 				case NCE_PLAYER:
 					netString->ReadString(client->player_name);
 
-					std::cout << "Got " << client->player_name << '\n';
-					client->player_id = GetNextPlayerId();
-					MakeTeamsEven();
+					bool playerExists = false;
+					for (int i = 0; i < MaximumClients; i++)
+					{
+						if (clients[i] == NULL || i == receiveId)
+							continue;
 
-					shouldSyncPlayers = true;
+						if (clients[i]->player_name == client->player_name)
+						{
+							playerExists = true;
+							break;
+						}
+					}
+
+					if (playerExists)
+					{
+						NetString response;
+						response.WriteUChar(NCE_ALREADY_JOINED);
+						response.WriteUChar(NCE_END);
+						network->SendData(&response, receiveId);
+						delete client;
+						clients[receiveId] = NULL;
+					}
+					else
+					{
+						std::cout << "Got " << client->player_name << '\n';
+						client->player_id = GetNextPlayerId();
+						MakeTeamsEven();
+
+						shouldSyncPlayers = true;
+					}
 					break;
 			}
 		}

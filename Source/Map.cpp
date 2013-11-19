@@ -67,3 +67,8 @@ void Map::PlanetCollision(Ship * ship)
 
 void Map::Draw(Camera * camera) {
 }
+
+void Map::DrawLobbyPreview(int x, int y, int w, int h) {
+	// Draws a mini map for use in the lobby.  Should put everything in the rectangle given.
+	// We could center it within the rectangle if the rectangle is not the correct aspect ratio.
+}

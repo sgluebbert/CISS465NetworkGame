@@ -112,9 +112,19 @@ void AppStateLobby::Draw() {
     ////////////////////////////////////////////////////////////////////////////
     // Draw Map
     DrawRect(10, 10, 480, 400, false, &WHITE);
+    map->DrawLobbyPreview(10, 10, 470, 390);
+
     std::stringstream stream;
-    stream << "Map seed: " << map->SEED;
-    DrawText(14, 14, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+    stream << "Map name (seed): MAP" << map->SEED;
+    DrawText(10, 400, stream.str().c_str(), textureManager->fonts.font_FreeMono_20, &WHITE);
+
+    stream.str(std::string());
+    stream << "Min players per team: " << map->MIN_NUMBER_OF_PLAYERS_PER_TEAM;
+    DrawText(10, 424, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+
+    stream.str(std::string());
+    stream << "Max players per team: " << map->MAX_NUMBER_OF_PLAYERS_PER_TEAM;
+    DrawText(10, 442, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
     ////////////////////////////////////////////////////////////////////////////
 
     stateText.Draw(viewport.w / 2 - stateText.width / 2, viewport.h - stateText.height - 10);
@@ -151,6 +161,11 @@ void AppStateLobby::Receive() {
         		std::cout << "Too Many Players\n";
 
         		break;
+
+            case NCE_ALREADY_JOINED:
+                std::cout << "You have already joined.\n";
+                AppStateEvent::New_Event(APPSTATE_MENU);
+                break;
 
             case NCE_NEW_CONNECTION:
             {

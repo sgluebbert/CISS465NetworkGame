@@ -121,6 +121,10 @@ void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();
 
+    Texture *backgroundTexture = TextureManager::GetInstance()->background_game2;
+    glColor4f(1, 1, 1, 1);
+    backgroundTexture->DrawAtRect(0, 0, 1024, 1024);
+
     for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
         Drawable::objects[i]->Draw();
