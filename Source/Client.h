@@ -18,15 +18,16 @@ class Client {
 public:
 	bool inputs[NUMBER_OF_INPUTS];
 	char channel_id;
-	char player_id;
-	char team_id;
+	Uint8 player_id;
+	Uint8 team_id; //<---------Check Entity, this should be dumped in favor of the enum
 	std::string player_name;
 	time_t last_input;
 
-	bool offline;
-	bool fired[5];
+	Network * network;
+	NetString netString;
 
-	std::string callsign;
+	bool offline;
+
 	Ship * pawn;
 
 	Health_Bar armor_bar;

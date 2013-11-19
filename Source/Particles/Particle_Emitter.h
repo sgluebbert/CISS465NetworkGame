@@ -29,6 +29,7 @@ public:
 	void Set_Spawn_Count(int);
 	void Set_Spawn_Delay(double);
 	void Set_Max_Age(double);
+	void Set_Range(double);
 	void Set_Starting_Angle(double);
 	void Set_Starting_Throttle(double);
 	void Set_Starting_Velocity(double);

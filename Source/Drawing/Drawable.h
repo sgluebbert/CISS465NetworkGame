@@ -18,7 +18,9 @@ public:
     Texture * texture;
 
     float draw_scale, draw_angle;
+    int draw_priority;//0-9: 0 being lowest priority and 9 being the highest priority | think of this as drawing in layers
 
+    //Need to turn this into a priority queue
     static std::deque<Drawable *> objects;
 };
 

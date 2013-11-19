@@ -3,8 +3,9 @@
 
 
 
-#include <string>
-#include <ctime>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 #include <cmath>
 
 #include "SDL_net.h"
@@ -51,6 +52,9 @@ static void Cleanup_System();
 static void Clear_Window();
 static SDL_Color Random_Color();
 
+static int Parse_Line(char *);
+static int Get_Memory_Usage();
+
 
 
 void Initialize_Managers() {
@@ -95,6 +99,37 @@ void Cleanup_Managers() {
 void Cleanup_System() {
     Cleanup_Managers();
     Cleanup_SDL();
+}
+    
+
+int Parse_Line(char * line) {
+    int i = strlen(line);
+
+    while (*line < '0' || *line > '9')
+        line++;
+
+    line[i-3] = '\0';
+    i = atoi(line);
+
+    return i;
+}
+
+
+int Get_Memory_Usage() { //Note: this value is in KB!
+    FILE* file = fopen("/proc/self/status", "r");
+    int result = -1;
+    char line[128];
+
+
+    while (fgets(line, 128, file) != NULL) {
+        if (strncmp(line, "VmSize:", 7) == 0) {
+            result = Parse_Line(line);
+            break;
+        }
+    }
+
+    fclose(file);
+    return result;
 }
 
 inline float read_float(unsigned char *buffer)

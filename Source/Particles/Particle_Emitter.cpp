@@ -108,6 +108,13 @@ void Particle_Emitter::Set_Starting_Angle(double new_angle) {
 	reference->angle = reference->draw_angle = new_angle;
 }
 
+void Particle_Emitter::Set_Range(double new_range) {
+	if (reference == NULL)
+		return;
+	
+	reference->range = new_range;
+}
+
 void Particle_Emitter::Set_Starting_Throttle(double throttle) {
 	if (reference == NULL)
 		return;

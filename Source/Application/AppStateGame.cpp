@@ -53,13 +53,17 @@ void AppStateGame::Update() {
         }
     }
 
-    for (int i = 0; i < MaximumClients; ++i)
+    /*for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] == NULL)
             continue;
 
         players[i]->Update(dt);
-    }
+    }*/
+
+    for (int i = 0; i < Rigid_Body::objects.size(); i++)
+        if (Rigid_Body::objects[i] != NULL)
+            Rigid_Body::objects[i]->Update(-dt);
 
     for (int i = 0; i < Rigid_Body::objects.size(); i++)
         if (Rigid_Body::objects[i] != NULL)
@@ -72,7 +76,7 @@ void AppStateGame::Update() {
 }
 
 void AppStateGame::Draw() {
-    TextureManager *textureManager = TextureManager::GetInstance();
+    TextureManager * textureManager = TextureManager::GetInstance();
 
     Camera * temp_camera = Camera::getInstance();
     Rect<double> temp_rect = temp_camera->Get_Viewport();

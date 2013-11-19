@@ -3,7 +3,7 @@
 
 
 Client::Client() {
-	pawn = new Ship(FIGHTER, 0.0, 0.0);
+	pawn = new Ship(INTERCEPTOR, 0.0, 0.0);
 
 	shield_bar.Set_Rect(0, 0, 80, 20, 2);
 	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
@@ -27,12 +27,9 @@ Client::Client() {
 	for (int i = 0; i < NUMBER_OF_INPUTS; i++)
 		inputs[i] = false;
 
-	for (int i = 0; i < 5; ++i)
-		fired[i] = false;
-
 	offline = true;
 
-	callsign = "Default";
+	player_name = "Default";
 }
 
 
@@ -45,7 +42,7 @@ Client::~Client() {
 
 void Client::Respawn(double _x, double _y) {
 	delete pawn;
-	pawn = new Ship(FIGHTER, _x, _y);
+	pawn = new Ship(INTERCEPTOR, _x, _y);
 }
 
 
@@ -65,15 +62,15 @@ void Client::Update(double dt) {
 			pawn->Turn_Right(dt);
 
 		if (inputs[FIRE_ENERGY])
-			fired[ENERGY_TYPE] = pawn->Fire(ENERGY_TYPE);
+			pawn->Fire(ENERGY_TYPE);
 		if (inputs[FIRE_BALLISTIC])
-			fired[BALLISTIC_TYPE] = pawn->Fire(BALLISTIC_TYPE);
+			pawn->Fire(BALLISTIC_TYPE);
 		if (inputs[FIRE_PROPELLED])
-			fired[PROPELLED_TYPE] = pawn->Fire(PROPELLED_TYPE);
+			pawn->Fire(PROPELLED_TYPE);
 		if (inputs[FIRE_MINE])
-			fired[BOMB_TYPE] = pawn->Fire(BOMB_TYPE);
+			pawn->Fire(BOMB_TYPE);
 		if (inputs[FIRE_POWERUP])
-			fired[POWERUP_TYPE] = pawn->Fire(POWERUP_TYPE);
+			pawn->Fire(POWERUP_TYPE);
 	}
 
 	armor_bar.Notify(pawn->armor / pawn->max_armor);

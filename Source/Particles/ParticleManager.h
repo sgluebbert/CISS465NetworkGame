@@ -24,7 +24,7 @@ static Particle * Create_Smoke_Particle() {
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
 
     //RigidBody Init
-    temp_particle->velocity = 10.0;
+    temp_particle->velocity = 50.0;
     temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
     temp_particle->mass = 1.0;
 	temp_particle->Set_Inertia(temp_particle->draw_scale);
@@ -36,6 +36,7 @@ static Particle * Create_Smoke_Particle() {
 
     //Particle Init
 	temp_particle->age_timer.Set_Interval(2.0);
+    temp_particle->range = 500.0;
 
 	return temp_particle;
 }
@@ -50,7 +51,7 @@ static Particle * Create_Shatter_Particle() {
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
 
     //RigidBody Init
-    temp_particle->velocity = 30.0;
+    temp_particle->velocity = 100.0;
     temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
     temp_particle->mass = 1.0;
 	temp_particle->Set_Inertia(temp_particle->draw_scale);
@@ -64,6 +65,7 @@ static Particle * Create_Shatter_Particle() {
 
     //Particle Init
 	temp_particle->age_timer.Set_Interval(1.0);
+    temp_particle->range = 500.0;
 
 	return temp_particle;
 }
@@ -84,7 +86,7 @@ static Particle * Create_Laser_Particle() {
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
 
     //RigidBody Init
-    temp_particle->velocity = 100.0;
+    temp_particle->velocity = 200.0;
     temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
     temp_particle->mass = 1.0;
 	temp_particle->Set_Inertia(temp_particle->draw_scale);
@@ -96,7 +98,8 @@ static Particle * Create_Laser_Particle() {
     temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
 
     //Particle Init
-	temp_particle->age_timer.Set_Interval(2.0);
+	temp_particle->age_timer.Set_Interval(5.0);
+    temp_particle->range = 200.0;
 
 	return temp_particle;
 }
@@ -123,7 +126,8 @@ static Particle * Create_Gauss_Particle() {
     temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
 
     //Particle Init
-    temp_particle->age_timer.Set_Interval(2.0);
+    temp_particle->age_timer.Set_Interval(5.0);
+    temp_particle->range = 400.0;
 
 	return temp_particle;
 }
@@ -145,11 +149,12 @@ static Particle * Create_Rocket_Particle() {
 
     //Motor Init
     temp_particle->velocity_limit = 200.0;
-    temp_particle->force_motor = 100.0;
+    temp_particle->force_motor = 200.0;
     temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->torque_motor = 0.0;
 
     //Particle Init
-    temp_particle->age_timer.Set_Interval(2.0);
+    temp_particle->age_timer.Set_Interval(5.0);
+    temp_particle->range = 400.0;
 
     return temp_particle;
 }
@@ -164,16 +169,18 @@ static Particle * Create_Mine_Particle() {
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
 
     //RigidBody Init
-    temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->velocity = temp_particle->rotation = 0.0;
+    temp_particle->dx = temp_particle->dy = temp_particle->force = temp_particle->torque = temp_particle->rotation = 0.0;
     temp_particle->mass = 1.0;
     temp_particle->Set_Inertia(temp_particle->draw_scale);
     temp_particle->x = temp_particle->y = temp_particle->drawing_box.x = temp_particle->drawing_box.y = 0.0;
 
     //Motor Init
-    temp_particle->velocity_limit = temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->force_motor = temp_particle->torque_motor = 0.0;
+    temp_particle->velocity = temp_particle->velocity_limit = 100.0;
+    temp_particle->rotation_limit = temp_particle->reverse_modifier = temp_particle->force_motor = temp_particle->torque_motor = 0.0;
 
     //Particle Init
     temp_particle->age_timer.Set_Interval(90.0);
+    temp_particle->range = 100.0;
 
     return temp_particle;
 }
