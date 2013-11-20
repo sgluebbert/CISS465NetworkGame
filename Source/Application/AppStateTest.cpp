@@ -4,19 +4,6 @@
 
 
 
-Star::Star() {
-    Drawable::objects.push_back(this);
-    drawing_box.x = rand() % 2000;
-    drawing_box.y = rand() % 2000;
-    drawing_box.w = rand() % 3;
-}
-
-void Star::Draw() {
-    DrawCircle(drawing_box.x, drawing_box.y, drawing_box.w, true, &WHITE);
-}
-
-
-
 AppStateBase * AppStateTest::instance = NULL;
 
 
@@ -35,27 +22,21 @@ void AppStateTest::Initialize() {
 
     //background_texture = surface_manager->background_game;
 
-    std::cout << "Beginning Map Initialization..." << std::endl;
-    map = new Map(0);
-    map->AddPlanet(RED_TEAM,     -2000, 0);
-    map->AddPlanet(RED_TEAM,     -1000, 0);
-    map->AddPlanet(NEUTRAL_TEAM,     0, 0);
-    map->AddPlanet(BLUE_TEAM,     1000, 0);
-    map->AddPlanet(BLUE_TEAM,     2000, 0);
-
+    std::cout << "Beginning Ship Initialization..." << std::endl;
     player.pawn = new Ship(INTERCEPTOR, 100, 100);
     player.pawn->team_id = player.team_id = BLUE_TEAM;
     player.pawn->respawn_timer.Set_Interval(5.0);
     player.pawn->Set_Group(SHIP_GROUP);
     std::cout << *player.pawn << std::endl;
 
-    std::cout << "Beginning Planet HUD Initialization..." << std::endl;
-    planetsHUD = new PlanetsHUD(map->NumPlanets());
+    std::cout << "Beginning Map Initialization..." << std::endl;
+    map = new Map(0);
 
     std::cout << "Beginning Math Initialization..." << std::endl;
     srand(time(NULL));
     Initialize_Trig_Table();
     
+    std::cout << "Beginning Music Initialization..." << std::endl;
     //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
     //sound_manager->Play_Music();
 }
@@ -108,12 +89,10 @@ void AppStateTest::Update() {
     player.Update(dt);
 
     //map->Update(dt);
-    
-    // std::cout << "Beginning Planet HUD Updates..." << std::endl;
-    planetsHUD->Update(map->planets);
 
     // std::cout << "Beginning Planet Collision Updates..." << std::endl;
-    map->PlanetCollision(player.pawn);
+    for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
+        (*it)->UnderSiege(player.pawn);
 
     // std::cout << "Beginning Collision Updates..." << std::endl;
     // Collision_Manager::Get_Instance()->Update(dt);
@@ -137,8 +116,6 @@ void AppStateTest::Draw() {
     }
 
     player.Draw();
-
-    planetsHUD->Draw();
 }
 
 void AppStateTest::Cleanup() {

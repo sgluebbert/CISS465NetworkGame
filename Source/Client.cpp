@@ -5,16 +5,16 @@
 Client::Client() {
 	pawn = NULL;
 
-	shield_bar.Set_Rect(0, 0, 80, 20, 2);
+	shield_bar.Set_Rect(0, 0, 100, 20, 2);
 	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
 
-	hull_bar.Set_Rect(0, 20, 80, 20, 2);
+	hull_bar.Set_Rect(0, 20, 100, 20, 2);
 	hull_bar.Set_Color(Color(0.50, 0.00, 0.00));
 
-	armor_bar.Set_Rect(0, 40, 80, 20, 2);
+	armor_bar.Set_Rect(0, 40, 100, 20, 2);
 	armor_bar.Set_Color(Color(0.00, 0.50, 0.00));
 
-	power_bar.Set_Rect(0, 60, 80, 20, 2);
+	power_bar.Set_Rect(0, 60, 100, 20, 2);
 	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
 
 	channel_id = -1;
@@ -83,10 +83,29 @@ void Client::Update(double dt) {
 			Respawn(0.0, 0.0);
 	}
 
+	while (planet_alignment_bars.size() < Planet::planet_graph.size()) {
+		planet_alignment_bars.push_back(Alignment_Bar());
+        //planet_alignment_bars.back().progress = 0.0f;
+        planet_alignment_bars.back().lhs_color = Color(0.5f, 0.0f, 0.0f, 1.0f);
+        planet_alignment_bars.back().rhs_color = Color(0.0f, 0.0f, 0.5f, 1.0f);
+	}
+
+	{
+		int i = 0;
+	    for (std::list<Planet *>::reverse_iterator it = Planet::planet_graph.rbegin(); it != Planet::planet_graph.rend(); ++it) {
+	    	planet_alignment_bars[i].Set_Rect(0, 580 - 20 * i, 100, 20, 2);
+	    	planet_alignment_bars[i++].Notify((*it)->capture_value);
+	    }
+	}
+
 	armor_bar.Update(dt);
 	hull_bar.Update(dt);
 	shield_bar.Update(dt);
 	power_bar.Update(dt);
+
+	for (int i = 0; i < planet_alignment_bars.size(); i++)
+		planet_alignment_bars[i].Update(dt);
+
 	info_feed.Update(dt);
 }
 
@@ -95,5 +114,9 @@ void Client::Draw() {
 	hull_bar.Draw();
 	shield_bar.Draw();
 	power_bar.Draw();
+
+	for (int i = 0; i < planet_alignment_bars.size(); i++)
+		planet_alignment_bars[i].Draw();
+
 	info_feed.Draw();
 }

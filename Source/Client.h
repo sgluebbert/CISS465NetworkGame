@@ -3,10 +3,12 @@
 
 
 
-#include "Ship.h"
+#include <deque>
+
 #include "./Networking/Network.h"
 #include "Progress_Circle.h"
 #include "Chat_Feed.h"
+#include "Planet.h"
 
 
 
@@ -23,9 +25,6 @@ public:
 	std::string player_name;
 	time_t last_input;
 
-	Network * network; // Why is this here?
-	NetString netString;
-
 	bool offline;
 
 	Ship * pawn;
@@ -34,6 +33,8 @@ public:
 	Health_Bar hull_bar;
 	Health_Bar shield_bar;
 	Health_Bar power_bar;
+
+	std::deque<Alignment_Bar> planet_alignment_bars;
 
 	Chat_Feed info_feed;
 

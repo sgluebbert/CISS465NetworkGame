@@ -4,6 +4,7 @@
 
 
 #include <iostream>
+#include <iomanip>
 
 #include "Asteroid.h"
 #include "Camera.h"

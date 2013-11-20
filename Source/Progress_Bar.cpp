@@ -4,7 +4,7 @@
 
 Progress_Display::Progress_Display() {
 	back_color 		= Color(0.00, 0.00, 0.00);
-	border_color	= Color(1.00, 0.00, 0.00);
+	border_color	= Color(1.00, 1.00, 1.00);
 	normal_color 	= Color(0.50, 0.50, 0.50);
 
 	progress = 1.0;
@@ -65,7 +65,7 @@ void Progress_Bar::Draw() {
 
 Alignment_Bar::Alignment_Bar() {
 	back_color 		= Color(0.00, 0.00, 0.00);
-	border_color	= Color(1.00, 0.00, 0.00);
+	border_color	= Color(1.00, 1.00, 1.00);
 	lhs_color		= Color(0.25, 0.25, 0.25);
 	normal_color 	= Color(0.50, 0.50, 0.50);
 	rhs_color 		= Color(0.75, 0.75, 0.75);
@@ -78,8 +78,8 @@ Alignment_Bar::Alignment_Bar() {
 
 void Alignment_Bar::Set_Rect(int x_coord, int y_coord, int width, int height, int border_width) {
 	Progress_Bar::Set_Rect(x_coord, y_coord, width, height, border_width);
-	lhs = int(floor(width / 2.0));
-	rhs = int(ceil(width / 2.0));
+	lhs = int(floor((width - 2 * border_width) / 2.0));
+	rhs = int(ceil((width - 2 * border_width) / 2.0));
 }
 
 void Alignment_Bar::Notify(double pFlag) {
@@ -103,12 +103,12 @@ void Alignment_Bar::Draw() {
 			 bar_rect.x + bar_rect.w, bar_rect.y + bar_rect.h,
 			 true, &back_color);
 	if (progress < 0)
-		DrawRect(bar_rect.x + lhs + (lhs * progress), bar_rect.y,
-				 bar_rect.x + lhs, bar_rect.y + bar_rect.h,
+		DrawRect(bar_rect.x + rhs + (lhs * progress), bar_rect.y,
+				 bar_rect.x + rhs, bar_rect.y + bar_rect.h,
 				 true, &lhs_color);
 	else
-		DrawRect(bar_rect.x + rhs, bar_rect.y,
-				 bar_rect.x + rhs + (rhs * progress), bar_rect.y + bar_rect.h,
+		DrawRect(bar_rect.x + lhs, bar_rect.y,
+				 bar_rect.x + lhs + (rhs * progress), bar_rect.y + bar_rect.h,
 				 true, &rhs_color);
 }
 

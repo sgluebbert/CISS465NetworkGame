@@ -11,13 +11,6 @@
 #include "../System.h"
 #include "../Planet.h"
 
-class Star : public Drawable {
-public:
-        Star();
-
-        void Draw();
-};
-
 
 
 class AppStateTest : public AppStateBase {
@@ -30,8 +23,6 @@ private:
         
         Client player;
         Map * map;
-        PlanetsHUD * planetsHUD;
-        std::vector<Star> stars;
 public:
  
         void Initialize();
