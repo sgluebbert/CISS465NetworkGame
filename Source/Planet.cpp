@@ -1,17 +1,42 @@
 #include "Planet.h"
 
 
-Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv)
-    : id(_id), state(s), r(_r), gravity_radius(gr), capture_value(cv)
+
+std::list<Planet *> Planet::planet_graph;
+
+
+
+Planet::Planet(Team _id, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv)
+    : gravity_radius(gr), capture_value(cv)
 {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    planet_graph.push_back(this);
+
     Set_Group(PLANET_GROUP);
+
+    team_id = _id;
+
+    switch (team_id) {
+        case RED_TEAM:
+            locked = true;
+            texture = surface_manager->red_planet;
+            break;
+        case BLUE_TEAM:
+            locked = true;
+            texture = surface_manager->blue_planet;
+            break;
+        default:
+            locked = false;
+            texture = surface_manager->neutral_planet;
+            break;
+    }
 
     dx = dy = force = torque = rotation = 0.0;
     
-    texture = NULL;
+    field = NULL;
+
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
     draw_angle = angle = _a;
@@ -23,7 +48,6 @@ Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, fl
 
     mass =  m;
     velocity = _v;
-
 }
 
 Planet::~Planet()
@@ -31,21 +55,15 @@ Planet::~Planet()
 
 }
 
-void Planet::SetTexture(Texture * tex) 
-{
-    texture = tex;
-}
-
 
 void Planet::UnderSiege(Ship * ship)
 {
-    bounding_volume.r = r + gravity_radius;
-    bounding_volume.x = x;
-    bounding_volume.y = y;
+    if (locked)
+        return;//Skip collision testing for gravity field
 
     if (DoCollide(this, ship))
     {
-        if (ship->team_id == 1)
+        if (ship->team_id == RED_TEAM)
         {
             capture_value -= 0.001f;
         }
@@ -54,34 +72,86 @@ void Planet::UnderSiege(Ship * ship)
             capture_value += 0.001f;
         }
 
+
         if (capture_value > 1.0f)
         {
             capture_value = 1.0f;
-            state = BLUE_PLANET;
-            SetTexture(surface_manager->blue_planet);
+            team_id = BLUE_TEAM;
+            texture = surface_manager->blue_planet;
+
+            /*Lock the right neighbor*/
+            //////////////////////////////////////////////////
+            Planet * neighbor = NULL;
+
+            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.end())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = true;
+            //////////////////////////////////////////////////
+
+            /*Unlock the left neighbor*/
+            //////////////////////////////////////////////////
+            neighbor = NULL;
+
+            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.rend())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = false;
+            //////////////////////////////////////////////////
         }
 
         if (capture_value < -1.0f)
         {
             capture_value = -1.0f;
-            state = RED_PLANET;
-            SetTexture(surface_manager->red_planet);
+            team_id = RED_TEAM;
+            texture = surface_manager->red_planet;
+
+            /*Lock the left neighbor*/
+            //////////////////////////////////////////////////
+            Planet * neighbor = NULL;
+
+            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.rend())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = true;
+            //////////////////////////////////////////////////
+
+            /*Unlock the right neighbor*/
+            //////////////////////////////////////////////////
+            neighbor = NULL;
+
+            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.end())
+                        neighbor = *(it);
+
+            if (neighbor != NULL)
+                neighbor->locked = false;
+            //////////////////////////////////////////////////
         }
 
-        if (state == BLUE_PLANET && capture_value < 0.0f)
+        if (team_id == BLUE_TEAM && capture_value < 0.0f)
         {
-            state = NEUTRAL;
+            team_id = NEUTRAL_TEAM;
         }
 
-        if (state == RED_PLANET && capture_value > 0.0f)
+        if (team_id == RED_TEAM && capture_value > 0.0f)
         {
-            state = NEUTRAL;
+            team_id = NEUTRAL_TEAM;
         }
 
-        if (capture_value == 0.0f || state == NEUTRAL)
+        if (capture_value == 0.0f || team_id == NEUTRAL_TEAM)
         {
-            state = NEUTRAL;
-            SetTexture(surface_manager->neutral_planet);
+            texture = surface_manager->neutral_planet;
         }
     }
 }

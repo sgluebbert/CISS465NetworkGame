@@ -17,8 +17,6 @@ Client::Client() {
 	power_bar.Set_Rect(0, 60, 80, 20, 2);
 	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
 
-	// pawn->respawn_timer.Set_Interval(5.0);
-
 	channel_id = -1;
 	player_id = -1;
 	team_id = NO_TEAM;
@@ -29,7 +27,7 @@ Client::Client() {
 
 	offline = true;
 
-	player_name = "Default";
+	player_name	 = "Default";
 }
 
 
@@ -51,30 +49,30 @@ void Client::Respawn(double _x, double _y) {
 
 void Client::Update(double dt) {
 	if (pawn != NULL) {
-		if (offline) {
-			if (inputs[MOVE_FORWARD])
-				pawn->Accelerate(false);
-			else if (inputs[MOVE_BACKWARD])
-				pawn->Accelerate(true);
-			else
-				pawn->Decelerate();
-
-			if (inputs[TURN_LEFT])
-				pawn->Turn_Left(dt);
-			if (inputs[TURN_RIGHT])
-				pawn->Turn_Right(dt);
-
-			if (inputs[FIRE_ENERGY])
-				pawn->Fire(ENERGY_TYPE);
-			if (inputs[FIRE_BALLISTIC])
-				pawn->Fire(BALLISTIC_TYPE);
-			if (inputs[FIRE_PROPELLED])
-				pawn->Fire(PROPELLED_TYPE);
-			if (inputs[FIRE_MINE])
-				pawn->Fire(BOMB_TYPE);
-			if (inputs[FIRE_POWERUP])
-				pawn->Fire(POWERUP_TYPE);
-		}
+ 		if (offline) {
+ 			if (inputs[MOVE_FORWARD])
+ 				pawn->Accelerate(false);
+ 			else if (inputs[MOVE_BACKWARD])
+ 				pawn->Accelerate(true);
+ 			else
+ 				pawn->Decelerate();
+ 
+ 			if (inputs[TURN_LEFT])
+ 				pawn->Turn_Left(dt);
+ 			if (inputs[TURN_RIGHT])
+ 				pawn->Turn_Right(dt);
+ 
+ 			if (inputs[FIRE_ENERGY])
+ 				pawn->Fire(ENERGY_TYPE);
+ 			if (inputs[FIRE_BALLISTIC])
+ 				pawn->Fire(BALLISTIC_TYPE);
+ 			if (inputs[FIRE_PROPELLED])
+ 				pawn->Fire(PROPELLED_TYPE);
+ 			if (inputs[FIRE_MINE])
+ 				pawn->Fire(BOMB_TYPE);
+ 			if (inputs[FIRE_POWERUP])
+ 				pawn->Fire(POWERUP_TYPE);
+ 		}
 
 		armor_bar.Notify(pawn->armor / pawn->max_armor);
 		hull_bar.Notify(pawn->health / pawn->max_health);

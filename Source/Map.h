@@ -35,7 +35,7 @@ public:
 
 	int AllPlanetsCaptured();
 	void PlanetCollision(Ship *);
-	void AddPlanet(int id, float x, float y);
+	void AddPlanet(Team id, float x, float y);
 	int NumPlanets();
 	void Update(double);
 	void Draw(Camera * camera);

@@ -14,16 +14,29 @@ Map::Map(int seed)
 
 Map::~Map() {
 	delete[] spawn_points;
+
+    while (!Planet::planet_graph.empty()) {
+    	delete Planet::planet_graph.front();
+    	Planet::planet_graph.pop_front();
+    }
+
+	Planet::planet_graph.clear();
 }
 
 
-void Map::AddPlanet(int id, float x, float y)
+void Map::AddPlanet(Team id, float x, float y)
 {
 	float size = 200.0f;
-	PlanetState s = NEUTRAL;
-	Planet * planet = new Planet(id, s, x, y, 0.0f, 1000.0f, 0.0f, size, 100.0f, 0.0f);
-	planet->SetTexture(surface_manager->neutral_planet);
+	float alignment;
 
+	if (id == RED_TEAM)
+		alignment = -1.0;
+	else if (id == BLUE_TEAM)
+		alignment = 1.0;
+	else
+		alignment = 0.0;
+
+	Planet * planet = new Planet(id, x, y, 0.0f, 1000.0f, 0.0f, size, 100.0f, alignment);
 	planets.push_back(planet);
 }
 
@@ -42,10 +55,10 @@ int Map::AllPlanetsCaptured()
 	
 	for (int i = 0; i < planets.size(); i++)
 	{
-		if (planets[i]->state != BLUE_PLANET)
+		if (planets[i]->team_id != BLUE_TEAM)
 			blue_flag =  0;
 
-		if (planets[i]->state != RED_PLANET)
+		if (planets[i]->team_id != RED_TEAM)
 			red_flag =  0;
 	}
 

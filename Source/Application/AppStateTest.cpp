@@ -37,12 +37,17 @@ void AppStateTest::Initialize() {
 
     std::cout << "Beginning Map Initialization..." << std::endl;
     map = new Map(0);
-    map->AddPlanet(0, 0, 0);
-    map->AddPlanet(1, 1000, 0);
+    map->AddPlanet(RED_TEAM,     -2000, 0);
+    map->AddPlanet(RED_TEAM,     -1000, 0);
+    map->AddPlanet(NEUTRAL_TEAM,     0, 0);
+    map->AddPlanet(BLUE_TEAM,     1000, 0);
+    map->AddPlanet(BLUE_TEAM,     2000, 0);
 
     player.pawn = new Ship(INTERCEPTOR, 100, 100);
     player.pawn->team_id = player.team_id = BLUE_TEAM;
+    player.pawn->respawn_timer.Set_Interval(5.0);
     player.pawn->Set_Group(SHIP_GROUP);
+    std::cout << *player.pawn << std::endl;
 
     std::cout << "Beginning Planet HUD Initialization..." << std::endl;
     planetsHUD = new PlanetsHUD(map->NumPlanets());
@@ -162,27 +167,26 @@ AppStateBase * AppStateTest::GetInstance() {
 
 void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;                            break;
-    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;                           break;
-    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;                         break;
-    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;                        break;
-    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;                          break;
-    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;                       break;
-    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;                       break;
-    case SDLK_4:        player.inputs[FIRE_MINE] = true;                            break;
-    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;                         break;
-    case SDLK_d:        player.pawn->Damage_Shields(10.0);                          break;
-    case SDLK_f:        player.pawn->Damage_Armor(10.0);                            break;
-    case SDLK_t:        player.info_feed.Player_Joined("Quicksilver");              break;
-    case SDLK_y:        player.info_feed.Player_Disconnected("Quicksilver");        break;
-    case SDLK_u:        player.info_feed.Player_Died("Quicksilver");                break;
-    case SDLK_i:        player.info_feed.Player_Killed("Quicksilver", "Blah");      break;
-    case SDLK_l:        std::cout << "Memory Usage: " << Get_Memory_Usage() << " kb";   break;
-    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);                    break;
-    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);                    break;
-    case SDLK_p:        player.pawn->team_id == RED_TEAM ? player.pawn->team_id = BLUE_TEAM : player.pawn->team_id = RED_TEAM; break;
-    default:
-        break;
+    case SDLK_LEFT:     player.inputs[TURN_LEFT] = true;                                                                            break;
+    case SDLK_RIGHT:    player.inputs[TURN_RIGHT] = true;                                                                           break;
+    case SDLK_UP:       player.inputs[MOVE_FORWARD] = true;                                                                         break;
+    case SDLK_DOWN:     player.inputs[MOVE_BACKWARD] = true;                                                                        break;
+    case SDLK_1:        player.inputs[FIRE_ENERGY] = true;                                                                          break;
+    case SDLK_2:        player.inputs[FIRE_BALLISTIC] = true;                                                                       break;
+    case SDLK_3:        player.inputs[FIRE_PROPELLED] = true;                                                                       break;
+    case SDLK_4:        player.inputs[FIRE_MINE] = true;                                                                            break;
+    case SDLK_5:        player.inputs[FIRE_POWERUP] = true;                                                                         break;
+    case SDLK_d:        player.pawn->Damage_Shields(10.0);                                                                          break;
+    case SDLK_f:        player.pawn->Damage_Armor(10.0);                                                                            break;
+    case SDLK_t:        player.info_feed.Player_Joined("Quicksilver");                                                              break;
+    case SDLK_y:        player.info_feed.Player_Disconnected("Quicksilver");                                                        break;
+    case SDLK_u:        player.info_feed.Player_Died("Quicksilver");                                                                break;
+    case SDLK_i:        player.info_feed.Player_Killed("Quicksilver", "Blah");                                                      break;
+    case SDLK_l:        std::cout << "Memory Usage: " << Get_Memory_Usage() << " kb";                                               break;
+    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);                                                                    break;
+    case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);                                                                    break;
+    case SDLK_p:        player.pawn->team_id == RED_TEAM ? player.pawn->team_id = BLUE_TEAM : player.pawn->team_id = RED_TEAM;      break;
+    default:                                                                                                                        break;
     }
 }
 
