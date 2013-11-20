@@ -18,12 +18,12 @@ class Client {
 public:
 	bool inputs[NUMBER_OF_INPUTS];
 	char channel_id;
-	Uint8 player_id;
-	Uint8 team_id; //<---------Check Entity, this should be dumped in favor of the enum
+	char player_id; // Uint8  client server interaction uses a player id of -1 for init
+	Team team_id;
 	std::string player_name;
 	time_t last_input;
 
-	Network * network;
+	Network * network; // Why is this here?
 	NetString netString;
 
 	bool offline;

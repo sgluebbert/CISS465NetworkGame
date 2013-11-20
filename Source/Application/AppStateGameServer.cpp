@@ -8,6 +8,7 @@ AppStateBase * AppStateGameServer::instance = NULL;
 AppStateGameServer::AppStateGameServer(DebugLevel l)
 	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
 {
+	srand(time(NULL));
 	map = new Map(rand());
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
@@ -122,6 +123,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 		{
 			if (clients[*it] != NULL)
 			{
+				availablePlayerIds[clients[*it]->player_id] = true;
 				delete clients[*it];
 				clientCount--;
 				clients[*it] = NULL;
@@ -152,11 +154,13 @@ void AppStateGameServer::HandleLobbyConnections() {
 
 		for (std::vector<int>::iterator it = removedClients.begin(); it != removedClients.end(); it++)
 		{
+			if (clients[*it] == NULL)
+				continue;
+
 			availablePlayerIds[clients[*it]->player_id] = true;
 			delete clients[*it];
 			clients[*it] = NULL;
 			clientCount--;
-
 
 			// Update everyone of potential new information
 			MakeTeamsEven();
@@ -211,6 +215,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 						network->SendData(&response, receiveId);
 						delete client;
 						clients[receiveId] = NULL;
+						clientCount--;
 					}
 					else
 					{
@@ -258,7 +263,7 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 			continue;
 		string.WriteUChar(NCE_PLAYER);
 		string.WriteUChar(i);
-		string.WriteInt(clients[i]->team_id);
+		string.WriteUChar(clients[i]->team_id);
 		string.WriteInt(clients[i]->player_id);
 		string.WriteString(clients[i]->player_name);
 	}
@@ -280,12 +285,12 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 
 			if (team1Count > team2Count)
 			{
-				clients[i]->team_id = 1;
+				clients[i]->team_id = RED_TEAM;
 				team2Count++;
 			}
 			else
 			{
-				clients[i]->team_id = 0;
+				clients[i]->team_id = BLUE_TEAM;
 				team1Count++;
 			}
 		}
@@ -301,7 +306,7 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 			if (clients[i] == NULL || i == id)
 				continue;
 
-			if (clients[i]->team_id == 1)
+			if (clients[i]->team_id == RED_TEAM)
 				team2Count++;
 			else
 				team1Count++;
@@ -310,7 +315,7 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 		// count up expected players
 		for (std::vector<Client *>::iterator it = expectedClients.begin(); it != expectedClients.end(); it++)
 		{
-			if ((*it)->team_id == 1)
+			if ((*it)->team_id == RED_TEAM)
 				team2Count++;
 			else
 				team1Count++;
@@ -318,12 +323,12 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 
 		if (team1Count > team2Count)
 		{
-			clients[id]->team_id = 1;
+			clients[id]->team_id = RED_TEAM;
 			team2Count++;
 		}
 		else
 		{
-			clients[id]->team_id = 0;
+			clients[id]->team_id = BLUE_TEAM;
 			team1Count++;
 		}
 	}
@@ -403,12 +408,14 @@ void AppStateGameServer::HandleGameConnections()
 		{
 			if (clients[*it] != NULL)
 			{
+				availablePlayerIds[clients[*it]->player_id] = true;
 				delete clients[*it];
 				clientCount--;
 				clients[*it] = NULL;
 			}
 
 			client = new Client();
+			client->pawn = new Ship(INTERCEPTOR, 100, 100);
 			client->offline = true;
 			client->channel_id = *it;
 			network->Bind(*it);
@@ -424,7 +431,7 @@ void AppStateGameServer::HandleGameConnections()
 		// Handle removed connections by tcp drops
 		for (std::vector<int>::iterator it = removedClients.begin(); it != removedClients.end(); it++)
 		{
-			if (clients[*it]->team_id == 1)
+			if (clients[*it]->team_id == RED_TEAM)
 				team2Count--;
 			else
 				team1Count--;
@@ -491,7 +498,7 @@ void AppStateGameServer::HandleGameConnections()
 					NetString response;
 					response.WriteUChar(NCE_LOOKUP_PLAYER);
 					response.WriteInt(player->player_id);
-					response.WriteInt(player->team_id);
+					response.WriteUChar(player->team_id);
 					response.WriteString(player->player_name);
 					response.WriteUChar(NCE_END);
 					network->SendData(&response, receiveId);
@@ -503,8 +510,10 @@ void AppStateGameServer::HandleGameConnections()
 					netString->ReadString(client->player_name);
 
 					// We got a greeting, but is it redundant?
+					bool newPlayer = false;
 					if (client->player_id == -1)
 					{
+						newPlayer = true;
 						bool wasFromLobby = false;
 
 						// Did we expect it?
@@ -528,23 +537,26 @@ void AppStateGameServer::HandleGameConnections()
 
 							// Insert logic to check for team size again
 						}
-
-						NetString broadcast;
-						broadcast.WriteUChar(NCE_NEW_PLAYER);
-						broadcast.WriteInt(client->player_id);
-						broadcast.WriteInt(client->team_id);
-						broadcast.WriteString(client->player_name);
-						broadcast.WriteUChar(NCE_END);
-						SendToAll(&broadcast);
 					}
 
 					NetString response;
 					response.WriteUChar(NCE_PLAYER_GREETING);
 					response.WriteInt(client->player_id);
-					response.WriteInt(client->team_id);
+					response.WriteUChar(client->team_id);
 					response.WriteInt(map->SEED);
 					response.WriteUChar(NCE_END);
 					network->SendData(&response, receiveId);
+
+					if (newPlayer)
+					{
+						NetString broadcast;
+						broadcast.WriteUChar(NCE_NEW_PLAYER);
+						broadcast.WriteInt(client->player_id);
+						broadcast.WriteUChar(client->team_id);
+						broadcast.WriteString(client->player_name);
+						broadcast.WriteUChar(NCE_END);
+						SendToAll(&broadcast);
+					}
 					break;
 				}
 
@@ -590,7 +602,7 @@ void AppStateGameServer::HandleGameConnections()
 		if (now - (*it)->last_input > 5)
 		{
 			availablePlayerIds[(*it)->player_id] = true;
-			if ((*it)->team_id == 1)
+			if ((*it)->team_id == RED_TEAM)
 				team2Count--;
 			else
 				team1Count--;

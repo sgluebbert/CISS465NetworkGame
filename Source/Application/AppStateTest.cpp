@@ -40,6 +40,7 @@ void AppStateTest::Initialize() {
     map->AddPlanet(0, 0, 0);
     map->AddPlanet(1, 1000, 0);
 
+    player.pawn = new Ship(INTERCEPTOR, 100, 100);
     player.pawn->team_id = player.team_id = BLUE_TEAM;
     player.pawn->Set_Group(SHIP_GROUP);
 

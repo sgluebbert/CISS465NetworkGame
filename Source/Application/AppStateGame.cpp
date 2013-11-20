@@ -14,9 +14,7 @@ AppStateGame::AppStateGame() {
     requestingGreeting = true;
 
     for (int i = 0; i < MaximumClients; ++i)
-    {
         players[i] = NULL;
-    }
 
     time(&secondsToStartLastTick);
     secondsToStart = 100;
@@ -53,21 +51,11 @@ void AppStateGame::Update() {
         }
     }
 
-    /*for (int i = 0; i < MaximumClients; ++i)
-    {
-        if (players[i] == NULL)
-            continue;
-
-        players[i]->Update(dt);
-    }*/
+    player.Update(dt);
 
     for (int i = 0; i < Rigid_Body::objects.size(); i++)
         if (Rigid_Body::objects[i] != NULL)
             Rigid_Body::objects[i]->Update(-dt);
-
-    for (int i = 0; i < Rigid_Body::objects.size(); i++)
-        if (Rigid_Body::objects[i] != NULL)
-            Rigid_Body::objects[i]->Update(dt);
 
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
@@ -91,6 +79,7 @@ void AppStateGame::Draw() {
     glColor4f(1, 1, 1, 1);
     backgroundTexture->DrawAtRect(0, 0, 1024, 1024);
 
+    Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
         Drawable::objects[i]->Draw();
@@ -178,16 +167,22 @@ void AppStateGame::Receive() {
                 int temp;
                 netString.ReadInt(temp);
                 player.player_id = temp;
+                unsigned char tempc;
+                netString.ReadUChar(tempc);
+                player.team_id = (Team)temp;
                 netString.ReadInt(temp);
-                player.team_id = temp;
-                netString.ReadInt(temp);
-                players[player.player_id] = player.pawn;
+
+                if (player.pawn == NULL)
+                {
+                    player.pawn = new Ship(INTERCEPTOR, 0, 0);
+                    players[player.player_id] = player.pawn;
+                }
 
                 if (requestingGreeting)
                 {
                     delete map;
                     map = new Map(temp);
-                    std::cout << "I am player: " << (int)player.player_id << "; team: " << (int)player.team_id << '\n';
+                    std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
                     std::cout << "Map: " << temp << '\n';
                 }
 
@@ -197,9 +192,11 @@ void AppStateGame::Receive() {
 
             case NCE_NEW_PLAYER:
             {
-                int temp, team_id, player_id, i;
+                int temp, player_id, i;
                 netString.ReadInt(player_id);
-                netString.ReadInt(team_id);
+                unsigned char tempc;
+                netString.ReadUChar(tempc);
+                Team team_id = (Team)tempc;
 
                 std::string player_name;
                 netString.ReadString(player_name);
@@ -210,9 +207,12 @@ void AppStateGame::Receive() {
 
             case NCE_LOOKUP_PLAYER:
             {
-                int temp, i, player_id, team_id;
+                int temp, i, player_id;
                 netString.ReadInt(player_id);
-                netString.ReadInt(team_id);
+                unsigned char tempc;
+                netString.ReadUChar(tempc);
+                Team team_id = (Team)tempc;
+
                 if (players[player_id] != NULL)
                     players[player_id]->team_id = team_id;
 
@@ -245,22 +245,22 @@ void AppStateGame::Receive() {
                 ship->Deserialize(&netString);
 
                 // Could change this into a loop? eh..
-                bool shipFired[5];
-                netString.ReadBool(shipFired[ENERGY_TYPE]);
-                if (shipFired[ENERGY_TYPE])
-                    ship->Fire(ENERGY_TYPE);
-                netString.ReadBool(shipFired[BALLISTIC_TYPE]);
-                if (shipFired[BALLISTIC_TYPE])
-                    ship->Fire(BALLISTIC_TYPE);
-                netString.ReadBool(shipFired[PROPELLED_TYPE]);
-                if (shipFired[PROPELLED_TYPE])
-                    ship->Fire(PROPELLED_TYPE);
-                netString.ReadBool(shipFired[BOMB_TYPE]);
-                if (shipFired[BOMB_TYPE])
-                    ship->Fire(BOMB_TYPE);
-                netString.ReadBool(shipFired[POWERUP_TYPE]);
-                if (shipFired[POWERUP_TYPE])
-                    ship->Fire(POWERUP_TYPE);
+                // bool shipFired[5];
+                // netString.ReadBool(shipFired[ENERGY_TYPE]);
+                // if (shipFired[ENERGY_TYPE])
+                //     ship->Fire(ENERGY_TYPE);
+                // netString.ReadBool(shipFired[BALLISTIC_TYPE]);
+                // if (shipFired[BALLISTIC_TYPE])
+                //     ship->Fire(BALLISTIC_TYPE);
+                // netString.ReadBool(shipFired[PROPELLED_TYPE]);
+                // if (shipFired[PROPELLED_TYPE])
+                //     ship->Fire(PROPELLED_TYPE);
+                // netString.ReadBool(shipFired[BOMB_TYPE]);
+                // if (shipFired[BOMB_TYPE])
+                //     ship->Fire(BOMB_TYPE);
+                // netString.ReadBool(shipFired[POWERUP_TYPE]);
+                // if (shipFired[POWERUP_TYPE])
+                //     ship->Fire(POWERUP_TYPE);
                 break;
             }
 
@@ -273,7 +273,7 @@ void AppStateGame::Receive() {
                     delete players[playerId];
                     players[playerId] = NULL;
                 
-                    std::cout << "Player Removed: " << playerId << '\n';
+                    std::cout << "Player Removed: " << (int)playerId << '\n';
                 }
                 break;
             }
