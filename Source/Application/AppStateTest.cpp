@@ -180,7 +180,7 @@ void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_l:        std::cout << "Memory Usage: " << Get_Memory_Usage() << " kb";   break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);                    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);                    break;
-    case SDLK_p:        player.pawn->team_id ? player.pawn->team_id = 0 : player.pawn->team_id = 1; break;
+    case SDLK_p:        player.pawn->team_id == RED_TEAM ? player.pawn->team_id = BLUE_TEAM : player.pawn->team_id = RED_TEAM; break;
     default:
         break;
     }

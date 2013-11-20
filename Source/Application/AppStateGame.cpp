@@ -245,22 +245,22 @@ void AppStateGame::Receive() {
                 ship->Deserialize(&netString);
 
                 // Could change this into a loop? eh..
-                // bool shipFired[5];
-                // netString.ReadBool(shipFired[ENERGY_TYPE]);
-                // if (shipFired[ENERGY_TYPE])
-                //     ship->Fire(ENERGY_TYPE);
-                // netString.ReadBool(shipFired[BALLISTIC_TYPE]);
-                // if (shipFired[BALLISTIC_TYPE])
-                //     ship->Fire(BALLISTIC_TYPE);
-                // netString.ReadBool(shipFired[PROPELLED_TYPE]);
-                // if (shipFired[PROPELLED_TYPE])
-                //     ship->Fire(PROPELLED_TYPE);
-                // netString.ReadBool(shipFired[BOMB_TYPE]);
-                // if (shipFired[BOMB_TYPE])
-                //     ship->Fire(BOMB_TYPE);
-                // netString.ReadBool(shipFired[POWERUP_TYPE]);
-                // if (shipFired[POWERUP_TYPE])
-                //     ship->Fire(POWERUP_TYPE);
+                bool firedInputs[5];
+                netString.ReadBool(firedInputs[0]);
+                if (firedInputs[0])
+                    ship->Fire(ENERGY_TYPE);
+                netString.ReadBool(firedInputs[1]);
+                if (firedInputs[1])
+                    ship->Fire(BALLISTIC_TYPE);
+                netString.ReadBool(firedInputs[2]);
+                if (firedInputs[2])
+                    ship->Fire(PROPELLED_TYPE);
+                netString.ReadBool(firedInputs[3]);
+                if (firedInputs[3])
+                    ship->Fire(BOMB_TYPE);
+                netString.ReadBool(firedInputs[4]);
+                if (firedInputs[4])
+                    ship->Fire(POWERUP_TYPE);
                 break;
             }
 

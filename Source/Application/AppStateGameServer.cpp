@@ -635,11 +635,11 @@ void AppStateGameServer::UpdateGameConnections()
 		string.WriteUChar(client->player_id);
 		NetString *chunk = client->pawn->Serialize();
 		string += *chunk;
-		// string.WriteBool(client->fired[ENERGY_TYPE]);
-		// string.WriteBool(client->fired[BALLISTIC_TYPE]);
-		// string.WriteBool(client->fired[PROPELLED_TYPE]);
-		// string.WriteBool(client->fired[BOMB_TYPE]);
-		// string.WriteBool(client->fired[POWERUP_TYPE]);
+		string.WriteBool(client->inputs[FIRE_ENERGY]);
+		string.WriteBool(client->inputs[FIRE_BALLISTIC]);
+		string.WriteBool(client->inputs[FIRE_PROPELLED]);
+		string.WriteBool(client->inputs[FIRE_MINE]);
+		string.WriteBool(client->inputs[FIRE_POWERUP]);
 		delete chunk;
 	}
 
