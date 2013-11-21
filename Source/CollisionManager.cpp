@@ -10,7 +10,7 @@ std::map<std::pair<Collision_Group, Collision_Group>, Collision *> Collision_Man
 
 Collision_Manager::Collision_Manager() {
 	Collidable::Set_Masks();
-	//Set Pair Maps
+	Set_Collision_Pair_Map();
 }
 
 Collision_Manager::~Collision_Manager() {
@@ -54,10 +54,8 @@ void Collision_Manager::Update(double dt) {
 
 
 Collision_Manager * Collision_Manager::Get_Instance() {
-	if (instance == NULL) {
-		Set_Collision_Pair_Map();
+	if (instance == NULL)
 		instance = new Collision_Manager();
-	}
 		
 	return instance;
 }

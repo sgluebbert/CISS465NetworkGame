@@ -78,6 +78,8 @@ void Client::Update(double dt) {
 		hull_bar.Notify(pawn->health / pawn->max_health);
 		shield_bar.Notify(pawn->shields / pawn->max_shields);
 		power_bar.Notify(pawn->power / pawn->max_power);
+		
+		radar.Notify(pawn);
 
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
 			Respawn(0.0, 0.0);
@@ -118,5 +120,6 @@ void Client::Draw() {
 	for (int i = 0; i < planet_alignment_bars.size(); i++)
 		planet_alignment_bars[i].Draw();
 
+	radar.Draw();
 	info_feed.Draw();
 }

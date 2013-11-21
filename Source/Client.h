@@ -8,6 +8,7 @@
 #include "./Networking/Network.h"
 #include "Progress_Circle.h"
 #include "Chat_Feed.h"
+#include "Radar.h"
 #include "Planet.h"
 
 
@@ -36,6 +37,7 @@ public:
 
 	std::deque<Alignment_Bar> planet_alignment_bars;
 
+	Radar radar;
 	Chat_Feed info_feed;
 
 	Client();

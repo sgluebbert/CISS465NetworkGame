@@ -27,7 +27,6 @@ void AppStateTest::Initialize() {
     player.pawn->team_id = player.team_id = BLUE_TEAM;
     player.pawn->respawn_timer.Set_Interval(5.0);
     player.pawn->Set_Group(SHIP_GROUP);
-    std::cout << *player.pawn << std::endl;
 
     std::cout << "Beginning Map Initialization..." << std::endl;
     map = new Map(0);
@@ -159,7 +158,10 @@ void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_y:        player.info_feed.Player_Disconnected("Quicksilver");                                                        break;
     case SDLK_u:        player.info_feed.Player_Died("Quicksilver");                                                                break;
     case SDLK_i:        player.info_feed.Player_Killed("Quicksilver", "Blah");                                                      break;
-    case SDLK_l:        std::cout << "Memory Usage: " << Get_Memory_Usage() << " kb";                                               break;
+    case SDLK_c:        Print_Collidables();                                                                                        break;
+    case SDLK_v:        Print_Drawables();                                                                                          break;
+    case SDLK_b:        Print_Rigid_Bodies();                                                                                       break;
+    case SDLK_n:        Print_Planets();                                                                                            break;
     case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_NONE);                                                                    break;
     case SDLK_TAB:      AppStateEvent::New_Event(APPSTATE_MENU);                                                                    break;
     case SDLK_p:        player.pawn->team_id == RED_TEAM ? player.pawn->team_id = BLUE_TEAM : player.pawn->team_id = RED_TEAM;      break;

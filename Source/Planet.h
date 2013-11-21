@@ -14,9 +14,7 @@
 
 
 
-class Planet : public Entity, public Collidable
-{
-
+class Planet : public Entity, public Collidable {
 public:
 
 	Planet(Team, float, float, float, float, float);
@@ -25,17 +23,12 @@ public:
 	virtual void Update(double);
     virtual void Draw();
 
-    void UnderSiege(Ship *);
-    void DrawGravityField();
-
 	Texture * field;
 	float alignment;
 	float capture_rate;
 	float gravity_radius;
 	bool locked;
 
-	//Best way to allow planets to manage themselves unfortunately
-	//May be better to add planets from map rather than within this so there is no need to keep the planet vector, but meh
 	static std::list<Planet *> planet_graph;
 	static float field_modifier;
 

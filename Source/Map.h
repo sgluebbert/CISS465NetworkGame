@@ -22,11 +22,11 @@ public:
 
 	const int MAX_NUMBER_OF_PLAYERS_PER_TEAM;
 	const int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
-	const int WIDTH, HEIGHT;
 	const int SEED;
-	int number_of_planets;
-	float map_scale;
-
+	const int NUMBER_OF_PLANETS;
+	const float MAP_SCALE;
+	
+	Rect<int> map_bounds;
 	float * spawn_points;
 
 	std::vector<Moon *> moons;

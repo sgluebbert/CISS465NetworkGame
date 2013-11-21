@@ -7,6 +7,7 @@
 
 #include "Rect.h"
 #include "Ship.h"
+#include "System.h"
 
 
 
@@ -14,7 +15,7 @@ class Radar {
 public:
 	Radar();
 
-	void Notify(std::deque<Ship * > &);
+	void Notify(const std::deque<Ship * > &);
 	void Notify(Ship *);
 	void Draw();
 
