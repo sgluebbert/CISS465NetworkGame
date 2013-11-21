@@ -12,8 +12,8 @@ AppStateMenu::AppStateMenu() {
 void AppStateMenu::Initialize() {
     background_surf = surface_manager->background_main_menu;
     
-    //sound_manager->Load_Music("./Sound/Music/Main_Menu.ogg");
-    //sound_manager->Play_Music();
+    // sound_manager->Load_Music("./Sound/Music/Main_Menu.ogg");
+    // sound_manager->Play_Music();
     
     main_menu.Add_Option("Lobby");
     main_menu.Add_Option("Test");

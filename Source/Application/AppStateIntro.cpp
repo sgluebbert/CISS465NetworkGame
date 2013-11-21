@@ -5,7 +5,7 @@ AppStateBase * AppStateIntro::instance = NULL;
 
 
 AppStateIntro::AppStateIntro()
-    : number_of_bumpers(3),
+    : number_of_bumpers(2),
       bumber_length(32.0),
       bumper_duration(bumber_length / 3.0),
       transition_point(bumber_length / 6.0),
@@ -15,15 +15,14 @@ AppStateIntro::AppStateIntro()
 
 void AppStateIntro::Initialize()
 {
-    bumper_titles[0] = "CISS465 Project";
-    bumper_titles[1] = "By Sam Luebbert";
-    bumper_titles[2] = "And Trevin Teacutter";
+    bumper_titles[0] = "STAR CLASH";
+    bumper_titles[1] = "CISS465 Fall 2013";
     current_bumper = 0;
     bumper_timer = 0.0;
     current_color = 0.0;
     
-    //sound_manager->Load_Music("./Sound/Music/Intro.ogg");
-    //sound_manager->Play_Music();
+    // sound_manager->Load_Music("Sound/Music/Intro.ogg");
+    // sound_manager->Play_Music();
 }
 
 void AppStateIntro::Events(SDL_Event * Event)
@@ -61,7 +60,7 @@ void AppStateIntro::Draw()
     Color color(current_color / 255, current_color / 255, current_color / 255, 1);
     
     Text temp(bumper_titles[current_bumper].c_str(),
-              TextureManager::GetInstance()->fonts.font_Impact_20, color);
+              TextureManager::GetInstance()->fonts.font_Impact_80, color);
 
     SDL_Rect temp_rect;
     temp_rect.w = temp.width;

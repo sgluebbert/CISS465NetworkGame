@@ -32,7 +32,7 @@ public:
         {
         	while (std::getline(config_file, line))
         	{
-        		if (line == "\n" || line == "" || line[0] == '#') 
+        		if (line == "\n" || line == "\r" || line == "" || line[0] == '#') 
         		{
         			continue;
         		}
@@ -92,6 +92,8 @@ public:
 		std::string ret;
 		for (int i = 0; i < text.size(); i++)
 		{
+			if (text[i] == '\r')
+				text[i] = '\n';
 			if (text[i] != ' ' && text[i] != '\t')
 				ret += text[i];
 		}

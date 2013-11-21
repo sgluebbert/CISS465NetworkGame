@@ -12,7 +12,7 @@
 #include "Moon.h"
 #include "Particles/Particle.h"
 #include "Planet.h"
-#include "Powerup.h"
+#include "Pickup.h"
 #include "Ship.h"
 
 

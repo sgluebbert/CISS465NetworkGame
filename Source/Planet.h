@@ -16,10 +16,6 @@
 
 class Planet : public Entity, public Collidable {
 public:
-
-	Planet(Team, float, float, float, float, float);
-	~Planet();
-
 	virtual void Update(double);
     virtual void Draw();
 
@@ -35,6 +31,10 @@ public:
 	static void Generate_Planets(int, float);
 	static void Clear_Planets();
 	static Team Win_Condition();
+
+private:
+	Planet(Team, float, float, float, float, float);
+	~Planet();
 };
 
 

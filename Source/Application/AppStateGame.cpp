@@ -10,7 +10,7 @@ AppStateGame::AppStateGame() {
     player.offline = false;
     player.player_name = Get_Username();
 
-    map = new Map(0);
+    map = new Map(0, 1.0);
     requestingGreeting = true;
 
     for (int i = 0; i < MaximumClients; ++i)
@@ -181,7 +181,8 @@ void AppStateGame::Receive() {
                 if (requestingGreeting)
                 {
                     delete map;
-                    map = new Map(temp);
+                    map = new Map(temp, 1.0);
+                    map->Generate_Map();
                     std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
                     std::cout << "Map: " << temp << '\n';
                 }

@@ -10,7 +10,7 @@
 #include "Asteroid.h"
 // #include "Bullet.h"
 #include "Moon.h"
-#include "Powerup.h"
+#include "Pickup_Factory.h"
 #include "Particles/Particle.h"
 #include "Planet.h"
 #include "Ship.h"

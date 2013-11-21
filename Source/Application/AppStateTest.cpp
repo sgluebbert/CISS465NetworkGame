@@ -29,7 +29,8 @@ void AppStateTest::Initialize() {
     player.pawn->Set_Group(SHIP_GROUP);
 
     std::cout << "Beginning Map Initialization..." << std::endl;
-    map = new Map(0);
+    map = new Map(0, 1.0);
+    map->Generate_Map();
 
     std::cout << "Beginning Math Initialization..." << std::endl;
     srand(time(NULL));

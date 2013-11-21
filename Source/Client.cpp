@@ -17,8 +17,8 @@ Client::Client() {
 	power_bar.Set_Rect(0, 60, 100, 20, 2);
 	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
 	
-	for (int i = 0; i < 4; i++)
-		weapon_status_bars[i].Set_Rect(700, 20 * i, 100, 20, 2);
+	for (int i = 3; i >= 0; i--)
+		weapon_status_bars[i].Set_Rect(700, 580 - 20 * i, 100, 20, 2);
 
 	channel_id = -1;
 	player_id = -1;

@@ -12,7 +12,7 @@ AppStateLobby::AppStateLobby()
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
-	map = new Map(0);
+    map = new Map(0, 1.0);
 }
 
 void AppStateLobby::Initialize() {
@@ -184,7 +184,8 @@ void AppStateLobby::Receive() {
             	int temp1;
             	netString.ReadInt(temp1);
             	delete map;
-            	map = new Map(temp1);
+            	map = new Map(temp1, 1.0);
+                map->Generate_Map();
             	std::cout << "Map Seed: " << temp1 << '\n';
 
             case NCE_LOBBY_PLAYER_SYNC:

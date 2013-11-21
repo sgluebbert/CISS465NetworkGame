@@ -128,7 +128,7 @@ void Planet::Generate_Planets(int num, float scale) {
     //////////////////////////////////////////////////
     for (int i = half_num; i > 0; i--) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
-        planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier * scale);
+        planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -138,7 +138,7 @@ void Planet::Generate_Planets(int num, float scale) {
     //////////////////////////////////////////////////
     if (num % 2 == 1) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
-        planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier * scale);
+        planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -148,7 +148,7 @@ void Planet::Generate_Planets(int num, float scale) {
     //////////////////////////////////////////////////
     for (int i = 1; i <= half_num; i++) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
-        planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier * scale);
+        planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -156,13 +156,13 @@ void Planet::Generate_Planets(int num, float scale) {
 
     //If number of planets is even, unlock the PAIR of middle planets
     //////////////////////////////////////////////////
-    if (num & 2 == 0) {
+    if (num % 2 == 0) {
         int i = 0;
 
         for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it) {
-            if (i == half_num)
+            if (i == half_num - 1)
                 (*it)->locked = false;
-            else if (i == half_num + 1) {
+            else if (i == half_num) {
                 (*it)->locked = false;
                 break;
             }

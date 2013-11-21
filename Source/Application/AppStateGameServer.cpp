@@ -10,7 +10,7 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 {
 	tryMainAgain = 0;
 	srand(time(NULL));
-	map = new Map(rand());
+	map = new Map(rand(), 1.0);
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;

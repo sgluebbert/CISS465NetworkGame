@@ -37,7 +37,6 @@ static const int ROOM_HEIGHT = 2000;
 
 
 /*System Functions*/
-static void Initialize_Managers();
 static void Initialize_Key_Array();
 
 static bool Initialize_System();
@@ -56,10 +55,6 @@ static int Get_Memory_Usage();
 
 
 
-void Initialize_Managers() {
-    sound_manager = Sound_Manager::Get_Instance();
-}
-
 void Initialize_Key_Array() {
     for (int i = SDLK_FIRST; i < SDLK_LAST; i++)
         IS_KEY_PRESSED[i] = false;
@@ -69,8 +64,7 @@ bool Initialize_System() {
     InitWindow();
 
     surface_manager->Load();
-
-    Initialize_Managers();
+    sound_manager = Sound_Manager::Get_Instance();
 
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
