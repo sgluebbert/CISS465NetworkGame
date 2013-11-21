@@ -7,9 +7,8 @@
 // UDP
 int UDPNetwork::Init(bool isServer)
 {
+	inited = false;
 	_setSize = (isServer ? MaximumClients : 1);
-	
-	NetworkParser * networkParser = new NetworkParser();
 
 	Uint16 listen_port;
 	if (isServer)
@@ -62,6 +61,7 @@ int UDPNetwork::Init(bool isServer)
 		_usedSockets[i] = NULL;
 	}
 
+	SDLNet_Write16(networkParser->GetServerPort(), &_recveiveip.port);
 	_receive->address.host = host_address.host;
 	_receive->address.port = host_address.port;
 
@@ -70,6 +70,7 @@ int UDPNetwork::Init(bool isServer)
 	else
 		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
 
+	inited = true;
 	return 1;
 }
 
@@ -84,6 +85,8 @@ void UDPNetwork::Close()
 		}
 	}
 
+	inited = false;
+
 	SDLNet_FreePacket(_receive);
 	SDLNet_FreePacket(_send);
 	SDLNet_Quit();
@@ -93,8 +96,8 @@ bool UDPNetwork::SendData(NetString* stream, int id)
 {
 	if (id == -1)
 	{
-		_send->address.host = _receive->address.host;        /* Set the destination host */
-		_send->address.port = _receive->address.port;        /* And destination port */
+		_send->address.host = _receive->address.host;        // Set the destination host
+		_send->address.port = _receive->address.port;        // And destination port
 	}
 
 	NetString *framed = stream->ToNetworkBuffer();
@@ -241,15 +244,21 @@ void UDPNetwork::Bind(int id)
 {
 	SDLNet_UDP_Bind(_sd, id, &_receive->address);
 }
+
+IPaddress *UDPNetwork::GetIPAddress(int id)
+{
+	// Not expecting this to be used
+	return NULL;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // TCP
 int TCPNetwork::Init(bool isServer)
 {
+	inited = false;
 	_isServer = isServer;
 	_setSize = (isServer ? MaximumClients : 1);
-	NetworkParser * networkParser = new NetworkParser();
 
 	if (SDLNet_Init() < 0)
 	{
@@ -277,6 +286,11 @@ int TCPNetwork::Init(bool isServer)
 		return -1;
 	}
 
+	if (_isServer)
+		_recveiveip = host_address;
+	else
+		_sendip = host_address;
+
 	// If we are the server, we want to listen to be able to listen to multiple connections
 	_set = SDLNet_AllocSocketSet(_setSize + 1);
 	if (_set == NULL)
@@ -301,6 +315,7 @@ int TCPNetwork::Init(bool isServer)
 	else
 		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
 
+	inited = true;
 	return 1;
 }
 
@@ -314,6 +329,8 @@ void TCPNetwork::Close()
 			_pendingData[i].pop();
 		}
 	}
+
+	inited = false;
 
 	SDLNet_TCP_Close(_sd);
 	SDLNet_Quit();
@@ -466,6 +483,7 @@ int TCPNetwork::ReceiveData(std::vector<int> *newClients, std::vector<int> *remo
 			if (receivedCount <= 0)
 			{
 				// Handle server closing connection
+				return -2;
 			}
 			else
 			{
@@ -549,4 +567,9 @@ void TCPNetwork::RemoveConnection(int id)
 	_listenSockets[id] = NULL;
 	_freeSockets[id] = true;
 	_listnerCount--;
+}
+
+IPaddress *TCPNetwork::GetIPAddress(int id)
+{
+	return SDLNet_TCP_GetPeerAddress(_listenSockets[id]);
 }

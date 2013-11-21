@@ -8,7 +8,6 @@
 #include <cstring>
 #include <cmath>
 
-#include "SDL_net.h"
 #include "Math.h"
 #include "SoundManager.h"
 #include "Drawing/TextureManager.h"
@@ -89,7 +88,6 @@ void Cleanup_SDL() {
 }
 
 void Cleanup_SDL_Modules() {
-    SDLNet_Quit();
 }
 
 void Cleanup_Managers() {
@@ -130,14 +128,6 @@ int Get_Memory_Usage() { //Note: this value is in KB!
 
     fclose(file);
     return result;
-}
-
-inline float read_float(unsigned char *buffer)
-{
-    float temp;
-    unsigned int temp2 = SDLNet_Read32(buffer);
-    memcpy(&temp, &temp2, sizeof(float));
-    return temp;
 }
 
 static bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {
