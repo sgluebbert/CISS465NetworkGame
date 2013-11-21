@@ -7,21 +7,91 @@
 #include <cmath>
 
 #include "Collidable.h"
-// #include "Asteroid.h"
+#include "Asteroid.h"
 // #include "Bullet.h"
-// #include "Capture_Zone.h"
-// #include "Moon.h"
-// #include "Powerup.h"
-// #include "Particle.h"
-// #include "Planet.h"
-// #include "Ship.h"
+#include "Moon.h"
+#include "Powerup.h"
+#include "Particles/Particle.h"
+#include "Planet.h"
+#include "Ship.h"
 
 
 
 class Collision {
 public:
-	//void ResolveCollision(Collidable *, Collidable *) = 0;
+	virtual void ResolveCollision(Collidable *, Collidable *) = 0;
 };
+
+
+/*Ship Collision Callbacks*/
+/////////////////////////////////////////////////////////
+class ShipToShipCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class ShipToBulletCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class ShipToPlanetCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class ShipToMoonCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class ShipToAsteroidCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class ShipToFactoryCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+/////////////////////////////////////////////////////////
+
+
+/*Bullet Collision Callbacks*/
+/////////////////////////////////////////////////////////
+class BulletToPlanetCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class BulletToMoonCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+
+class BulletToAsteroidCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+/////////////////////////////////////////////////////////
+
+
+/*Planet Collision Callbacks*/
+/////////////////////////////////////////////////////////
+class PlanetToAsteroidCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+/////////////////////////////////////////////////////////
+
+
+/*Moon Collision Callbacks*/
+/////////////////////////////////////////////////////////
+class MoonToAsteroidCollision : public Collision {
+public:
+	void ResolveCollision(Collidable *, Collidable *);
+};
+/////////////////////////////////////////////////////////
 
 
 

@@ -94,7 +94,7 @@ void Client::Update(double dt) {
 		int i = 0;
 	    for (std::list<Planet *>::reverse_iterator it = Planet::planet_graph.rbegin(); it != Planet::planet_graph.rend(); ++it) {
 	    	planet_alignment_bars[i].Set_Rect(0, 580 - 20 * i, 100, 20, 2);
-	    	planet_alignment_bars[i++].Notify((*it)->capture_value);
+	    	planet_alignment_bars[i++].Notify((*it)->alignment);
 	    }
 	}
 

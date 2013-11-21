@@ -25,6 +25,7 @@ public:
 	const int WIDTH, HEIGHT;
 	const int SEED;
 	int number_of_planets;
+	float map_scale;
 
 	float * spawn_points;
 

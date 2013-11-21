@@ -91,11 +91,11 @@ void AppStateTest::Update() {
     //map->Update(dt);
 
     // std::cout << "Beginning Planet Collision Updates..." << std::endl;
-    for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
-        (*it)->UnderSiege(player.pawn);
+    /*for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
+        (*it)->UnderSiege(player.pawn);*/
 
     // std::cout << "Beginning Collision Updates..." << std::endl;
-    // Collision_Manager::Get_Instance()->Update(dt);
+    Collision_Manager::Get_Instance()->Update(dt);
 
     // std::cout << "Beginning Camera Updates..." << std::endl;
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
