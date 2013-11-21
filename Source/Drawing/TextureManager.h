@@ -37,7 +37,7 @@ public:
 	Texture * background_game2;
 	Texture * button;
 	Texture * highlightedbutton;
-	Texture * planet;
+	Texture * planet_glow;
 	Texture * red_planet;
 	Texture * blue_planet;
 	Texture * neutral_planet;

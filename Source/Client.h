@@ -8,6 +8,7 @@
 #include "./Networking/Network.h"
 #include "Progress_Circle.h"
 #include "Chat_Feed.h"
+#include "Radar.h"
 #include "Planet.h"
 
 
@@ -34,8 +35,10 @@ public:
 	Health_Bar shield_bar;
 	Health_Bar power_bar;
 
+	Progress_Bar weapon_status_bars[4];
 	std::deque<Alignment_Bar> planet_alignment_bars;
 
+	Radar radar;
 	Chat_Feed info_feed;
 
 	Client();

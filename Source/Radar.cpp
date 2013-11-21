@@ -19,7 +19,7 @@ Radar::Radar() {
 	radar_bounds.h = bounding_box.h - BORDER_WIDTH * 2;
 }
 
-void Radar::Notify(std::deque<Ship *> & all_ships) {
+void Radar::Notify(const std::deque<Ship *> & all_ships) {
 	ships = all_ships;
 }
 
@@ -39,7 +39,13 @@ void Radar::Draw() {
 	DrawRect(bounding_box.x, bounding_box.y, bounding_box.x + bounding_box.w, bounding_box.y + bounding_box.h, true, &WHITE);
 	DrawRect(radar_bounds.x, radar_bounds.y, radar_bounds.x + radar_bounds.w, radar_bounds.y + radar_bounds.h, true, &BLACK);
 
-	for (int i = 0; i < ships.size(); i++) {
+	int _x, _y, _r = 2;
+	_x = radar_bounds.x + (player_ship->x + 3000.0) * radar_bounds.w / 6000.0;
+	_y = radar_bounds.y + (player_ship->y + 3000.0) * radar_bounds.h / 6000.0;
+
+	DrawCircle(_x, _y, _r, true, &LIGHT_GREEN);
+
+	/*for (int i = 0; i < ships.size(); i++) {
 		if (ships[i] == NULL)
 			continue;
 
@@ -53,7 +59,7 @@ void Radar::Draw() {
 			DrawCircle(_x, _y, _r, true, &LIGHT_BLUE);
 		else //if (ships[i]->team_id != player_ship->team_id)
 			DrawCircle(_x, _y, _r, true, &LIGHT_RED);
-	}
+	}*/
 
 	bounding_box.x -= X_OFFSET;
 	bounding_box.y -= Y_OFFSET;

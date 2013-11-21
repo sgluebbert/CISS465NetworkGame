@@ -6,9 +6,7 @@
 #include <vector>
 
 #include "Asteroid.h"
-#include "Moon.h"
 #include "Planet.h"
-#include "Powerup.h"
 #include "Camera.h"
 #include "Ship.h"
 
@@ -16,25 +14,28 @@ class Map {
 public:
 	static const int X_COORD;
 	static const int Y_COORD;
+	static const float DEFAULT_SECTION_SPACING;
 
-	Map(int);
+	Map(int, float);
 	~Map();
 
-	const int MAX_NUMBER_OF_PLAYERS_PER_TEAM;
-	const int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
-	const int WIDTH, HEIGHT;
 	const int SEED;
-	int number_of_planets;
+	const float MAP_SCALE;
 
+	int MAX_NUMBER_OF_PLAYERS_PER_TEAM;
+	int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
+	int NUMBER_OF_PLANETS;
+
+	Rect<int> map_bounds;
 	float * spawn_points;
 
-	std::vector<Moon *> moons;
 	std::vector<Asteroid *> asteroids;
-	std::vector<Powerup *> powerups;
 
 	void Update(double);
-	void Draw(Camera * camera);
+	void Draw();
+
 	void DrawLobbyPreview(int x, int y, int w, int h);
+	void Generate_Map();
 };
 
 

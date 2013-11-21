@@ -16,11 +16,11 @@ public:
 	Mix_Chunk * Load_Sound(const char *);
 	void Load_Music(const char *);
 	
-	Mix_Music * Music_Stream;
-	
 	void Play_Sound(Mix_Chunk *);
 	void Play_Music();
 	void Stop_Music();
+	
+	Mix_Music * music_stream;
 
 	bool mute;
 	

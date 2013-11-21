@@ -8,7 +8,6 @@
 #include <cstring>
 #include <cmath>
 
-#include "SDL_net.h"
 #include "Math.h"
 #include "SoundManager.h"
 #include "Drawing/TextureManager.h"
@@ -38,7 +37,6 @@ static const int ROOM_HEIGHT = 2000;
 
 
 /*System Functions*/
-static void Initialize_Managers();
 static void Initialize_Key_Array();
 
 static bool Initialize_System();
@@ -57,10 +55,6 @@ static int Get_Memory_Usage();
 
 
 
-void Initialize_Managers() {
-    sound_manager = Sound_Manager::Get_Instance();
-}
-
 void Initialize_Key_Array() {
     for (int i = SDLK_FIRST; i < SDLK_LAST; i++)
         IS_KEY_PRESSED[i] = false;
@@ -70,8 +64,7 @@ bool Initialize_System() {
     InitWindow();
 
     surface_manager->Load();
-
-    Initialize_Managers();
+    sound_manager = Sound_Manager::Get_Instance();
 
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
@@ -89,7 +82,6 @@ void Cleanup_SDL() {
 }
 
 void Cleanup_SDL_Modules() {
-    SDLNet_Quit();
 }
 
 void Cleanup_Managers() {
@@ -130,14 +122,6 @@ int Get_Memory_Usage() { //Note: this value is in KB!
 
     fclose(file);
     return result;
-}
-
-inline float read_float(unsigned char *buffer)
-{
-    float temp;
-    unsigned int temp2 = SDLNet_Read32(buffer);
-    memcpy(&temp, &temp2, sizeof(float));
-    return temp;
 }
 
 static bool point_in_rect(float x, float y, float x1, float y1, float x2, float y2) {

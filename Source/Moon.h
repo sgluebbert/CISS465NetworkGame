@@ -5,7 +5,6 @@
 #include "Drawing/Texture.h"
 #include "Entity.h"
 #include "Collidable.h"
-#include "Collision.h"
 #include "Ship.h"
 
 enum MOON_TYPE { HEALTH, SHIELD, POWER, ARMOR };

@@ -8,7 +8,6 @@
 #include "Motor.h"
 #include "Particles/ParticleManager.h"
 #include "Serializable.h"
-#include "System.h"
 #include "Weapon.h"
 
 
@@ -21,8 +20,10 @@ enum Weapon_Type {	ENERGY_TYPE, BALLISTIC_TYPE, PROPELLED_TYPE, BOMB_TYPE, POWER
 
 class Ship : public Entity, public Collidable, public Motor, public Serializable {
 public:
+	/*|NOTICE| THE CONSTRUCTOR AND DESTRUCTOR WILL BE SET PRIVATE SOON, ADJUST CODE ACCORDINGLY*/
 	Ship(Ship_Type, float, float);
 	~Ship();
+	/*|NOTICE| THE CONSTRUCTOR AND DESTRUCTOR WILL BE SET PRIVATE SOON, ADJUST CODE ACCORDINGLY*/
 
     NetString * Serialize();
     bool Deserialize(NetString *);
@@ -61,12 +62,22 @@ public:
 	Weapon * weapon_pool[5];
 
 	static const float default_max_resource, default_recharge_delay, default_recharge_rate, default_capture_modifier;
+	static std::deque<Ship *> ships;
+
+	static int Add_Ship(Ship_Type, float, float, bool);
+	static void Remove_Ship(int);
+
+	static void Initialize_Ships(int);
+	static void Cleanup_Ships();
 
 private:
+
 	void Setup_Interceptor();
 	void Setup_Fighter();
 	void Setup_Frigate();
 	void Setup_Bomber();
+
+	static int ship_count;
 };
 
 

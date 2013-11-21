@@ -7,6 +7,9 @@ const float Ship::default_recharge_delay 	=   2.5;
 const float Ship::default_recharge_rate 	=  10.0;
 const float Ship::default_capture_modifier 	=   1.0;
 
+std::deque<Ship *> Ship::ships;
+int Ship::ship_count = 0;
+
 
 
 void Ship::Setup_Interceptor() {
@@ -413,3 +416,46 @@ void Ship::Draw() {
 
 
 
+int Ship::Add_Ship(Ship_Type _type, float _x, float _y, bool is_player_ship) {
+	if (Ship::ships.size() <= ship_count)
+		return -2;
+
+	int i = 0;
+
+	for (i; i < Ship::ships.size(); i++)
+		if (ships[i] == NULL)
+			ships[i] = new Ship(_type, _x, _y);
+
+	Ship::ship_count++;
+
+	if (is_player_ship)
+		return i;
+	else
+		return -1;
+}
+
+void Ship::Remove_Ship(int index) {
+	if (Ship::ships[index] == NULL)
+		return;
+
+	delete Ship::ships[index];
+	Ship::ships[index] = NULL;
+}
+
+void Ship::Initialize_Ships(int max_number_of_players) {
+	Ship::ships = std::deque<Ship *>(max_number_of_players);
+
+	for (int i = 0; i < Ship::ships.size(); i++)
+		Ship::ships[i] = NULL;
+
+	Ship::ship_count = 0;
+}
+
+void Ship::Cleanup_Ships() {
+	for (int i = 0; i < Ship::ships.size(); i++)
+		if (Ship::ships[i] != NULL)
+			delete Ship::ships[i];
+
+	Ship::ships.clear();
+	Ship::ship_count = 0;
+}

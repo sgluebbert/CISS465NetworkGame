@@ -15,6 +15,8 @@ public:
 
 	static Collision_Manager * Get_Instance();
 	static void Delete_Instance();
+
+    static void Set_Collision_Pair_Map();
 	
 private:
     Collision_Manager();

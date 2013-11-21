@@ -7,8 +7,8 @@ float Planet::field_modifier = 1.0;
 
 
 
-Planet::Planet(Team _id, float _x, float _y, float _m, float _r)
-    : gravity_radius(_r * field_modifier)
+Planet::Planet(Team _id, float _x, float _y, float _m, float _r, float _cr)
+    : gravity_radius(_r * field_modifier), capture_rate(_cr)
 {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
@@ -21,24 +21,25 @@ Planet::Planet(Team _id, float _x, float _y, float _m, float _r)
     switch (team_id) {
         case RED_TEAM:
             locked = true;
-            capture_value = -1.0;
+            alignment = -1.0;
             texture = surface_manager->red_planet;
             break;
         case BLUE_TEAM:
             locked = true;
-            capture_value = 1.0;
+            alignment = 1.0;
             texture = surface_manager->blue_planet;
             break;
         default:
             locked = false;
-            capture_value = 0.0;
+            alignment = 0.0;
             texture = surface_manager->neutral_planet;
             break;
     }
 
-    field = NULL;
 
     dx = dy = force = torque =velocity = rotation = 0.0;
+    
+    field = surface_manager->planet_glow;
     
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
@@ -58,129 +59,45 @@ Planet::~Planet()
 
 }
 
-
-void Planet::UnderSiege(Ship * ship)
+void Planet::Draw() 
 {
-    if (locked)
-        return;//Skip collision testing for gravity field
 
-    if (DoCollide(this, ship))
-    {
-        if (ship->team_id == RED_TEAM)
-        {
-            capture_value -= 0.001f;
-        }
-        else
-        {
-            capture_value += 0.001f;
-        }
-
-
-        if (capture_value > 1.0f)
-        {
-            capture_value = 1.0f;
-            team_id = BLUE_TEAM;
-            texture = surface_manager->blue_planet;
-
-            /*Lock the right neighbor*/
-            //////////////////////////////////////////////////
-            Planet * neighbor = NULL;
-
-            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
-                if (*it == this)
-                    if ((++it)-- != planet_graph.end())
-                        neighbor = *(++it);
-
-            if (neighbor != NULL)
-                neighbor->locked = true;
-            //////////////////////////////////////////////////
-
-            /*Unlock the left neighbor*/
-            //////////////////////////////////////////////////
-            neighbor = NULL;
-
-            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
-                if (*it == this)
-                    if ((++it)-- != planet_graph.rend())
-                        neighbor = *(++it);
-
-            if (neighbor != NULL)
-                neighbor->locked = false;
-            //////////////////////////////////////////////////
-        }
-
-        if (capture_value < -1.0f)
-        {
-            capture_value = -1.0f;
-            team_id = RED_TEAM;
-            texture = surface_manager->red_planet;
-
-            /*Lock the left neighbor*/
-            //////////////////////////////////////////////////
-            Planet * neighbor = NULL;
-
-            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
-                if (*it == this)
-                    if ((++it)-- != planet_graph.rend())
-                        neighbor = *(++it);
-
-            if (neighbor != NULL)
-                neighbor->locked = true;
-            //////////////////////////////////////////////////
-
-            /*Unlock the right neighbor*/
-            //////////////////////////////////////////////////
-            neighbor = NULL;
-
-            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
-                if (*it == this)
-                    if ((++it)-- != planet_graph.end())
-                        neighbor = *(it);
-
-            if (neighbor != NULL)
-                neighbor->locked = false;
-            //////////////////////////////////////////////////
-        }
-
-        if (team_id == BLUE_TEAM && capture_value < 0.0f)
-        {
-            team_id = NEUTRAL_TEAM;
-        }
-
-        if (team_id == RED_TEAM && capture_value > 0.0f)
-        {
-            team_id = NEUTRAL_TEAM;
-        }
-
-        if (capture_value == 0.0f || team_id == NEUTRAL_TEAM)
-        {
-            texture = surface_manager->neutral_planet;
-        }
-    }
-}
-
-void Planet::DrawGravityField()
-{
+    /*Draw Gravity Field*/
+    //////////////////////////////////////////////////
+    if (field == NULL)
+        return;
 
     field = surface_manager->field_glow_unlocked;
 
     if (locked)
         field = surface_manager->field_glow_locked;
 
-    if (capture_value > 0.0f)
+    if (alignment > 0.0f)
     {
-        glColor4f(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.5f);
+        glColor4f(0.5f, 0.5f, 0.5f + alignment/2.0f, 1.0f);
+        field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
-    else if (capture_value < 0.0f)
+    else if (alignment < 0.0f)
     {
-        glColor4f(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.5f);
+        glColor4f(0.5f + -alignment/2.0f, 0.5f, 0.5f, 1.0f);
+        field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
     else
     {
-        glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+        glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
+        field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
 
-    field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+    /*Draw Planet*/
+    //////////////////////////////////////////////////
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
+
+     /*Draw Moons*/
+    //////////////////////////////////////////////////
+    for (int i = 0; i < moons.size(); i++)
+    {
+        moons[i]->Draw();
+    }
 }
 
 void Planet::Update(double dt)
@@ -197,22 +114,6 @@ void Planet::Update(double dt)
 
 }
 
-void Planet::Draw() 
-{
-    if (texture == NULL)
-        return;
-
-    DrawGravityField();
-
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
-
-    for (int i = 0; i < moons.size(); i++)
-    {
-        moons[i]->Draw();
-    }
-
-}
 
 void Planet::Generate_Moons()
 {
@@ -239,33 +140,76 @@ void Planet::Generate_Moons()
 }
 
 
-void Planet::Generate_Planets(int num) {
-    if (num < 2)//2 is the minimum number of planets
-        num = 2;
+void Planet::Generate_Planets(int num, float scale) {
+    if (num < 1)//1 is essentially capture the hill, but doesn't fail game logic
+        num = 1;
+
+    if (scale < 0.5)
+        scale = 0.5;
+    else if (scale > 2.5)
+        scale = 2.5;
 
     int half_num = num / 2;
-    float size = 200.0;
-    float mass = 1000.0;
-    float alignment;
+    float variance = scale * 0.2;
+
+    float mass_modifier = 1000.0;
+    float size_modifier = 200.0;
+    float interval_modifier = 1000.0;
+    float capture_modifier = 0.001;
+
     Planet * planet = NULL;
 
+
+    //Create Red Team Planets
+    //////////////////////////////////////////////////
     for (int i = half_num; i > 0; i--) {
-        planet = new Planet(RED_TEAM, -1000.0 * i, 0.0, mass, size);
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
+    //////////////////////////////////////////////////
 
+
+    //Create Neutral Planet, if number of planets is odd
+    //////////////////////////////////////////////////
     if (num % 2 == 1) {
-        planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass, size);
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
+    //////////////////////////////////////////////////
 
+
+    //Create Blue Team Planets
+    //////////////////////////////////////////////////
     for (int i = 1; i <= half_num; i++) {
-        planet = new Planet(BLUE_TEAM, 1000.0 * i, 0.0, mass, size);
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
+    //////////////////////////////////////////////////
+
+
+    //If number of planets is even, unlock the PAIR of middle planets
+    //////////////////////////////////////////////////
+    if (num % 2 == 0) {
+        int i = 0;
+
+        for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it) {
+            if (i == half_num - 1)
+                (*it)->locked = false;
+            else if (i == half_num) {
+                (*it)->locked = false;
+                break;
+            }
+
+            i++;
+        }
+    }
+    //////////////////////////////////////////////////
 }
 
 void Planet::Clear_Planets() {
@@ -273,8 +217,6 @@ void Planet::Clear_Planets() {
         delete Planet::planet_graph.front();
         Planet::planet_graph.pop_front();
     }
-
-    Planet::planet_graph.clear();
 }
 
 Team Planet::Win_Condition() {

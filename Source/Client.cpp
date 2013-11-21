@@ -16,6 +16,9 @@ Client::Client() {
 
 	power_bar.Set_Rect(0, 60, 100, 20, 2);
 	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
+	
+	for (int i = 3; i >= 0; i--)
+		weapon_status_bars[i].Set_Rect(700, 580 - 20 * i, 100, 20, 2);
 
 	channel_id = -1;
 	player_id = -1;
@@ -79,6 +82,39 @@ void Client::Update(double dt) {
 		shield_bar.Notify(pawn->shields / pawn->max_shields);
 		power_bar.Notify(pawn->power / pawn->max_power);
 
+		for (int i = 0; i < 4; i++) {
+			if (pawn->weapon_pool[i]->state == WEAPON_READY) {
+				weapon_status_bars[i].normal_color.r = 0.0;
+				weapon_status_bars[i].normal_color.g = 0.0;
+				weapon_status_bars[i].normal_color.b = 0.5;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(1.0);
+			}
+			else if (pawn->weapon_pool[i]->state == WEAPON_FIRING) {
+				weapon_status_bars[i].normal_color.r = 0.5;
+				weapon_status_bars[i].normal_color.g = 0.5;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(1.0);
+			}
+			else if (pawn->weapon_pool[i]->state == WEAPON_RECHARGING) {
+				weapon_status_bars[i].normal_color.r = 0.0;
+				weapon_status_bars[i].normal_color.g = 0.5;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(pawn->weapon_pool[i]->recharge_timer.Get_Progress());
+			}
+			else {
+				weapon_status_bars[i].normal_color.r = 0.5;
+				weapon_status_bars[i].normal_color.g = 0.0;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(pawn->weapon_pool[i]->recharge_timer.Get_Progress());
+			}
+		}
+
+		radar.Notify(pawn);
+
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
 			Respawn(0.0, 0.0);
 	}
@@ -94,7 +130,7 @@ void Client::Update(double dt) {
 		int i = 0;
 	    for (std::list<Planet *>::reverse_iterator it = Planet::planet_graph.rbegin(); it != Planet::planet_graph.rend(); ++it) {
 	    	planet_alignment_bars[i].Set_Rect(0, 580 - 20 * i, 100, 20, 2);
-	    	planet_alignment_bars[i++].Notify((*it)->capture_value);
+	    	planet_alignment_bars[i++].Notify((*it)->alignment);
 	    }
 	}
 
@@ -114,9 +150,13 @@ void Client::Draw() {
 	hull_bar.Draw();
 	shield_bar.Draw();
 	power_bar.Draw();
+	
+	for (int i = 0; i < 4; i++)
+		weapon_status_bars[i].Draw();
 
 	for (int i = 0; i < planet_alignment_bars.size(); i++)
 		planet_alignment_bars[i].Draw();
 
+	radar.Draw();
 	info_feed.Draw();
 }

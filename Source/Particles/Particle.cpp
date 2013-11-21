@@ -25,7 +25,7 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
-    Set_Group(PARTICLE_GROUP);
+    Set_Group(NO_GROUP);
 
     //Drawable Init
     texture = p->texture;

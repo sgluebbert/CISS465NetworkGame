@@ -24,7 +24,7 @@ void TextureManager::Load()
 	background_game2 		= new Texture("./Art/Background2.png");
 	button 					= new Texture("./Art/Button.png");
 	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
-	planet					= new Texture("./Art/Planet.png");
+	planet_glow				= new Texture("./Art/PlanetGravityGlow.png");
 	red_planet				= new Texture("./Art/RedPlanet.png");
 	blue_planet				= new Texture("./Art/BluePlanet.png");
 	neutral_planet			= new Texture("./Art/NeutralPlanet.png");

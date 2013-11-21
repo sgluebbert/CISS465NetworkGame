@@ -22,6 +22,14 @@ class Network
 {
 
 public:
+	Network(NetworkParser *parser)
+		: networkParser(parser)
+	{}
+	~Network()
+	{
+		delete networkParser;
+	}
+
 	virtual const char * get_type() const = 0;
 	virtual int Init(bool isServer = false) = 0;
 
@@ -33,13 +41,19 @@ public:
 	virtual void RemoveConnection(int) = 0;
 	virtual void Bind(int id) = 0;
 
+	virtual IPaddress *GetIPAddress(int id = 0) = 0;
+
 	virtual Uint32 GetRecvHost() = 0;
 	virtual Uint16 GetRecvPort() = 0;
 	virtual Uint32 GetSendHost() = 0;
 	virtual Uint16 GetSendPort() = 0;
 
+	bool IsInited() { return inited; }
+
 	std::queue<NetString*> _pendingData[MaximumClients];
 	int _lastPendingIndex;
+	bool inited;
+	NetworkParser *networkParser;
 };
 
 //----------------------------------------------------------------------------------------------------------
@@ -58,6 +72,10 @@ class UDPNetwork : public Network
 {
 
 public:
+	UDPNetwork(NetworkParser *parser)
+		: Network(parser)
+	{}
+
 	virtual const char * get_type() const { return "UDP"; }
 	virtual int Init(bool isServer);
 	virtual void Close();
@@ -68,13 +86,16 @@ public:
 	virtual void RemoveConnection(int id);
 	virtual void Bind(int id);
 
-	virtual Uint32 GetRecvHost() { return _receive->address.host; }
-	virtual Uint16 GetRecvPort() { return _receive->address.port; }
+	virtual IPaddress *GetIPAddress(int id = 0);
+
+	virtual Uint32 GetRecvHost() { return _recveiveip.host; }
+	virtual Uint16 GetRecvPort() { return _recveiveip.port; }
 	virtual Uint32 GetSendHost() { return _send->address.host; }
 	virtual Uint16 GetSendPort() { return _send->address.port; }
 
 private:
-	UDPsocket _sd;       
+	UDPsocket _sd;
+	IPaddress _recveiveip;
 	UDPpacket * _receive; 
 	UDPpacket * _send;
 	NetString _string;
@@ -91,8 +112,11 @@ class TCPNetwork : public Network
 {
 
 public:
+	TCPNetwork(NetworkParser *parser)
+		: Network(parser)
+	{}
+	
 	virtual const char * get_type() const { return "TCP"; }
-
 	virtual int Init(bool isServer);
 	virtual void Close();
 	virtual bool SendData(NetString* stream, int id);
@@ -103,6 +127,8 @@ public:
 	virtual void Bind(int id)
 	{
 	}
+
+	virtual IPaddress *GetIPAddress(int id = 0);
 
 	virtual Uint32 GetRecvHost() { return _recveiveip.host; }
 	virtual Uint16 GetRecvPort() { return _recveiveip.port; }
@@ -125,62 +151,65 @@ private:
 //----------------------------------------------------------------------------------------------------------
 // Factory
 //----------------------------------------------------------------------------------------------------------
-enum NetworkType
-{
-	 UNDEFINED,
-	 UDP,
-	 TCP
-};
-
 class NetworkFactory 
 {
 public:
 	static Network* getInstance(const char *config = NULL)
-	{    
-		// if (instance == NULL)
-		// {
-
+	{
 		switch (ChooseConnectionType(config))
 		{
 			case UNDEFINED:
 				return NULL;
 			case UDP:
-				return new UDPNetwork();
+				return new UDPNetwork(new NetworkParser(config));
 			case TCP:
-				return new TCPNetwork();
+				return new TCPNetwork(new NetworkParser(config));
 		}
-		// }
-
-		// return instance;
 	}
 
-	// static NetworkType getNetworkType() { return networkType; }
+	static Network* getInstance(NetworkType type, const char *host, Uint16 host_port, Uint16 client_port = 0)
+	{
+		switch (ChooseConnectionType(type, host, host_port, client_port))
+		{
+			case UNDEFINED:
+				return NULL;
+			case UDP:
+				return new UDPNetwork(new NetworkParser(type, host, host_port, client_port));
+			case TCP:
+				return new TCPNetwork(new NetworkParser(type, host, host_port, client_port));
+		}
+	}
 
 private:
 	NetworkFactory() {} // prevent users from creating a NetworkFactory instance.
 
 	static NetworkType ChooseConnectionType(const char *config)
 	{
-		NetworkParser * networkParser = new NetworkParser(config);
+		NetworkParser networkParser(config);
 
-		std::string text = networkParser->GetNetworkType();
+		std::string text = networkParser.GetNetworkType();
 
-		if (text == "UDP") 
-		{
+		if (text == "UDP")
 			return UDP;
-		}
 		else if (text == "TCP")
-		{
 			return TCP;
-		}
 		else
-		{
 			throw NetworkError();
-		}
 	}
 
-	// static Network *instance;
-	// static NetworkType networkType;
+	static NetworkType ChooseConnectionType(NetworkType type, const char *host, Uint16 host_port, Uint16 client_port)
+	{
+		NetworkParser networkParser(type, host, host_port, client_port);
+
+		std::string text = networkParser.GetNetworkType();
+
+		if (text == "UDP")
+			return UDP;
+		else if (text == "TCP")
+			return TCP;
+		else
+			throw NetworkError();
+	}
 };
 
 #endif
