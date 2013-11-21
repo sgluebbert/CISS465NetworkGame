@@ -15,14 +15,16 @@
  
 
 enum DebugLevel { DL_NONE, DL_LOW, DL_MED, DL_HIGH };
-enum GameServerEnums { GSE_WAITING, GSE_LOBBY_COUNTDOWN, GSE_TRANSITION, GSE_GAME_COUNTDOWN, GSE_GAME };
  
  
 class AppStateGameServer : public AppStateBase {
 private:
         static AppStateBase * instance;
 
-	Network *network;
+	Network *networkGame;
+        Network *networkMainServer;
+        int tryMainAgain;
+
 	DebugLevel debugLevel;
 	time_t lastSpeedDisplay;
 	Client *clients[MaximumClients];
@@ -50,6 +52,8 @@ private:
         void SendToAll(NetString*);
         void SwitchToGameMode();
         void UpdateGame();
+
+        void UpdateMainServer();
         
         AppStateGameServer(DebugLevel l = DL_MED);
 public:

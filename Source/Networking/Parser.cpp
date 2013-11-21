@@ -1,5 +1,30 @@
 #include "Parser.h"
 
+std::ostream &operator<<(std::ostream &stream, GameServerEnums e)
+{
+	switch (e)
+	{
+		case GSE_WAITING:
+			stream << "Waiting for additional players.";
+			break;
+		case GSE_LOBBY_COUNTDOWN:
+			stream << "Lobby countdown.";
+			break;
+		case GSE_TRANSITION:
+			stream << "Transitioning into game.";
+			break;
+		case GSE_GAME_COUNTDOWN:
+			stream << "Game countdown.";
+			break;
+		case GSE_GAME:
+			stream << "In game.";
+			break;
+		default:
+			stream << "Unknown";
+	}
+	return stream;
+}
+
 Parser::Parser()
 {
 }

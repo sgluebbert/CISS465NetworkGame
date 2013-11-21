@@ -8,6 +8,7 @@ AppStateBase * AppStateGameServer::instance = NULL;
 AppStateGameServer::AppStateGameServer(DebugLevel l)
 	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
 {
+	tryMainAgain = 0;
 	srand(time(NULL));
 	map = new Map(rand());
 	time(&secondsToStartLastTick);
@@ -17,8 +18,14 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 }
 
 void AppStateGameServer::Initialize() {
-	network = NetworkFactory::getInstance("./conf/networkLobby.conf");
-	network->Init(true);
+	networkGame = NetworkFactory::getInstance("./conf/networkLobby.conf");
+	networkGame->Init(true);
+	networkMainServer = NetworkFactory::getInstance("./conf/networkMainServer.conf");
+	if (networkMainServer->Init() != 1)
+		tryMainAgain = 100;
+	else
+		UpdateMainServer();
+
 	time(&lastSpeedDisplay);
 	std::cout << "[ Server Started ] " << CurrentDateTime() << std::endl;
 }
@@ -35,10 +42,10 @@ void AppStateGameServer::SwitchToGameMode() {
 	}
 
 	clientCount = 0;
-	network->Close();
-	delete network;
-	network = NetworkFactory::getInstance();
-	network->Init(true);
+	networkGame->Close();
+	delete networkGame;
+	networkGame = NetworkFactory::getInstance();
+	networkGame->Init(true);
 	state = GSE_GAME_COUNTDOWN;
 	inLobby = false;
 	secondsToStart = 15;
@@ -62,10 +69,52 @@ void AppStateGameServer::Update() {
 		}
 	}
 
+	// Have we contacted the main server yet?
+	if (!networkMainServer->IsInited())
+	{
+		if (tryMainAgain-- <= 0)
+		{
+			// std::cout << "Trying main again\n";
+			if (networkMainServer->Init() != 1)
+				tryMainAgain = 100;
+			else
+				UpdateMainServer();
+		}
+	}
+	else
+	{
+		int receiveId = networkMainServer->ReceiveData();
+		if (receiveId == -2) // Server hung up
+		{
+			std::cout << "MainServer hung up.\n";
+			networkMainServer->Close();
+			tryMainAgain = 100;
+		}
+	}
+
 	if (inLobby)
 		UpdateLobby();
 	else
 		UpdateGame();
+}
+
+void AppStateGameServer::UpdateMainServer()
+{
+	if (!networkMainServer->IsInited())
+		return;
+
+	std::string name("General Lobby");
+
+	NetString string;
+	string.WriteUChar(NCE_LOBBY);
+	string.WriteString(name);
+	Uint16 encodedPort = networkGame->GetRecvPort();
+	int port = SDLNet_Read16(&encodedPort);
+	string.WriteInt(port);
+	string.WriteUChar(state);
+	string.WriteUChar((unsigned char)clientCount);
+	string.WriteUChar(NCE_END);
+	networkMainServer->SendData(&string, 0);
 }
 
 void AppStateGameServer::UpdateLobby() {
@@ -116,7 +165,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 	while (true)
 	{
 		std::vector<int> newClients, removedClients;
-		int receiveId = network->ReceiveData(&newClients, &removedClients);
+		int receiveId = networkGame->ReceiveData(&newClients, &removedClients);
 
 		// Handle new connections
 		for (std::vector<int>::iterator it = newClients.begin(); it != newClients.end(); it++)
@@ -134,8 +183,8 @@ void AppStateGameServer::HandleLobbyConnections() {
 				NetString netString;
 				netString.WriteUChar(NCE_TOO_MANY_PLAYERS);
 				netString.WriteUChar(NCE_END);
-				network->SendData(&netString, *it);
-				network->RemoveConnection(*it);
+				networkGame->SendData(&netString, *it);
+				networkGame->RemoveConnection(*it);
 			}
 			else
 			{
@@ -176,7 +225,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 
 		// Read that new message
 		client = clients[receiveId];
-		NetString *netString = network->GetData(receiveId);
+		NetString *netString = networkGame->GetData(receiveId);
 
 		bool reading = true, shouldSyncPlayers = false;
 		while (reading)
@@ -212,7 +261,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 						NetString response;
 						response.WriteUChar(NCE_ALREADY_JOINED);
 						response.WriteUChar(NCE_END);
-						network->SendData(&response, receiveId);
+						networkGame->SendData(&response, receiveId);
 						delete client;
 						clients[receiveId] = NULL;
 						clientCount--;
@@ -270,6 +319,7 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 
 	string.WriteUChar(NCE_END);
 	SendToAll(&string);
+	UpdateMainServer();
 }
 
 void AppStateGameServer::MakeTeamsEven(int id) {
@@ -350,7 +400,8 @@ void AppStateGameServer::SendStateUpdate(int id) {
 	if (id == -1)
 		SendToAll(&string);
 	else
-		network->SendData(&string, id);
+		networkGame->SendData(&string, id);
+	UpdateMainServer();
 }
 
 void AppStateGameServer::UpdateGame() {
@@ -381,7 +432,10 @@ void AppStateGameServer::UpdateGame() {
 			SendStateUpdate();
 
 			if (secondsToStart == 0)
+			{
 				state = GSE_GAME;
+				SendStateUpdate();
+			}
 		}
 	}
 
@@ -401,7 +455,7 @@ void AppStateGameServer::HandleGameConnections()
 	while (true)
 	{
 		std::vector<int> newClients, removedClients;
-		int receiveId = network->ReceiveData(&newClients, &removedClients);
+		int receiveId = networkGame->ReceiveData(&newClients, &removedClients);
 
 		// Handle new connections
 		for (std::vector<int>::iterator it = newClients.begin(); it != newClients.end(); it++)
@@ -418,7 +472,7 @@ void AppStateGameServer::HandleGameConnections()
 			client->pawn = new Ship(INTERCEPTOR, 100, 100);
 			client->offline = true;
 			client->channel_id = *it;
-			network->Bind(*it);
+			networkGame->Bind(*it);
 			clientCount++;
 			clients[*it] = client;
 
@@ -442,7 +496,7 @@ void AppStateGameServer::HandleGameConnections()
 			delete clients[*it];
 			clients[*it] = NULL;
 			clientCount--;
-
+			UpdateMainServer();
 
 			if (debugLevel > DL_NONE)
 				std::cout << "[ Client Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
@@ -456,7 +510,7 @@ void AppStateGameServer::HandleGameConnections()
 		// Read that new message
 		client = clients[receiveId];
 		time(&client->last_input);
-		NetString *netString = network->GetData(receiveId);
+		NetString *netString = networkGame->GetData(receiveId);
 		if (netString == NULL || netString->BufferLength() == 0)
 			continue;
 
@@ -501,13 +555,38 @@ void AppStateGameServer::HandleGameConnections()
 					response.WriteUChar(player->team_id);
 					response.WriteString(player->player_name);
 					response.WriteUChar(NCE_END);
-					network->SendData(&response, receiveId);
+					networkGame->SendData(&response, receiveId);
 					break;
 				}
 
 				case NCE_PLAYER_GREETING:
 				{
 					netString->ReadString(client->player_name);
+
+					bool playerExists = false;
+					for (int i = 0; i < MaximumClients; i++)
+					{
+						if (clients[i] == NULL || clients[i] == client)
+							continue;
+
+						if (clients[i]->player_name == client->player_name)
+						{
+							playerExists = true;
+							break;
+						}
+					}
+
+					if (playerExists)
+					{
+						NetString response;
+						response.WriteUChar(NCE_ALREADY_JOINED);
+						response.WriteUChar(NCE_END);
+						networkGame->SendData(&response, client->channel_id);
+						clients[client->channel_id] = NULL;
+						delete client;
+						clientCount--;
+						break;
+					}
 
 					// We got a greeting, but is it redundant?
 					bool newPlayer = false;
@@ -545,7 +624,7 @@ void AppStateGameServer::HandleGameConnections()
 					response.WriteUChar(client->team_id);
 					response.WriteInt(map->SEED);
 					response.WriteUChar(NCE_END);
-					network->SendData(&response, receiveId);
+					networkGame->SendData(&response, receiveId);
 
 					if (newPlayer)
 					{
@@ -556,6 +635,8 @@ void AppStateGameServer::HandleGameConnections()
 						broadcast.WriteString(client->player_name);
 						broadcast.WriteUChar(NCE_END);
 						SendToAll(&broadcast);
+
+						UpdateMainServer();
 					}
 					break;
 				}
@@ -584,8 +665,9 @@ void AppStateGameServer::HandleGameConnections()
 			availablePlayerIds[clients[i]->player_id] = true;
 			clients[i] = NULL;
 			clientCount--;
+			UpdateMainServer();
 
-			network->RemoveConnection(i); // Sync with network
+			networkGame->RemoveConnection(i); // Sync with networkGame
 
 			if (debugLevel > DL_NONE)
 			{
@@ -657,7 +739,7 @@ void AppStateGameServer::SendToAll(NetString *string)
 		if (clients[i] == NULL)
 			continue;
 
-		network->SendData(string, i);
+		networkGame->SendData(string, i);
 	}
 
 	if (debugLevel > DL_MED)
@@ -671,8 +753,8 @@ void AppStateGameServer::Draw() {
 }
 
 void AppStateGameServer::Cleanup() {
-	network->Close();
-	delete network;
+	networkGame->Close();
+	delete networkGame;
 }
 
 AppStateBase * AppStateGameServer::GetInstance() {
