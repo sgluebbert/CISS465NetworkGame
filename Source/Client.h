@@ -35,6 +35,7 @@ public:
 	Health_Bar shield_bar;
 	Health_Bar power_bar;
 
+	Progress_Bar weapon_status_bars[4];
 	std::deque<Alignment_Bar> planet_alignment_bars;
 
 	Radar radar;
