@@ -1,66 +1,52 @@
 #ifndef PLANET_H
 #define PLANET_H
 
+
+
+#include <list>
+#include <vector>
+
 #include "Drawing/Draw.h"
 #include "Drawing/Texture.h"
 #include "Entity.h"
-#include "RigidBody.h"
-#include "Clock.h"
 #include "Collidable.h"
-#include "Progress_Bar.h"
-#include "Drawing/Text.h"
 #include "Collision.h"
 #include "Ship.h"
-#include <vector>
-#include <string>
-#include <sstream>
+#include "Moon.h"
 
-enum PlanetState { NEUTRAL, RED_PLANET, BLUE_PLANET };
 
 class Planet : public Entity, public Collidable
 {
 
 public:
 
-	Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv);
+	Planet(Team _id, float _x, float _y, float _m, float _r);
 	~Planet();
 
 	virtual void Update(double);
     virtual void Draw();
+	void Generate_Moons();
 
-	void SetTexture(Texture *);
     void UnderSiege(Ship *);
     void DrawGravityField();
 
-    int id;
-    float r;
-	Texture * texture;
+	Texture * field;
 	float capture_value;
 	float gravity_radius;
-	PlanetState state;
+	bool locked;
+
+	std::vector<Moon *> moons;
+
+	//Best way to allow planets to manage themselves unfortunately
+	//May be better to add planets from map rather than within this so there is no need to keep the planet vector, but meh
+	static std::list<Planet *> planet_graph;
+	static float field_modifier;
+
+	static void Generate_Planets(int);
+	static void Clear_Planets();
+	static Team Win_Condition();
 };
 
-class PlanetsHUD
-{
-
-public:
-
-	PlanetsHUD(int num);
-
-	std::string int_to_string(int n)
-	{
-		std::stringstream ss;
-		ss << n;
-		return ss.str();
-	}
-
-	void Update(std::vector<Planet *> planets);
-	void Draw();
-
-	int num_planets;
-	std::vector<Alignment_Bar *> bars;
-
-};
 
 
 #endif

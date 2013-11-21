@@ -1,29 +1,56 @@
 #include "Planet.h"
 
 
-Planet::Planet(int _id, PlanetState s, float _x, float _y, float _a, float m, float _v, float _r, float gr, float cv)
-    : id(_id), state(s), r(_r), gravity_radius(gr), capture_value(cv)
+
+std::list<Planet *> Planet::planet_graph;
+float Planet::field_modifier = 1.0;
+
+
+
+Planet::Planet(Team _id, float _x, float _y, float _m, float _r)
+    : gravity_radius(_r * field_modifier)
 {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+
     Set_Group(PLANET_GROUP);
 
-    dx = dy = force = torque = rotation = 0.0;
+    team_id = _id;
+
+    switch (team_id) {
+        case RED_TEAM:
+            locked = true;
+            capture_value = -1.0;
+            texture = surface_manager->red_planet;
+            break;
+        case BLUE_TEAM:
+            locked = true;
+            capture_value = 1.0;
+            texture = surface_manager->blue_planet;
+            break;
+        default:
+            locked = false;
+            capture_value = 0.0;
+            texture = surface_manager->neutral_planet;
+            break;
+    }
+
+    field = NULL;
+
+    dx = dy = force = torque =velocity = rotation = 0.0;
     
-    texture = NULL;
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
-    draw_angle = angle = _a;
-    draw_scale = bounding_volume.r = _r + gr;
+    draw_angle = angle = 0.0;
+    draw_scale = bounding_volume.r = _r * (1.0 + field_modifier);
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
     drawing_box.w = 2 * bounding_volume.r;
     drawing_box.h = 2 * bounding_volume.r;
 
-    mass =  m;
-    velocity = _v;
-
+    mass = _m;
+    Set_Inertia(_r);
 }
 
 Planet::~Planet()
@@ -31,21 +58,15 @@ Planet::~Planet()
 
 }
 
-void Planet::SetTexture(Texture * tex) 
-{
-    texture = tex;
-}
-
 
 void Planet::UnderSiege(Ship * ship)
 {
-    bounding_volume.r = r + gravity_radius;
-    bounding_volume.x = x;
-    bounding_volume.y = y;
+    if (locked)
+        return;//Skip collision testing for gravity field
 
     if (DoCollide(this, ship))
     {
-        if (ship->team_id == 1)
+        if (ship->team_id == RED_TEAM)
         {
             capture_value -= 0.001f;
         }
@@ -54,59 +75,112 @@ void Planet::UnderSiege(Ship * ship)
             capture_value += 0.001f;
         }
 
+
         if (capture_value > 1.0f)
         {
             capture_value = 1.0f;
-            state = BLUE_PLANET;
-            SetTexture(surface_manager->blue_planet);
+            team_id = BLUE_TEAM;
+            texture = surface_manager->blue_planet;
+
+            /*Lock the right neighbor*/
+            //////////////////////////////////////////////////
+            Planet * neighbor = NULL;
+
+            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.end())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = true;
+            //////////////////////////////////////////////////
+
+            /*Unlock the left neighbor*/
+            //////////////////////////////////////////////////
+            neighbor = NULL;
+
+            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.rend())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = false;
+            //////////////////////////////////////////////////
         }
 
         if (capture_value < -1.0f)
         {
             capture_value = -1.0f;
-            state = RED_PLANET;
-            SetTexture(surface_manager->red_planet);
+            team_id = RED_TEAM;
+            texture = surface_manager->red_planet;
+
+            /*Lock the left neighbor*/
+            //////////////////////////////////////////////////
+            Planet * neighbor = NULL;
+
+            for (std::list<Planet *>::reverse_iterator it = planet_graph.rbegin(); it != planet_graph.rend(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.rend())
+                        neighbor = *(++it);
+
+            if (neighbor != NULL)
+                neighbor->locked = true;
+            //////////////////////////////////////////////////
+
+            /*Unlock the right neighbor*/
+            //////////////////////////////////////////////////
+            neighbor = NULL;
+
+            for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it)
+                if (*it == this)
+                    if ((++it)-- != planet_graph.end())
+                        neighbor = *(it);
+
+            if (neighbor != NULL)
+                neighbor->locked = false;
+            //////////////////////////////////////////////////
         }
 
-        if (state == BLUE_PLANET && capture_value < 0.0f)
+        if (team_id == BLUE_TEAM && capture_value < 0.0f)
         {
-            state = NEUTRAL;
+            team_id = NEUTRAL_TEAM;
         }
 
-        if (state == RED_PLANET && capture_value > 0.0f)
+        if (team_id == RED_TEAM && capture_value > 0.0f)
         {
-            state = NEUTRAL;
+            team_id = NEUTRAL_TEAM;
         }
 
-        if (capture_value == 0.0f || state == NEUTRAL)
+        if (capture_value == 0.0f || team_id == NEUTRAL_TEAM)
         {
-            state = NEUTRAL;
-            SetTexture(surface_manager->neutral_planet);
+            texture = surface_manager->neutral_planet;
         }
     }
 }
 
 void Planet::DrawGravityField()
 {
+
+    field = surface_manager->field_glow_unlocked;
+
+    if (locked)
+        field = surface_manager->field_glow_locked;
+
     if (capture_value > 0.0f)
     {
-        // light blue color
-        const Color blue(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &blue);
+        glColor4f(0.5f, 0.5f, 0.5f + capture_value/2.0f, 0.5f);
     }
     else if (capture_value < 0.0f)
     {
-        // light red color
-        const Color red(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &red);
+        glColor4f(0.5f + -capture_value/2.0f, 0.5f, 0.5f, 0.5f);
     }
     else
     {
-        // light gray color
-        const Color gray(0.5f, 0.5f, 0.5f, 0.3f);
-        DrawCircle(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, draw_scale, 1, &gray);
+        glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
     }
 
+    field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 void Planet::Update(double dt)
@@ -114,6 +188,13 @@ void Planet::Update(double dt)
     Entity::Update(dt);
     drawing_box.Update(dx, -dy);
     bounding_volume.Update(dx, -dy);
+
+    for (int i = 0; i < moons.size();i++)
+    {
+        moons[i]->Update(dt);
+        moons[i]->team_id = team_id;
+    }
+
 }
 
 void Planet::Draw() 
@@ -125,57 +206,83 @@ void Planet::Draw()
 
     glColor4f(1.0, 1.0, 1.0, 1.0);
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
-}
 
-
-PlanetsHUD::PlanetsHUD(int num)
-    : num_planets(num)
-{
-    int x = 20;
-    int y = 150;
-    int w = 100;
-    int h = 10;
-    int b = 0;
-
-    Color lhs(0.5f, 0.0f, 0.0f, 1.0f);
-    Color rhs(0.0f, 0.0f, 0.5f, 1.0f);
-    Color back_color(0.25f, 0.25f, 0.25f, 1.0f);
-
-    for (int i = 0; i < num; i++)
+    for (int i = 0; i < moons.size(); i++)
     {
-        Alignment_Bar * bar = new Alignment_Bar();
-        bar->Set_Rect(x, y, w, h, b);
-        bar->progress = 0.0f;
-        bar->back_color = back_color;
-        bar->lhs_color = lhs;
-        bar->rhs_color = rhs;
-
-        y += (h + 5);
-
-        bars.push_back(bar);
+        moons[i]->Draw();
     }
 
 }
 
-void PlanetsHUD::Update(std::vector<Planet *> planets)
+void Planet::Generate_Moons()
 {
-    for (int i = 0; i < planets.size(); i++)
+    int num_moons = -1;
+    float num_moon_calc = mass;
+
+    while (num_moon_calc > 1)
     {
-        bars[i]->progress = planets[i]->capture_value;
+        num_moon_calc /= 10;
+        num_moons++;
     }
 
+    if (num_moons == -1)
+        num_moons = 2;
+
+    float moon_size = mass / (float)num_moons;
+
+    Moon * moon = NULL;
+    for (int i = 0; i < num_moons; i++)
+    {
+        moon = new Moon(team_id, x, y + 1000, moon_size, 100.0f, 50.0f);
+        moons.push_back(moon);
+    }
 }
 
-void PlanetsHUD::Draw()
-{
-    for (int i = 0; i < num_planets; i++)
-    { 
-        std::string string = "P";
-        string += int_to_string(i);
-        Color color(1.0f, 1.0f, 1.0f, 1.0f);
-        Text text(string.c_str(), TextureManager::GetInstance()->fonts.font_FreeMono_10, color);
-        text.Draw(bars[i]->border_rect.x - 15, bars[i]->border_rect.y);
 
-        bars[i]->Draw();
+void Planet::Generate_Planets(int num) {
+    if (num < 2)//2 is the minimum number of planets
+        num = 2;
+
+    int half_num = num / 2;
+    float size = 200.0;
+    float mass = 1000.0;
+    float alignment;
+    Planet * planet = NULL;
+
+    for (int i = half_num; i > 0; i--) {
+        planet = new Planet(RED_TEAM, -1000.0 * i, 0.0, mass, size);
+        planet->Generate_Moons();
+        Planet::planet_graph.push_back(planet);
     }
+
+    if (num % 2 == 1) {
+        planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass, size);
+        planet->Generate_Moons();
+        Planet::planet_graph.push_back(planet);
+    }
+
+    for (int i = 1; i <= half_num; i++) {
+        planet = new Planet(BLUE_TEAM, 1000.0 * i, 0.0, mass, size);
+        planet->Generate_Moons();
+        Planet::planet_graph.push_back(planet);
+    }
+}
+
+void Planet::Clear_Planets() {
+    while (!Planet::planet_graph.empty()) {
+        delete Planet::planet_graph.front();
+        Planet::planet_graph.pop_front();
+    }
+
+    Planet::planet_graph.clear();
+}
+
+Team Planet::Win_Condition() {
+    if (Planet::planet_graph.front()->team_id == BLUE_TEAM)
+        return BLUE_TEAM;
+
+    if (Planet::planet_graph.back()->team_id == RED_TEAM)
+        return RED_TEAM;
+
+    return NO_TEAM;
 }

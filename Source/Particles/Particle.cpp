@@ -22,9 +22,10 @@ Particle::Particle() {
 
 Particle::Particle(Particle * p, float & _x, float & _y) {
     Particle::particles.push_back(this);
-    //Collidable::objects.push_back(this);
+    Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    Set_Group(PARTICLE_GROUP);
 
     //Drawable Init
     texture = p->texture;
@@ -57,13 +58,20 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     //Particle Init
 	age_timer.Set_Interval(p->age_timer.Get_Interval());
     age_timer.Start();
+    distance_travelled = 0;
+    range = p->range;
 }
 
 Particle::~Particle() {
 }
 
 bool Particle::Is_Dead() {
-	return (age_timer.Ended());
+    if (age_timer.Ended())
+        return true;
+    if (distance_travelled >= range)
+        return true;
+
+    return false;
 }
 
 
@@ -80,6 +88,9 @@ void Particle::Limit_Motor() {
 }
 
 void Particle::Update(double dt) {
+    velocity *= FRICTION_COEFFICIENT;
+    rotation *= FRICTION_COEFFICIENT;
+        
     Apply_Force(force_motor, draw_angle, 0, 0);
     Apply_Torque(torque_motor);
 
@@ -94,6 +105,7 @@ void Particle::Update(double dt) {
     draw_angle = angle;
     drawing_box.Update(dx, -dy);
     age_timer.Update(dt);
+    distance_travelled += velocity * dt;
 }
 
 void Particle::Draw() {

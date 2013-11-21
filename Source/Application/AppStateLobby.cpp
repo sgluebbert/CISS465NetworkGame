@@ -81,7 +81,7 @@ void AppStateLobby::Draw() {
     int offset = 0;
     for (int i = 0; i < MaximumClients; i++)
     {
-        if (clients[i] == NULL || clients[i]->team_id != 0)
+        if (clients[i] == NULL || clients[i]->team_id != BLUE_TEAM)
             continue;
 
         // Add other things like exp lvl?
@@ -98,7 +98,7 @@ void AppStateLobby::Draw() {
     offset = 0;
     for (int i = 0; i < MaximumClients; i++)
     {
-        if (clients[i] == NULL || clients[i]->team_id != 1)
+        if (clients[i] == NULL || clients[i]->team_id != RED_TEAM)
             continue;
 
         // Add other things like exp lvl?
@@ -212,18 +212,19 @@ void AppStateLobby::Receive() {
                 	clients[playerId]->offline = false;
                 }
 
-                int temp1;
-                netString.ReadInt(temp1);
-                clients[playerId]->team_id = temp1;
-                if (temp1 == 0)
+                unsigned char tempc;
+                netString.ReadUChar(tempc);
+                clients[playerId]->team_id = (Team)tempc;
+                if (temp1 == BLUE_TEAM)
                     team1Count++;
                 else
                     team2Count++;
+                int temp1;
                 netString.ReadInt(temp1);
                 clients[playerId]->player_id = temp1;
 				netString.ReadString(clients[playerId]->player_name);
 
-                std::cout << "Player: " << clients[playerId]->player_name << "; Id: " << (int)clients[playerId]->player_id << "; Team: " << (int)clients[playerId]->team_id << '\n';
+                std::cout << "Player: " << clients[playerId]->player_name << "; Id: " << (int)clients[playerId]->player_id << "; Team: " << clients[playerId]->team_id << '\n';
                 EvaluateNeededPlayers();
                 break;
             }

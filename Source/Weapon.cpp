@@ -55,15 +55,15 @@ Laser::Laser() {
 	state = WEAPON_READY;
 	recharge_timer.Set_Interval(0.75);
 
+	damage = 20.0;
+	range = 200.0;
+	power = 5.0;
+
 	emitter.Set_Particle(Create_Laser_Particle());
 	emitter.Set_Particle_Count(1);
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
-	emitter.Set_Max_Age(2.0);
-
-	damage = 20.0;
-	range = 200.0;
-	power = 5.0;
+	emitter.Set_Range(range);
 }
 
 Gauss::Gauss() {
@@ -74,16 +74,16 @@ Gauss::Gauss() {
 
 	state = WEAPON_READY;
 	recharge_timer.Set_Interval(4.5);
+	
+	damage = 60.0;
+	range = 400.0;
+	power = 30.0;
 
 	emitter.Set_Particle(Create_Gauss_Particle());
 	emitter.Set_Particle_Count(1);
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
-	emitter.Set_Max_Age(2.0);
-	
-	damage = 60.0;
-	range = 400.0;
-	power = 30.0;
+	emitter.Set_Range(range);
 }
 
 Rocket::Rocket() {
@@ -94,16 +94,16 @@ Rocket::Rocket() {
 
 	state = WEAPON_READY;
 	recharge_timer.Set_Interval(3.0);
+	
+	damage = 40.0;
+	range = 400.0;
+	power = 20.0;
 
 	emitter.Set_Particle(Create_Rocket_Particle());
 	emitter.Set_Particle_Count(1);
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
-	emitter.Set_Max_Age(2.0);
-	
-	damage = 40.0;
-	range = 400.0;
-	power = 20.0;
+	emitter.Set_Range(range);
 }
 
 Bomb::Bomb() {
@@ -114,14 +114,14 @@ Bomb::Bomb() {
 
 	state = WEAPON_READY;
 	recharge_timer.Set_Interval(3.0);
+	
+	damage = 60.0;
+	range = 100.0;
+	power = 20.0;
 
 	emitter.Set_Particle(Create_Mine_Particle());
 	emitter.Set_Particle_Count(1);
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
-	emitter.Set_Max_Age(2.0);
-	
-	damage = 60.0;
-	range = 100.0;
-	power = 20.0;
+	emitter.Set_Range(range);
 }

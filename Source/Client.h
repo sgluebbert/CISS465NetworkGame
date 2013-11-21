@@ -3,10 +3,12 @@
 
 
 
-#include "Ship.h"
+#include <deque>
+
 #include "./Networking/Network.h"
 #include "Progress_Circle.h"
 #include "Chat_Feed.h"
+#include "Planet.h"
 
 
 
@@ -18,21 +20,21 @@ class Client {
 public:
 	bool inputs[NUMBER_OF_INPUTS];
 	char channel_id;
-	char player_id;
-	char team_id;
+	char player_id; // Uint8  client server interaction uses a player id of -1 for init
+	Team team_id;
 	std::string player_name;
 	time_t last_input;
 
 	bool offline;
-	bool fired[5];
 
-	std::string callsign;
 	Ship * pawn;
 
 	Health_Bar armor_bar;
 	Health_Bar hull_bar;
 	Health_Bar shield_bar;
 	Health_Bar power_bar;
+
+	std::deque<Alignment_Bar> planet_alignment_bars;
 
 	Chat_Feed info_feed;
 

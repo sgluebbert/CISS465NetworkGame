@@ -14,14 +14,14 @@ OBJDIR = Source
 # List of all objects that this makefile is concerned with.
 # Anything not immediately related to server or client is here for now ???.
 OBJECTS = Application/Application.o Application/ApplicationEvent.o Application/AppStateBase.o Application/AppStateEvent.o \
-          Application/AppStateGame.o Application/AppStateGameServer.o Application/AppStateLobby.o Application/AppStateIntro.o \
+          Application/AppStateGame.o Application/AppStateGameServer.o Application/AppStateLobby.o  Application/AppStateIntro.o \
           Application/AppStateManager.o Application/AppStateMenu.o Application/AppStateTest.o \
           Camera.o Chat_Feed.o Client.o Clock.o Collidable.o Collision.o CollisionManager.o Drawing/Drawable.o Drawing/Draw.o Entity.o \
           Application/EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
           Particles/Particle.o Particles/Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
           Quad_Tree.o RigidBody.o Ship.o SoundManager.o System.o Drawing/Text.o Drawing/Texture.o \
-          Drawing/TextureManager.o Timer.o Weapon.o Planet.o
+          Drawing/TextureManager.o Timer.o Weapon.o Planet.o Moon.o
 
 # The main workhorse of the makefile. Builds all the object files
 # and then updates the timestamp used to update clients.
@@ -40,7 +40,7 @@ TimeStamp: updater/source_timestamp.sh
 clean:
 	rm -f Source/*.o
 	rm -f Source/*/*.o
-	rm -f app/a.out
+	rm -f app/starclash
 
 # This gets the repo up and ready for pushing to the master origin on github.
 # Make sure you see all your changes when the status is displayed.

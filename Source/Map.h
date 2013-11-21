@@ -24,19 +24,14 @@ public:
 	const int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
 	const int WIDTH, HEIGHT;
 	const int SEED;
+	int number_of_planets;
 
 	float * spawn_points;
 
-	std::vector<Planet *> planets;
 	std::vector<Moon *> moons;
 	std::vector<Asteroid *> asteroids;
 	std::vector<Powerup *> powerups;
 
-
-	int AllPlanetsCaptured();
-	void PlanetCollision(Ship *);
-	void AddPlanet(int id, float x, float y);
-	int NumPlanets();
 	void Update(double);
 	void Draw(Camera * camera);
 	void DrawLobbyPreview(int x, int y, int w, int h);

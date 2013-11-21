@@ -52,7 +52,6 @@ public:
 	Timer power_recharge_timer;
 	Timer shield_recharge_timer;
 
-    int team_id;
 	float max_health, max_shields, max_armor, max_power;
 	float health, shields, armor, power;
 	float shield_recharge_rate;

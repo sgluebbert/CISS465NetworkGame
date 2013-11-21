@@ -18,7 +18,7 @@ void TextureManager::Load()
 	bullet 					= new Texture("./Art/PPC_Shot.png");
 	smoke 					= new Texture("./Art/smoke.png");
 	shatter 				= new Texture("./Art/Shatter.png");
-	ship 					= new Texture("./Art/ship01.png");
+	ship 					= new Texture("./Art/ship.png");
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
 	background_game 		= new Texture("./Art/Background.png");
 	background_game2 		= new Texture("./Art/Background2.png");
@@ -28,6 +28,10 @@ void TextureManager::Load()
 	red_planet				= new Texture("./Art/RedPlanet.png");
 	blue_planet				= new Texture("./Art/BluePlanet.png");
 	neutral_planet			= new Texture("./Art/NeutralPlanet.png");
+	field_glow_locked 		= new Texture("./Art/PlanetGravityGlow.png");
+	field_glow_unlocked     = new Texture("./Art/PlanetGravityGlow2.png");
+	moon					= new Texture("./Art/moon.png");
+
 }
 
 bool TextureManager::Resize(int new_width, int new_height)

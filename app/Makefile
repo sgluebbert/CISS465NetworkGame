@@ -9,10 +9,10 @@ build:
 	make build
 
 run:
-	./a.out
+	./starclash
 
 r:
-	./a.out
+	./starclash
 
 clean:
 	@cd ..;\

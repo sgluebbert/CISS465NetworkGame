@@ -234,6 +234,7 @@ void UDPNetwork::RemoveConnection(int id)
 {
 	delete _usedSockets[id];
 	_usedSockets[id] = NULL;
+	SDLNet_UDP_Unbind(_sd, id);
 }
 
 void UDPNetwork::Bind(int id)

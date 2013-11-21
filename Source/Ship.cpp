@@ -112,7 +112,7 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 	dx = dy = force = torque = velocity = rotation = 0.0;
 
-	team_id = -1;
+	team_id = NO_TEAM;
 	x = bounding_volume.x = _x;
 	y = bounding_volume.y = _y;
 	draw_scale = bounding_volume.r = 32.0;
@@ -403,9 +403,9 @@ void Ship::Draw() {
     if (texture == NULL)
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
-    if (team_id == 0)
+    if (team_id == BLUE_TEAM)
 		glColor4f(0.25, 0.25, 1.0, 1.0);
-	else if (team_id == 1)
+	else if (team_id == RED_TEAM)
 		glColor4f(1.0, 0.25, 0.25, 1.0);
 
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
