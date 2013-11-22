@@ -89,19 +89,21 @@ void Moon::DistributeResource(Ship * ship)
     {
     	if (type == HEALTH)
 		{
+			ship->health += 0.01f;
 
 		}
 		else if (type == SHIELD)
 		{
-			
+			ship->shields += 0.01f;
 		}	
 		else if (type == POWER)
 		{
-			
+			ship->power += 0.01f;
+
 		}
 		else if (type == ARMOR)
 		{
-			
+			ship->armor += 0.01f;
 		}
     }
 }

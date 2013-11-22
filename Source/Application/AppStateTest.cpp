@@ -94,6 +94,16 @@ void AppStateTest::Update() {
     /*for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
         (*it)->UnderSiege(player.pawn);*/
 
+    for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
+    {
+        for (int i = 0; i < (*it)->moons.size(); i++)
+        {
+            (*it)->moons[i]->DistributeResource(player.pawn);
+        }
+        
+    }
+
+
     // std::cout << "Beginning Collision Updates..." << std::endl;
     Collision_Manager::Get_Instance()->Update(dt);
 
