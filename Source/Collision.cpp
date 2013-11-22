@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include "Clock.h"
 
 
 
@@ -17,17 +18,18 @@ void ShipToBulletCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
 void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Ship * ship = (Ship *) lhs;
 	Planet * planet = (Planet *) rhs;
+    double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
     if (planet->locked)
         return;
 
     if (ship->team_id == RED_TEAM)
-        planet->alignment -= planet->capture_rate * ship->capture_modifier;
+        planet->alignment -= planet->capture_rate * ship->capture_modifier * dt;
     else
-        planet->alignment += planet->capture_rate * ship->capture_modifier;
+        planet->alignment += planet->capture_rate * ship->capture_modifier * dt;
 
 
-    if (planet->alignment > 1.0f) {
+    if (planet->alignment >= 1.0f) {
         planet->alignment = 1.0f;
         planet->team_id = BLUE_TEAM;
         planet->texture = surface_manager->blue_planet;
@@ -42,7 +44,7 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
                     neighbor = *(++it);
 
         if (neighbor != NULL)
-            neighbor->locked = true;
+            neighbor->Lock(true);
         //////////////////////////////////////////////////
 
         /*Unlock the left neighbor*/
@@ -55,11 +57,11 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
                     neighbor = *(++it);
 
         if (neighbor != NULL)
-            neighbor->locked = false;
+            neighbor->Lock(false);
         //////////////////////////////////////////////////
     }
 
-    if (planet->alignment < -1.0f) {
+    else if (planet->alignment <= -1.0f) {
         planet->alignment = -1.0f;
         planet->team_id = RED_TEAM;
         planet->texture = surface_manager->red_planet;
@@ -74,7 +76,7 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
                     neighbor = *(++it);
 
         if (neighbor != NULL)
-            neighbor->locked = true;
+            neighbor->Lock(true);
         //////////////////////////////////////////////////
 
         /*Unlock the right neighbor*/
@@ -84,15 +86,16 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
         for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
             if (*it == planet)
                 if ((++it)-- != Planet::planet_graph.end())
-                    neighbor = *(it);
+                    neighbor = *(++it);
 
         if (neighbor != NULL)
-            neighbor->locked = false;
+            neighbor->Lock(false);
         //////////////////////////////////////////////////
     }
 
-    if (planet->team_id == BLUE_TEAM && planet->alignment < 0.0f) {
+    else if (planet->team_id == BLUE_TEAM && planet->alignment <= 0.0f) {
         planet->team_id = NEUTRAL_TEAM;
+        planet->texture = surface_manager->neutral_planet;
 
         /*Lock the left neighbor*/
         //////////////////////////////////////////////////
@@ -103,15 +106,14 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
                 if ((++it)-- != Planet::planet_graph.rend())
                     neighbor = *(++it);
 
-        if (neighbor != NULL) {
-            neighbor->locked = true;
-            neighbor->alignment = -1.0;
-        }
+        if (neighbor != NULL)
+            neighbor->Lock(true);
         //////////////////////////////////////////////////
     }
 
-    if (planet->team_id == RED_TEAM && planet->alignment > 0.0f) {
+    else if (planet->team_id == RED_TEAM && planet->alignment >= 0.0f) {
         planet->team_id = NEUTRAL_TEAM;
+        planet->texture = surface_manager->neutral_planet;
 
         /*Lock and reset the right neighbor*/
         //////////////////////////////////////////////////
@@ -122,20 +124,46 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
                 if ((++it)-- != Planet::planet_graph.end())
                     neighbor = *(++it);
 
-        if (neighbor != NULL) {
-            neighbor->locked = true;
-            neighbor->alignment = 1.0;
-        }
+        if (neighbor != NULL)
+            neighbor->Lock(true);
         //////////////////////////////////////////////////
     }
-
-    if (planet->alignment == 0.0f || planet->team_id == NEUTRAL_TEAM)
-        planet->texture = surface_manager->neutral_planet;
 }
 
 void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Ship * ship = (Ship *) lhs;
-	//Moon * moon = (Moon *) rhs;
+	Moon * moon = (Moon *) rhs;
+    double dt = Clock::Frame_Control.Get_Time_Per_Frame();
+
+    if (ship->team_id == RED_TEAM)
+        moon->alignment -= moon->capture_rate * ship->capture_modifier * dt;
+    else
+        moon->alignment += moon->capture_rate * ship->capture_modifier * dt;
+
+
+    if (moon->alignment >= 1.0f) {
+        moon->alignment = 1.0f;
+        moon->team_id = BLUE_TEAM;
+
+        moon->DistributeResource();
+    }
+
+    else if (moon->alignment <= -1.0f) {
+        moon->alignment = -1.0f;
+        moon->team_id = RED_TEAM;
+
+        moon->DistributeResource();
+    }
+
+    else if (moon->team_id == BLUE_TEAM && moon->alignment <= 0.0f) {
+        moon->team_id = NEUTRAL_TEAM;
+        moon->RemoveResource(BLUE_TEAM);
+    }
+
+    else if (moon->team_id == RED_TEAM && moon->alignment >= 0.0f) {
+        moon->team_id = NEUTRAL_TEAM;
+        moon->RemoveResource(RED_TEAM);
+    }
 }
 
 void ShipToAsteroidCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {

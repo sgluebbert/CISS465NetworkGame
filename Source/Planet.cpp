@@ -20,23 +20,23 @@ Planet::Planet(Team _id, float _x, float _y, float _m, float _r, float _cr)
 
     switch (team_id) {
         case RED_TEAM:
-            locked = true;
             alignment = -1.0;
+            Lock(true);
             texture = surface_manager->red_planet;
             break;
         case BLUE_TEAM:
-            locked = true;
             alignment = 1.0;
+            Lock(true);
             texture = surface_manager->blue_planet;
             break;
         default:
-            locked = false;
             alignment = 0.0;
+            Lock(false);
             texture = surface_manager->neutral_planet;
             break;
     }
 
-    dx = dy = force = torque =velocity = rotation = 0.0;
+    dx = dy = force = torque = velocity = rotation = 0.0;
     
     field = surface_manager->planet_glow;
 
@@ -58,7 +58,20 @@ Planet::~Planet()
 
 }
 
+void Planet::Lock(bool lock) {
+    locked = lock;
 
+    if (locked) {
+        field = surface_manager->field_glow_locked;
+
+        if (alignment > 0)
+            alignment = 1.0;
+        else// if (alignment < 0)
+            alignment = -1.0;
+    }
+    else
+        field = surface_manager->field_glow_unlocked;
+}
 
 void Planet::Update(double dt)
 {
@@ -145,7 +158,7 @@ void Planet::Generate_Planets(int num, float scale) {
     float mass_modifier = 1000.0;
     float size_modifier = 200.0;
     float interval_modifier = 1000.0;
-    float capture_modifier = 0.001;
+    float capture_modifier = 0.05;
 
     Planet * planet = NULL;
 
@@ -166,6 +179,7 @@ void Planet::Generate_Planets(int num, float scale) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
         Planet::planet_graph.push_back(planet);
+        Planet::planet_graph.back()->Lock(false);
     }
     //////////////////////////////////////////////////
 
@@ -187,9 +201,9 @@ void Planet::Generate_Planets(int num, float scale) {
 
         for (std::list<Planet *>::iterator it = planet_graph.begin(); it != planet_graph.end(); ++it) {
             if (i == half_num - 1)
-                (*it)->locked = false;
+                (*it)->Lock(false);
             else if (i == half_num) {
-                (*it)->locked = false;
+                (*it)->Lock(false);
                 break;
             }
 

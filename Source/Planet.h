@@ -20,6 +20,7 @@ public:
 	virtual void Update(double);
     virtual void Draw();
 	void Generate_Moons();
+	void Lock(bool);
 
 	Texture * field;
 	float alignment;

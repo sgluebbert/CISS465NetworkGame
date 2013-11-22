@@ -28,14 +28,18 @@ public:
     void Move();
     void TakeDamage();
     void DrawGravityField();
-    void DistributeResource(double);
+    void DistributeResource();
+    void RemoveResource(Team);
+    void DistributeRegen(double);
 
     Texture * moon;
     Texture * field;
 
     float health, max_health;
-    float field_radius;
+    float alignment;
+    float capture_rate;
     float boost_factor;
+    float field_radius;
     bool alive;
 
     MOON_TYPE type;
