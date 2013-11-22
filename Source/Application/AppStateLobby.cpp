@@ -119,11 +119,11 @@ void AppStateLobby::Draw() {
     DrawText(10, 400, stream.str().c_str(), textureManager->fonts.font_FreeMono_20, &WHITE);
 
     stream.str(std::string());
-    stream << "Min players per team: " << map->MIN_NUMBER_OF_PLAYERS_PER_TEAM;
+    stream << "Min players per team: " << map->min_players_per_team;
     DrawText(10, 424, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
 
     stream.str(std::string());
-    stream << "Max players per team: " << map->MAX_NUMBER_OF_PLAYERS_PER_TEAM;
+    stream << "Max players per team: " << map->max_players_per_team;
     DrawText(10, 442, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
     ////////////////////////////////////////////////////////////////////////////
 
@@ -304,7 +304,7 @@ void AppStateLobby::EvaluateNeededPlayers() {
     if (state != GSE_WAITING)
         return;
     std::stringstream stream;
-    int needed = map->MIN_NUMBER_OF_PLAYERS_PER_TEAM * 2 - (team1Count + team2Count);
+    int needed = map->min_players_per_team * 2 - (team1Count + team2Count);
     stream << "Waiting for " << needed << " additional players...";
     stateText.Reload(stream.str().c_str());
     std::cout << stream.str() << '\n';\
@@ -325,6 +325,7 @@ AppStateBase * AppStateLobby::GetInstance() {
 
 void AppStateLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
+    case SDLK_o:        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;                                   break;
     default:    break;
     }
 }

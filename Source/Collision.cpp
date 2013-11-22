@@ -11,7 +11,7 @@ void ShipToShipCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 
 void ShipToBulletCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Ship * ship = (Ship *) lhs;
-	//Bullet * bullet = (Bullet *) rhs;
+	Particle * bullet = (Particle *) rhs;
 }
 
 void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
@@ -153,18 +153,29 @@ void ShipToFactoryCollision::ResolveCollision(Collidable * lhs, Collidable * rhs
 /*Bullet Collision Callbacks*/
 /////////////////////////////////////////////////////////
 void BulletToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
-	//Bullet * bullet = (Bullet *) lhs;
+    Particle * bullet = (Particle *) lhs;
 	Planet * planet = (Planet *) rhs;
+
+    planet->bounding_volume.r -= planet->gravity_radius;
+
+    if (DoCollide(planet, bullet))
+        bullet->distance_travelled = 9999.9999;
+
+    planet->bounding_volume.r += planet->gravity_radius;
 }
 
 void BulletToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
-	//Bullet * bullet = (Bullet *) lhs;
+    Particle * bullet = (Particle *) lhs;
 	//Moon * moon = (Moon *) rhs;
+
+    bullet->distance_travelled = 9999.9999;
 }
 
 void BulletToAsteroidCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
-	//Bullet * bullet = (Bullet *) lhs;
+    Particle * bullet = (Particle *) lhs;
 	//Asteroid * asteroid = (Asteroid *) rhs;
+
+    bullet->distance_travelled = 9999.9999;
 }
 /////////////////////////////////////////////////////////
 

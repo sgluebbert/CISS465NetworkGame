@@ -22,23 +22,20 @@ void AppStateTest::Initialize() {
 
     //background_texture = surface_manager->background_game;
 
-    std::cout << "Beginning Ship Initialization..." << std::endl;
-    player.pawn = new Ship(INTERCEPTOR, 100, 100);
-    player.pawn->team_id = player.team_id = BLUE_TEAM;
-    player.pawn->respawn_timer.Set_Interval(5.0);
-    player.pawn->Set_Group(SHIP_GROUP);
-
     std::cout << "Beginning Map Initialization..." << std::endl;
-    map = new Map(0, 1.0);
+    map = new Map(rand(), 0.5);
     map->Generate_Map();
+
+    std::cout << "Beginning Ship Initialization..." << std::endl;
+    Ship::Initialize_Ships(map->max_players_per_team * 2);
+    int pawn_index = Ship::Add_Ship(BLUE_TEAM, INTERCEPTOR, 100, 100, 5.0);
+
+    if (pawn_index >= 0)
+        player.pawn = Ship::ships[pawn_index];
 
     std::cout << "Beginning Math Initialization..." << std::endl;
     srand(time(NULL));
     Initialize_Trig_Table();
-    
-    std::cout << "Beginning Music Initialization..." << std::endl;
-    //sound_manager->Load_Music("./Sound/Music/Battle.ogg");
-    //sound_manager->Play_Music();
 }
 
 void AppStateTest::Events(SDL_Event * Event) {
@@ -49,7 +46,7 @@ void AppStateTest::Update() {
     // std::cout << "Beginning Updates..." << std::endl;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
-    // std::cout << "Beginning Particle Culling..." << Particle::particles.size() << std::endl;
+    // std::cout << "Beginning Particle Culling..." << std::endl;
     for (int i = Particle::particles.size() - 1; i >= 0; i--)
         if (Particle::particles[i]->Is_Dead()) {
             for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
@@ -61,7 +58,8 @@ void AppStateTest::Update() {
             for (int j = Collidable::objects.size() - 1; j >= 0; j--)
                 if (Particle::particles[i] == Collidable::objects[j])
                     Collidable::objects.erase(Collidable::objects.begin() + j);
-            //delete Particle::particles[i];
+
+            delete Particle::particles[i];
             Particle::particles.erase(Particle::particles.begin() + i);
         }
 
@@ -88,22 +86,6 @@ void AppStateTest::Update() {
     // std::cout << "Beginning Player Updates..." << std::endl;
     player.Update(dt);
 
-    //map->Update(dt);
-
-    // std::cout << "Beginning Planet Collision Updates..." << std::endl;
-    /*for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
-        (*it)->UnderSiege(player.pawn);*/
-
-    for (std::list<Planet *>::iterator it = Planet::planet_graph.begin(); it != Planet::planet_graph.end(); ++it)
-    {
-        for (int i = 0; i < (*it)->moons.size(); i++)
-        {
-            (*it)->moons[i]->DistributeResource(player.pawn);
-        }
-        
-    }
-
-
     // std::cout << "Beginning Collision Updates..." << std::endl;
     Collision_Manager::Get_Instance()->Update(dt);
 
@@ -117,7 +99,6 @@ void AppStateTest::Update() {
 
 void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
-    Rect<double> temp_rect = temp_camera->Get_Viewport();
 
     for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
@@ -129,14 +110,18 @@ void AppStateTest::Draw() {
 }
 
 void AppStateTest::Cleanup() {
+    for (int i = 0; i < Particle::particles.size(); i++)
+        if (Particle::particles[i] != NULL)
+            delete Particle::particles[i];
+
+    Ship::Cleanup_Ships();
+
+    Particle::particles.clear();
+
     Drawable::objects.clear();
     Rigid_Body::objects.clear();
     Collidable::objects.clear();
 
-    for (int i = 0; i < Particle::particles.size(); i++)
-        delete Particle::particles[i];
-
-    Particle::particles.clear();
     delete map;
 }
 
@@ -169,6 +154,7 @@ void AppStateTest::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_y:        player.info_feed.Player_Disconnected("Quicksilver");                                                        break;
     case SDLK_u:        player.info_feed.Player_Died("Quicksilver");                                                                break;
     case SDLK_i:        player.info_feed.Player_Killed("Quicksilver", "Blah");                                                      break;
+    case SDLK_o:        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;                                   break;
     case SDLK_c:        Print_Collidables();                                                                                        break;
     case SDLK_v:        Print_Drawables();                                                                                          break;
     case SDLK_b:        Print_Rigid_Bodies();                                                                                       break;

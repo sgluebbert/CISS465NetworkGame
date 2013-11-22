@@ -12,9 +12,6 @@ AppStateMenu::AppStateMenu() {
 void AppStateMenu::Initialize() {
     background_surf = surface_manager->background_main_menu;
     
-    // sound_manager->Load_Music("./Sound/Music/Main_Menu.ogg");
-    // sound_manager->Play_Music();
-    
     main_menu.Add_Option("Lobby");
     main_menu.Add_Option("Test");
     main_menu.Add_Option("Exit");
@@ -35,7 +32,6 @@ void AppStateMenu::Draw() {
 }
 
 void AppStateMenu::Cleanup() {
-    sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateMenu::GetInstance() {
@@ -57,6 +53,7 @@ void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
         default:    AppStateEvent::New_Event(APPSTATE_NONE);            break;
         }
         break;
+    case SDLK_o:        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;                                   break;
     default:
         break;
     }

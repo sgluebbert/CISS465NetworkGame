@@ -18,6 +18,8 @@ Moon::Moon(Team t, float _x, float _y, float _m, float _r, float fr)
 	}
 
 	field_radius = fr;
+	health = max_health = 500.0;
+	boost_factor = 1.0;
 	alive = true;
 
 	team_id = t;
@@ -47,6 +49,23 @@ void Moon::TakeDamage()
 	
 }
 
+void Moon::DrawGravityField()
+{
+    if (team_id == BLUE_TEAM)
+    {
+        glColor4f(0.5f, 0.5f, 1.0f, 0.5f);
+    }
+    else if (team_id == RED_TEAM)
+    {
+        glColor4f(1.0, 0.5f, 0.5f, 0.5f);
+    }
+    else if (team_id == NEUTRAL_TEAM)
+    {
+        glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+    }
+
+    field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+}
 
 void Moon::Draw()
 {
@@ -81,48 +100,48 @@ void Moon::Update(double dt)
  	Entity::Update(dt);
     drawing_box.Update(dx, -dy);
     bounding_volume.Update(dx, -dy);
+    DistributeResource(dt);
 }
 
-void Moon::DistributeResource(Ship * ship)
+void Moon::DistributeResource(double dt)
 {
-	if (ship->team_id == team_id)
-    {
-    	if (type == HEALTH)
-		{
-			ship->health += 0.01f;
+	for (int i = 0; i < Ship::ships.size(); i++)
+		if (Ship::ships[i] != NULL)
+			if (Ship::ships[i]->team_id == team_id)
+		    {
+		    	Ship * ship = Ship::ships[i];
+		    	if (type == HEALTH)
+				{
+					if (ship->health < ship->max_health)
+						ship->health += 5.0 * boost_factor * dt;
 
-		}
-		else if (type == SHIELD)
-		{
-			ship->shields += 0.01f;
-		}	
-		else if (type == POWER)
-		{
-			ship->power += 0.01f;
+					if (ship->health > ship->max_health)
+						ship->health = ship->max_health;
+				}
+				else if (type == SHIELD)
+				{
+					if (ship->shields < ship->max_shields)
+						ship->shields += 5.0 * boost_factor * dt;
+					
+					if (ship->shields > ship->max_shields)
+						ship->shields = ship->max_shields;
+				}	
+				else if (type == POWER)
+				{
+					if (ship->power < ship->max_power)
+						ship->power += 5.0 * boost_factor * dt;
+					
+					if (ship->power > ship->max_power)
+						ship->power = ship->max_power;
 
-		}
-		else if (type == ARMOR)
-		{
-			ship->armor += 0.01f;
-		}
-    }
+				}
+				else if (type == ARMOR)
+				{
+					if (ship->armor < ship->max_armor)
+						ship->armor += 5.0 * boost_factor * dt;
+					
+					if (ship->armor > ship->max_armor)
+						ship->armor = ship->max_armor;
+				}
+		    }
 }
-
-void Moon::DrawGravityField()
-{
-    if (team_id == BLUE_TEAM)
-    {
-        glColor4f(0.5f, 0.5f, 1.0f, 0.5f);
-    }
-    else if (team_id == RED_TEAM)
-    {
-        glColor4f(1.0, 0.5f, 0.5f, 0.5f);
-    }
-    else if (team_id == NEUTRAL_TEAM)
-    {
-        glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
-    }
-
-    field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
-}
-    

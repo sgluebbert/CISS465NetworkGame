@@ -12,7 +12,7 @@
 #include "Moon.h"
 #include "Particles/Particle.h"
 #include "Planet.h"
-#include "Pickup.h"
+#include "Pickup_Factory.h"
 #include "Ship.h"
 
 
@@ -89,7 +89,7 @@ std::ostream & operator<<(std::ostream & cout, const Planet & other) {
 	return cout;
 }
 
-std::ostream & operator<<(std::ostream & cout, const Powerup & other) {
+std::ostream & operator<<(std::ostream & cout, const Pickup_Factory & other) {
 	return cout;
 }
 

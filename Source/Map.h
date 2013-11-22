@@ -3,12 +3,13 @@
 
 
 
-#include <vector>
-
 #include "Asteroid.h"
+#include "Moon.h"
 #include "Planet.h"
 #include "Camera.h"
 #include "Ship.h"
+
+
 
 class Map {
 public:
@@ -20,16 +21,13 @@ public:
 	~Map();
 
 	const int SEED;
-	const float MAP_SCALE;
-
-	int MAX_NUMBER_OF_PLAYERS_PER_TEAM;
-	int MIN_NUMBER_OF_PLAYERS_PER_TEAM;
-	int NUMBER_OF_PLANETS;
+	
+	float map_scale;
+	int max_players_per_team;
+	int min_players_per_team;
+	int number_of_planets;
 
 	Rect<int> map_bounds;
-	float * spawn_points;
-
-	std::vector<Asteroid *> asteroids;
 
 	void Update(double);
 	void Draw();

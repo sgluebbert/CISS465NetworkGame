@@ -121,14 +121,14 @@ void AppStateGameServer::UpdateLobby() {
 
 	HandleLobbyConnections();
 
-	if (state == GSE_WAITING && team1Count >= map->MIN_NUMBER_OF_PLAYERS_PER_TEAM && team2Count >= map->MIN_NUMBER_OF_PLAYERS_PER_TEAM)
+	if (state == GSE_WAITING && team1Count >= map->min_players_per_team && team2Count >= map->min_players_per_team)
 	{
 		secondsToStart = 15;
 		state = GSE_LOBBY_COUNTDOWN;
 		SendStateUpdate();
 	}
 
-	if (state == GSE_LOBBY_COUNTDOWN && (team1Count < map->MIN_NUMBER_OF_PLAYERS_PER_TEAM || team2Count < map->MIN_NUMBER_OF_PLAYERS_PER_TEAM))
+	if (state == GSE_LOBBY_COUNTDOWN && (team1Count < map->min_players_per_team || team2Count < map->min_players_per_team))
 	{
 		state = GSE_WAITING;
 		SendStateUpdate();
@@ -178,7 +178,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 				clients[*it] = NULL;
 			}
 
-			if (team1Count >= map->MAX_NUMBER_OF_PLAYERS_PER_TEAM && team2Count >= map->MAX_NUMBER_OF_PLAYERS_PER_TEAM)
+			if (team1Count >= map->max_players_per_team && team2Count >= map->max_players_per_team)
 			{
 				NetString netString;
 				netString.WriteUChar(NCE_TOO_MANY_PLAYERS);

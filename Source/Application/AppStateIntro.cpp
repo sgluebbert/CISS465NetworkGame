@@ -16,13 +16,10 @@ AppStateIntro::AppStateIntro()
 void AppStateIntro::Initialize()
 {
     bumper_titles[0] = "STAR CLASH";
-    bumper_titles[1] = "CISS465 Fall 2013";
+    bumper_titles[1] = "By CISS465 Fall 2013";
     current_bumper = 0;
     bumper_timer = 0.0;
     current_color = 0.0;
-    
-    // sound_manager->Load_Music("Sound/Music/Intro.ogg");
-    // sound_manager->Play_Music();
 }
 
 void AppStateIntro::Events(SDL_Event * Event)
@@ -75,7 +72,6 @@ void AppStateIntro::Draw()
 
 void AppStateIntro::Cleanup()
 {
-    sound_manager->Stop_Music();
 }
 
 AppStateBase * AppStateIntro::GetInstance()
@@ -89,30 +85,31 @@ AppStateBase * AppStateIntro::GetInstance()
 
 void AppStateIntro::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
-    switch(sym)
-    {
-        case SDLK_TAB:
-        case SDLK_RETURN:
-        case SDLK_SPACE:
-            if (current_bumper < number_of_bumpers - 1)
-            {
-                current_bumper += 1;
-                current_color = 0;
-                bumper_timer = 0.0;
-            }
-            else
-                AppStateEvent::New_Event(APPSTATE_MENU);
-            break;
-        default:
-            break;
+    switch(sym) {
+    case SDLK_o:
+        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;
+        break;
+    case SDLK_TAB:
+    case SDLK_RETURN:
+    case SDLK_SPACE:
+        if (current_bumper < number_of_bumpers - 1)
+        {
+            current_bumper += 1;
+            current_color = 0;
+            bumper_timer = 0.0;
+        }
+        else
+            AppStateEvent::New_Event(APPSTATE_MENU);
+        break;
+    default:
+        break;
     }
 }
 
 void AppStateIntro::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode)
 {
-    switch(sym)
-    {
-        default:
-            break;
+    switch(sym) {
+    default:
+        break;
     }
 }

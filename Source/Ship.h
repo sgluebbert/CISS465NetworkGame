@@ -42,7 +42,7 @@ public:
 	void Update(double);
 	void Draw();
 
-
+	Texture * texture_c;
 
     Particle_Emitter smoke_emitter;
     Particle_Emitter shatter_emitter;
@@ -64,7 +64,7 @@ public:
 	static const float default_max_resource, default_recharge_delay, default_recharge_rate, default_capture_modifier;
 	static std::deque<Ship *> ships;
 
-	static int Add_Ship(Ship_Type, float, float, bool);
+	static int Add_Ship(Team, Ship_Type, float, float, float);
 	static void Remove_Ship(int);
 
 	static void Initialize_Ships(int);

@@ -13,11 +13,19 @@
 
 class Pickup_Factory : public Collidable, public Drawable, public Rigid_Body {
 public:
-	Pickup_Factory();
+	Pickup_Factory(float, float);
 	~Pickup_Factory();
 
-	Timer spawn_delay;
+	void Set_Pickup(Pickup *);
+	Pickup * Grab_Pickup();
+
+	void Update(double);
+	void Draw();
+
+private:
+	Timer spawn_timer;
 	Pickup * pickup;
+	Pickup * reference;
 };
 
 

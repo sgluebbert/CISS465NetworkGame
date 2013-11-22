@@ -75,11 +75,7 @@ void Application::Update() {
 }
 
 void Application::Cleanup() {
-    Cleanup_System();
-
     AppStateManager::Cleanup();
-
-    // SDL_FreeSurface(WINDOW);
 }
 
 

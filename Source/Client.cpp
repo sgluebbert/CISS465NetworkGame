@@ -36,16 +36,31 @@ Client::Client() {
 
 
 Client::~Client() {
-	if (pawn != NULL)
-		delete pawn;
 }
 
 
 
 void Client::Respawn(double _x, double _y) {
-	if (pawn != NULL)
-		delete pawn;
-	pawn = new Ship(INTERCEPTOR, _x, _y);
+	pawn->dx = pawn->dy = pawn->force = pawn->torque = pawn->velocity = pawn->rotation = 0.0;
+
+	pawn->x = pawn->bounding_volume.x = _x;
+	pawn->y = pawn->bounding_volume.y = _y;
+	pawn->draw_angle = pawn->angle = 0.0;
+	pawn->drawing_box.x = pawn->x - pawn->bounding_volume.r;
+	pawn->drawing_box.y = pawn->y - pawn->bounding_volume.r;
+
+	pawn->state = ALIVE;
+
+	pawn->health = pawn->max_health;
+	pawn->shields = pawn->max_shields;
+	pawn->armor = pawn->max_armor;
+	pawn->power = pawn->max_power;
+
+	pawn->weapon_pool[ENERGY_TYPE]	= new Laser();
+	pawn->weapon_pool[BALLISTIC_TYPE] = new Gauss();
+	pawn->weapon_pool[PROPELLED_TYPE] = new Rocket();
+	pawn->weapon_pool[BOMB_TYPE]		= new Bomb();
+	pawn->weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
 

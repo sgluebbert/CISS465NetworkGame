@@ -9,7 +9,6 @@
 #include <cmath>
 
 #include "Math.h"
-#include "SoundManager.h"
 #include "Drawing/TextureManager.h"
 
 
@@ -29,8 +28,6 @@ static const char * APPLICATION_VERSION = "0.0.0.0";
 
 static bool IS_KEY_PRESSED[SDLK_LAST];
 
-static Sound_Manager * sound_manager;
-
 static const int ROOM_WIDTH = 2000;
 static const int ROOM_HEIGHT = 2000;
 
@@ -40,12 +37,6 @@ static const int ROOM_HEIGHT = 2000;
 static void Initialize_Key_Array();
 
 static bool Initialize_System();
-
-static void Cleanup_SDL();
-static void Cleanup_SDL_Modules();
-static void Cleanup_Managers();
-
-static void Cleanup_System();
 
 static void Clear_Window();
 static SDL_Color Random_Color();
@@ -64,7 +55,6 @@ bool Initialize_System() {
     InitWindow();
 
     surface_manager->Load();
-    sound_manager = Sound_Manager::Get_Instance();
 
     SDL_WM_SetCaption(WINDOW_TITLE, NULL);
     SDL_WM_SetIcon(SDL_LoadBMP(WINDOW_ICON_FILEPATH), NULL);
@@ -76,22 +66,6 @@ bool Initialize_System() {
 }
 
 std::string Get_Username();
-
-void Cleanup_SDL() {
-    Cleanup_SDL_Modules();
-}
-
-void Cleanup_SDL_Modules() {
-}
-
-void Cleanup_Managers() {
-    Sound_Manager::Delete_Instance();
-}
-
-void Cleanup_System() {
-    Cleanup_Managers();
-    Cleanup_SDL();
-}
     
 
 int Parse_Line(char * line) {
@@ -108,7 +82,7 @@ int Parse_Line(char * line) {
 
 
 int Get_Memory_Usage() { //Note: this value is in KB!
-    FILE* file = fopen("/proc/self/status", "r");
+    FILE * file = fopen("/proc/self/status", "r");
     int result = -1;
     char line[128];
 

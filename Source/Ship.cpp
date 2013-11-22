@@ -19,8 +19,8 @@ void Ship::Setup_Interceptor() {
     velocity_limit = 40.0;
     turn_rate = 50.0;
 
-	texture = surface_manager->ship_interceptor;
-	texture_c = surface_manager->ship_interceptor_c;
+    texture = surface_manager->ship_interceptor;
+    texture_c = surface_manager->ship_interceptor_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 0.75;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -43,8 +43,8 @@ void Ship::Setup_Fighter() {
     velocity_limit = 30.0;
     turn_rate = 40.0;
 
-	texture = surface_manager->ship_fighter;
-	texture_c = surface_manager->ship_fighter_c;
+    texture = surface_manager->ship_fighter;
+    texture_c = surface_manager->ship_fighter_c;
 
 	max_health = max_shields = health = shields = default_max_resource;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -67,8 +67,8 @@ void Ship::Setup_Frigate() {
     velocity_limit = 22.5;
     turn_rate = 30.0;
 
-	texture = surface_manager->ship_frigate;
-	texture_c = surface_manager->ship_frigate_c;
+    texture = surface_manager->ship_frigate;
+    texture_c = surface_manager->ship_frigate_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 4.0 / 3.0;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -88,13 +88,11 @@ void Ship::Setup_Bomber() {
 	mass = 40.0;
 	Set_Inertia(bounding_volume.r);
 
-	//Motor Variables
     velocity_limit = 30.0;
     turn_rate = 40.0;
 
-	//Ship Variables
-	texture = surface_manager->ship_bomber;
-	texture_c = surface_manager->ship_bomber_c;
+    texture = surface_manager->ship_bomber;
+    texture_c = surface_manager->ship_bomber_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 0.75;
 	max_armor = max_power = armor = power = default_max_resource * 4.0 / 3.0;
@@ -116,6 +114,7 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
     Collidable::objects.push_back(this);
+    Set_Group(SHIP_GROUP);
 
 	dx = dy = force = torque = velocity = rotation = 0.0;
 
@@ -163,7 +162,7 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 Ship::~Ship()
 {
-	for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
+	/*for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
 	{
 		if (*it == this)
 		{
@@ -188,7 +187,7 @@ Ship::~Ship()
 			Collidable::objects.erase(it);
 			break;
 		}
-	}
+	}*/
 }
 
 
@@ -411,40 +410,40 @@ void Ship::Draw() {
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
     if (team_id == BLUE_TEAM)
-		glColor4f(.25, .25, 1.0, 1.0);
+		glColor4f(0.25, 0.25, 1.0, 1.0);
 	else if (team_id == RED_TEAM)
-		glColor4f(1.0, .25, .25, 1.0);
-	glColor4f(1.0, 1, 1, 1.0);
-    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+		glColor4f(1.0, 0.25, 0.25, 1.0);
 
-    if (team_id == BLUE_TEAM)
-		glColor4f(0, 0, 1.0, .9);
-	else if (team_id == RED_TEAM)
-		glColor4f(1.0, 0, 0, .9);
-    texture_c->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+    texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 
 
-int Ship::Add_Ship(Ship_Type _type, float _x, float _y, bool is_player_ship) {
-	if (Ship::ships.size() <= ship_count)
-		return -2;
+int Ship::Add_Ship(Team _team, Ship_Type _type, float _x, float _y, float respawn_time) {
+	if (ship_count >= Ship::ships.size())
+		return -1;
 
 	int i = 0;
 
 	for (i; i < Ship::ships.size(); i++)
-		if (ships[i] == NULL)
+		if (ships[i] == NULL) {
 			ships[i] = new Ship(_type, _x, _y);
+			ships[i]->team_id = _team;
+			ships[i]->respawn_timer.Set_Interval(respawn_time);
+			break;
+		}
 
 	Ship::ship_count++;
 
-	if (is_player_ship)
-		return i;
-	else
-		return -1;
+	return i;
 }
 
 void Ship::Remove_Ship(int index) {
+	if (index < 0)
+		return;
+	if (index > Ship::ships.size())
+		return;
+
 	if (Ship::ships[index] == NULL)
 		return;
 

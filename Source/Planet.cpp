@@ -36,11 +36,10 @@ Planet::Planet(Team _id, float _x, float _y, float _m, float _r, float _cr)
             break;
     }
 
-
     dx = dy = force = torque =velocity = rotation = 0.0;
     
     field = surface_manager->planet_glow;
-    
+
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
     draw_angle = angle = 0.0;
@@ -59,18 +58,21 @@ Planet::~Planet()
 
 }
 
+
+
+void Planet::Update(double dt)
+{
+    Entity::Update(dt);
+    drawing_box.Update(dx, -dy);
+    bounding_volume.Update(dx, -dy);
+}
+
 void Planet::Draw() 
 {
-
     /*Draw Gravity Field*/
     //////////////////////////////////////////////////
     if (field == NULL)
         return;
-
-    field = surface_manager->field_glow_unlocked;
-
-    if (locked)
-        field = surface_manager->field_glow_locked;
 
     if (alignment > 0.0f)
     {
@@ -87,32 +89,19 @@ void Planet::Draw()
         glColor4f(0.5f, 0.5f, 0.5f, 1.0f);
         field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
-
-    /*Draw Planet*/
     //////////////////////////////////////////////////
+
+
+    /*Draw Actual Planet*/
+    //////////////////////////////////////////////////
+    if (texture == NULL)
+        return;
+
+    glColor4f(1.0, 1.0, 1.0, 1.0);
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - gravity_radius);
-
-     /*Draw Moons*/
     //////////////////////////////////////////////////
-    for (int i = 0; i < moons.size(); i++)
-    {
-        moons[i]->Draw();
-    }
 }
 
-void Planet::Update(double dt)
-{
-    Entity::Update(dt);
-    drawing_box.Update(dx, -dy);
-    bounding_volume.Update(dx, -dy);
-
-    for (int i = 0; i < moons.size();i++)
-    {
-        moons[i]->Update(dt);
-        moons[i]->team_id = team_id;
-    }
-
-}
 
 
 void Planet::Generate_Moons()
@@ -134,10 +123,11 @@ void Planet::Generate_Moons()
     Moon * moon = NULL;
     for (int i = 0; i < num_moons; i++)
     {
-        moon = new Moon(team_id, x, y + 1000, moon_size, 100.0f, 50.0f);
+        moon = new Moon(team_id, x, y + 500, moon_size, 100.0f, 50.0f);
         moons.push_back(moon);
     }
 }
+
 
 
 void Planet::Generate_Planets(int num, float scale) {
@@ -165,7 +155,6 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = half_num; i > 0; i--) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -176,7 +165,6 @@ void Planet::Generate_Planets(int num, float scale) {
     if (num % 2 == 1) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -187,7 +175,6 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = 1; i <= half_num; i++) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
