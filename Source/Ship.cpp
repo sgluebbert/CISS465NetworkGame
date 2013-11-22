@@ -409,12 +409,15 @@ void Ship::Draw() {
     if (texture == NULL)
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
-    if (team_id == BLUE_TEAM)
-		glColor4f(0.25, 0.25, 1.0, 1.0);
-	else if (team_id == RED_TEAM)
-		glColor4f(1.0, 0.25, 0.25, 1.0);
-
+	glColor4f(1.0, 1.0, 1.0, 1.0);
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+
+    if (team_id == BLUE_TEAM)
+		glColor4f(0.0, 0.0, 1.0, 0.5);
+	else if (team_id == RED_TEAM)
+		glColor4f(1.0, 0.0, 0.0, 0.5);
+
+    texture_c->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 

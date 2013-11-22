@@ -23,13 +23,13 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
     if (planet->locked)
         return;
 
-    if (ship->team_id == RED_TEAM)
+    if (ship->team_id == RED_TEAM && planet->alignment > -1.0)
         planet->alignment -= planet->capture_rate * ship->capture_modifier * dt;
-    else
+    else if (ship->team_id == BLUE_TEAM && planet->alignment < 1.0)
         planet->alignment += planet->capture_rate * ship->capture_modifier * dt;
 
 
-    if (planet->alignment >= 1.0f) {
+    if (planet->alignment > 1.0f) {
         planet->alignment = 1.0f;
         planet->team_id = BLUE_TEAM;
         planet->texture = surface_manager->blue_planet;
@@ -61,7 +61,7 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
         //////////////////////////////////////////////////
     }
 
-    else if (planet->alignment <= -1.0f) {
+    else if (planet->alignment < -1.0f) {
         planet->alignment = -1.0f;
         planet->team_id = RED_TEAM;
         planet->texture = surface_manager->red_planet;
@@ -93,7 +93,7 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
         //////////////////////////////////////////////////
     }
 
-    else if (planet->team_id == BLUE_TEAM && planet->alignment <= 0.0f) {
+    else if (planet->team_id == BLUE_TEAM && planet->alignment < 0.0f) {
         planet->team_id = NEUTRAL_TEAM;
         planet->texture = surface_manager->neutral_planet;
 
@@ -111,7 +111,7 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
         //////////////////////////////////////////////////
     }
 
-    else if (planet->team_id == RED_TEAM && planet->alignment >= 0.0f) {
+    else if (planet->team_id == RED_TEAM && planet->alignment > 0.0f) {
         planet->team_id = NEUTRAL_TEAM;
         planet->texture = surface_manager->neutral_planet;
 
@@ -135,32 +135,32 @@ void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Moon * moon = (Moon *) rhs;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
-    if (ship->team_id == RED_TEAM)
+    if (ship->team_id == RED_TEAM && moon->alignment > -1.0)
         moon->alignment -= moon->capture_rate * ship->capture_modifier * dt;
-    else
+    else if (ship->team_id == BLUE_TEAM && moon->alignment < 1.0)
         moon->alignment += moon->capture_rate * ship->capture_modifier * dt;
 
 
-    if (moon->alignment >= 1.0f) {
-        moon->alignment = 1.0f;
+    if (moon->alignment > 1.0) {
+        moon->alignment = 1.0;
         moon->team_id = BLUE_TEAM;
 
         moon->DistributeResource();
     }
 
-    else if (moon->alignment <= -1.0f) {
-        moon->alignment = -1.0f;
+    else if (moon->alignment < -1.0) {
+        moon->alignment = -1.0;
         moon->team_id = RED_TEAM;
 
         moon->DistributeResource();
     }
 
-    else if (moon->team_id == BLUE_TEAM && moon->alignment <= 0.0f) {
+    else if (moon->team_id == BLUE_TEAM && moon->alignment < 0.0) {
         moon->team_id = NEUTRAL_TEAM;
         moon->RemoveResource(BLUE_TEAM);
     }
 
-    else if (moon->team_id == RED_TEAM && moon->alignment >= 0.0f) {
+    else if (moon->team_id == RED_TEAM && moon->alignment > 0.0) {
         moon->team_id = NEUTRAL_TEAM;
         moon->RemoveResource(RED_TEAM);
     }

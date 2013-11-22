@@ -1,11 +1,12 @@
 #include "Moon.h"
 
 
-Moon::Moon(Team t, float _x, float _y, float _m, float _r, float fr)
+Moon::Moon(float _x, float _y, float _m, float _r, float fr)
 {
 	Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    Set_Group(MOON_GROUP);
 
 	int type_num = rand() % 4;
 	switch (type_num)
@@ -20,11 +21,11 @@ Moon::Moon(Team t, float _x, float _y, float _m, float _r, float fr)
 	field_radius = fr;
 	health = max_health = 500.0;
 	alignment = 0.0;
-	capture_rate = 0.05;
+	capture_rate = 0.025;
 	boost_factor = 1.0;
 	alive = true;
 
-	team_id = t;
+	team_id = NEUTRAL_TEAM;
 	mass = _m;
 	dx = dy = force = torque = velocity = rotation = 0.0;
     
@@ -34,7 +35,7 @@ Moon::Moon(Team t, float _x, float _y, float _m, float _r, float fr)
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
     draw_angle = angle = 0.0;
-    draw_scale = bounding_volume.r = _r;
+    draw_scale = bounding_volume.r = _r + fr;
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
     drawing_box.w = 2 * bounding_volume.r;
@@ -53,18 +54,15 @@ void Moon::TakeDamage()
 
 void Moon::DrawGravityField()
 {
-    if (team_id == BLUE_TEAM)
-    {
-        glColor4f(0.5f, 0.5f, 1.0f, 0.5f);
-    }
-    else if (team_id == RED_TEAM)
-    {
-        glColor4f(1.0, 0.5f, 0.5f, 0.5f);
-    }
-    else if (team_id == NEUTRAL_TEAM)
-    {
-        glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
-    }
+    if (field == NULL)
+        return;
+
+    if (alignment > 0.0)
+        glColor4f(0.5, 0.5, 0.5 + alignment / 2.0, 1.0);
+    else if (alignment < 0.0f)
+        glColor4f(0.5 - alignment / 2.0, 0.5, 0.5, 1.0);
+    else
+        glColor4f(0.5, 0.5, 0.5, 1.0);
 
     field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
@@ -78,19 +76,19 @@ void Moon::Draw()
    
    	if (type == HEALTH)
 	{
-		glColor4f(1.0, 1.0, 0.0, 0.5);
+		glColor4f(1.0, 1.0, 0.0, 1.0);
 	}
 	else if (type == SHIELD)
 	{
-		glColor4f(0.0, 1.0, 1.0, 0.5);
+		glColor4f(0.0, 1.0, 1.0, 1.0);
 	}	
 	else if (type == POWER)
 	{
-		glColor4f(1.0, 0.5, 1.0, 0.5);
+		glColor4f(1.0, 0.5, 1.0, 1.0);
 	}
 	else if (type == ARMOR)
 	{
-		glColor4f(0.0, 1.0, 0.0, 0.5);
+		glColor4f(0.0, 1.0, 0.0, 1.0);
 	}
 
     moon->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - field_radius);
@@ -107,66 +105,79 @@ void Moon::Update(double dt)
 
 void Moon::DistributeResource()
 {
-    for (int i = 0; i < Ship::ships.size(); i++)
-        if (Ship::ships[i]->team_id == team_id)
-            switch(type) {
-            case HEALTH:
-                Ship::ships[i]->max_health  *= 1.5 * boost_factor;
-                Ship::ships[i]->health      += Ship::ships[i]->max_health * 1.5 * boost_factor;
-                break;
+    Ship * ship = NULL;
 
-            case SHIELD:
-                Ship::ships[i]->max_shields *= 1.5 * boost_factor;
-                Ship::ships[i]->shields     += Ship::ships[i]->max_shields * 1.5 * boost_factor;
-                break;
+    for (int i = 0; i < Ship::ships.size(); i++) {
+    	ship = Ship::ships[i];
 
-            case POWER: 
-                Ship::ships[i]->max_armor   *= 1.5 * boost_factor;
-                Ship::ships[i]->armor       += Ship::ships[i]->max_armor * 1.5 * boost_factor;
-                break;
+    	if (ship != NULL)
+	        if (ship->team_id == team_id)
+	            switch(type) {
+	            case HEALTH:
+	                ship->max_health  *= 1.5 * boost_factor;
+	                ship->health      += ship->max_health * 1.5 * boost_factor;
+	                break;
 
-            case ARMOR: 
-                Ship::ships[i]->max_power   *= 1.5 * boost_factor;
-                Ship::ships[i]->power       += Ship::ships[i]->max_power * 1.5 * boost_factor;
-                break;
-            }
+	            case SHIELD:
+	                ship->max_shields *= 1.5 * boost_factor;
+	                ship->shields     += ship->max_shields * 1.5 * boost_factor;
+	                break;
+
+	            case POWER: 
+	                ship->max_armor   *= 1.5 * boost_factor;
+	                ship->armor       += ship->max_armor * 1.5 * boost_factor;
+	                break;
+
+	            case ARMOR: 
+	                ship->max_power   *= 1.5 * boost_factor;
+	                ship->power       += ship->max_power * 1.5 * boost_factor;
+	                break;
+	            }
+    }
 }
 
 void Moon::RemoveResource(Team _team)
 {
-    for (int i = 0; i < Ship::ships.size(); i++)
-        if (Ship::ships[i]->team_id == _team)
-            switch(type) {
-            case HEALTH:
-                Ship::ships[i]->health      -= Ship::ships[i]->max_health * 1.5 * boost_factor;
-                Ship::ships[i]->max_health  /= 1.5 * boost_factor;
-                break;
+    Ship * ship = NULL;
 
-            case SHIELD:
-                Ship::ships[i]->shields     -= Ship::ships[i]->max_shields * 1.5 * boost_factor;
-                Ship::ships[i]->max_shields /= 1.5 * boost_factor;
-                break;
+    for (int i = 0; i < Ship::ships.size(); i++) {
+    	ship = Ship::ships[i];
 
-            case POWER: 
-                Ship::ships[i]->armor       -= Ship::ships[i]->max_armor * 1.5 * boost_factor;
-                Ship::ships[i]->max_armor   /= 1.5 * boost_factor;
-                break;
+    	if (ship != NULL)
+	        if (ship->team_id == team_id)
+	            switch(type) {
+	            case HEALTH:
+	                ship->health      -= ship->max_health * 1.5 * boost_factor;
+	                ship->max_health  /= 1.5 * boost_factor;
+	                break;
 
-            case ARMOR: 
-                Ship::ships[i]->power       -= Ship::ships[i]->max_power * 1.5 * boost_factor;
-                Ship::ships[i]->max_power   /= 1.5 * boost_factor;
-                break;
-            }
+	            case SHIELD:
+	                ship->shields     -= ship->max_shields * 1.5 * boost_factor;
+	                ship->max_shields /= 1.5 * boost_factor;
+	                break;
+
+	            case POWER: 
+	                ship->armor       -= ship->max_armor * 1.5 * boost_factor;
+	                ship->max_armor   /= 1.5 * boost_factor;
+	                break;
+
+	            case ARMOR: 
+	                ship->power       -= ship->max_power * 1.5 * boost_factor;
+	                ship->max_power   /= 1.5 * boost_factor;
+	                break;
+	            }
+	}
 }
 
 void Moon::DistributeRegen(double dt)
 {
-	for (int i = 0; i < Ship::ships.size(); i++)
-		if (Ship::ships[i] != NULL)
-			if (Ship::ships[i]->team_id == team_id)
-		    {
-		    	Ship * ship = Ship::ships[i];
+    Ship * ship = NULL;
 
+	for (int i = 0; i < Ship::ships.size(); i++) {
+		ship = Ship::ships[i];
+
+		if (ship != NULL)
+			if (ship->team_id == team_id)
 	            switch(type) {
 	            case HEALTH:
 					if (ship->health < ship->max_health)
@@ -199,7 +210,7 @@ void Moon::DistributeRegen(double dt)
 					if (ship->armor > ship->max_armor)
 						ship->armor = ship->max_armor;
 	                break;
-	                
+
 	            }
-		    }
+	}
 }

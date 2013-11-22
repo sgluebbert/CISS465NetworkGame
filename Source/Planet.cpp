@@ -122,21 +122,23 @@ void Planet::Generate_Moons()
     int num_moons = -1;
     float num_moon_calc = mass;
 
-    while (num_moon_calc > 1)
+    //COMMENTED OUT JUST FOR TESTING PURPOSES
+    /*while (num_moon_calc > 1)
     {
         num_moon_calc /= 10;
         num_moons++;
-    }
+    }*/
 
     if (num_moons == -1)
-        num_moons = 2;
+        num_moons = 1;
 
     float moon_size = mass / (float)num_moons;
 
     Moon * moon = NULL;
-    for (int i = 0; i < num_moons; i++)
-    {
-        moon = new Moon(team_id, x, y + 500, moon_size, 100.0f, 50.0f);
+    for (int i = 0; i < num_moons; i++) {
+        float x_offset = sin(rand() % 180 / PI) * 500;
+        float y_offset = cos(rand() % 180 / PI) * 500;
+        moon = new Moon(x + x_offset, y + y_offset, moon_size, 100.0f, 50.0f);
         moons.push_back(moon);
     }
 }
@@ -158,7 +160,7 @@ void Planet::Generate_Planets(int num, float scale) {
     float mass_modifier = 1000.0;
     float size_modifier = 200.0;
     float interval_modifier = 1000.0;
-    float capture_modifier = 0.05;
+    float capture_modifier = 0.025;
 
     Planet * planet = NULL;
 
@@ -168,6 +170,7 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = half_num; i > 0; i--) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
+        planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -178,8 +181,9 @@ void Planet::Generate_Planets(int num, float scale) {
     if (num % 2 == 1) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
+        planet->Generate_Moons();
+        planet->Lock(false);
         Planet::planet_graph.push_back(planet);
-        Planet::planet_graph.back()->Lock(false);
     }
     //////////////////////////////////////////////////
 
@@ -189,6 +193,7 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = 1; i <= half_num; i++) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
+        planet->Generate_Moons();
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////

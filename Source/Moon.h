@@ -19,7 +19,7 @@ class Moon : public Entity, public Collidable
 {
 public:
 
-	Moon(Team t, float _x, float _y, float _m, float _r, float fr);
+	Moon(float _x, float _y, float _m, float _r, float fr);
 	~Moon();
 
 	virtual void Update(double);
