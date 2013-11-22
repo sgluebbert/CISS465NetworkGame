@@ -16,6 +16,7 @@ public:
 
     Rect<float> drawing_box;
     Texture * texture;
+    Texture * texture_c; // used for color outlines
 
     float draw_scale, draw_angle;
     int draw_priority;//0-9: 0 being lowest priority and 9 being the highest priority | think of this as drawing in layers

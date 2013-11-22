@@ -19,7 +19,8 @@ void Ship::Setup_Interceptor() {
     velocity_limit = 40.0;
     turn_rate = 50.0;
 
-	texture = surface_manager->ship;
+	texture = surface_manager->ship_interceptor;
+	texture_c = surface_manager->ship_interceptor_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 0.75;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -42,7 +43,8 @@ void Ship::Setup_Fighter() {
     velocity_limit = 30.0;
     turn_rate = 40.0;
 
-	texture = surface_manager->ship;
+	texture = surface_manager->ship_fighter;
+	texture_c = surface_manager->ship_fighter_c;
 
 	max_health = max_shields = health = shields = default_max_resource;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -65,7 +67,8 @@ void Ship::Setup_Frigate() {
     velocity_limit = 22.5;
     turn_rate = 30.0;
 
-	texture = surface_manager->ship;
+	texture = surface_manager->ship_frigate;
+	texture_c = surface_manager->ship_frigate_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 4.0 / 3.0;
 	max_armor = max_power = armor = power = default_max_resource;
@@ -90,7 +93,8 @@ void Ship::Setup_Bomber() {
     turn_rate = 40.0;
 
 	//Ship Variables
-	texture = surface_manager->ship;
+	texture = surface_manager->ship_bomber;
+	texture_c = surface_manager->ship_bomber_c;
 
 	max_health = max_shields = health = shields = default_max_resource * 0.75;
 	max_armor = max_power = armor = power = default_max_resource * 4.0 / 3.0;
@@ -407,11 +411,17 @@ void Ship::Draw() {
         std::cout << "SHIP: I NEED A TEXTURE!!!" << std::endl;
 
     if (team_id == BLUE_TEAM)
-		glColor4f(0.25, 0.25, 1.0, 1.0);
+		glColor4f(.25, .25, 1.0, 1.0);
 	else if (team_id == RED_TEAM)
-		glColor4f(1.0, 0.25, 0.25, 1.0);
-
+		glColor4f(1.0, .25, .25, 1.0);
+	glColor4f(1.0, 1, 1, 1.0);
     texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+
+    if (team_id == BLUE_TEAM)
+		glColor4f(0, 0, 1.0, .9);
+	else if (team_id == RED_TEAM)
+		glColor4f(1.0, 0, 0, .9);
+    texture_c->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 

@@ -31,7 +31,14 @@ public:
 	Texture * bullet;
 	Texture * smoke;
 	Texture * shatter;
-	Texture * ship;
+	Texture * ship_fighter;
+	Texture * ship_fighter_c;
+	Texture * ship_interceptor;
+	Texture * ship_interceptor_c;
+	Texture * ship_bomber;
+	Texture * ship_bomber_c;
+	Texture * ship_frigate;
+	Texture * ship_frigate_c;
 	Texture * background_main_menu;
 	Texture * background_game;
 	Texture * background_game2;

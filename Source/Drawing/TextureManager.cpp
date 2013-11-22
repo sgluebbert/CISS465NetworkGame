@@ -18,7 +18,14 @@ void TextureManager::Load()
 	bullet 					= new Texture("./Art/PPC_Shot.png");
 	smoke 					= new Texture("./Art/smoke.png");
 	shatter 				= new Texture("./Art/Shatter.png");
-	ship 					= new Texture("./Art/ship.png");
+	ship_fighter			= new Texture("./Art/ship_fighter.png");
+	ship_fighter_c 			= new Texture("./Art/ship_fighter_c.png");
+	ship_interceptor		= new Texture("./Art/ship_interceptor.png");
+	ship_interceptor_c		= new Texture("./Art/ship_interceptor_c.png");
+	ship_bomber				= new Texture("./Art/ship_bomber.png");
+	ship_bomber_c			= new Texture("./Art/ship_bomber_c.png");
+	ship_frigate			= new Texture("./Art/ship_frigate.png");
+	ship_frigate_c			= new Texture("./Art/ship_frigate_c.png");
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
 	background_game 		= new Texture("./Art/Background.png");
 	background_game2 		= new Texture("./Art/Background2.png");
