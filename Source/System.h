@@ -31,6 +31,10 @@ static bool IS_KEY_PRESSED[SDLK_LAST];
 static const int ROOM_WIDTH = 2000;
 static const int ROOM_HEIGHT = 2000;
 
+extern Uint32 directedGameHost;
+extern Uint16 directedGamePort;
+extern std::string directedLobbyName;
+
 
 
 /*System Functions*/

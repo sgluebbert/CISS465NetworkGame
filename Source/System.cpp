@@ -1,5 +1,9 @@
 #include "System.h"
 
+Uint32 directedGameHost = 0;
+Uint16 directedGamePort = 0;
+std::string directedLobbyName("Undefined");
+
 std::string Get_Username() {
     static int i = -1;
 

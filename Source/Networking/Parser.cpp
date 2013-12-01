@@ -19,6 +19,9 @@ std::ostream &operator<<(std::ostream &stream, GameServerEnums e)
 		case GSE_GAME:
 			stream << "In game.";
 			break;
+		case GSE_GAME_ENDED:
+			stream << "Game ended.";
+			break;
 		default:
 			stream << "Unknown";
 	}

@@ -162,32 +162,32 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 Ship::~Ship()
 {
-	/*for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
-	{
-		if (*it == this)
-		{
-			Drawable::objects.erase(it);
-			break;
-		}
-	}
+	// for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
+	// {
+	// 	if (*it == this)
+	// 	{
+	// 		Drawable::objects.erase(it);
+	// 		break;
+	// 	}
+	// }
 
-    for (std::deque<Rigid_Body *>::iterator it = Rigid_Body::objects.begin(); it != Rigid_Body::objects.end(); it++)
-	{
-		if (*it == this)
-		{
-			Rigid_Body::objects.erase(it);
-			break;
-		}
-	}
+ //    for (std::deque<Rigid_Body *>::iterator it = Rigid_Body::objects.begin(); it != Rigid_Body::objects.end(); it++)
+	// {
+	// 	if (*it == this)
+	// 	{
+	// 		Rigid_Body::objects.erase(it);
+	// 		break;
+	// 	}
+	// }
 
-    for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
-	{
-		if (*it == this)
-		{
-			Collidable::objects.erase(it);
-			break;
-		}
-	}*/
+ //    for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
+	// {
+	// 	if (*it == this)
+	// 	{
+	// 		Collidable::objects.erase(it);
+	// 		break;
+	// 	}
+	// }
 }
 
 

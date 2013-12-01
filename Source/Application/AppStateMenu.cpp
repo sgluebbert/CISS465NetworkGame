@@ -12,7 +12,7 @@ AppStateMenu::AppStateMenu() {
 void AppStateMenu::Initialize() {
     background_surf = surface_manager->background_main_menu;
     
-    main_menu.Add_Option("Lobby");
+    main_menu.Add_Option("Lobbies");
     main_menu.Add_Option("Test");
     main_menu.Add_Option("Exit");
     
@@ -48,7 +48,7 @@ void AppStateMenu::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     case SDLK_DOWN:     main_menu.Move_Next();                      break;
     case SDLK_RETURN:
         switch(main_menu.Select()) {
-        case 0:     AppStateEvent::New_Event(APPSTATE_LOBBY);            break;
+        case 0:     AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);    break;
         case 1:     AppStateEvent::New_Event(APPSTATE_TEST);            break;
         default:    AppStateEvent::New_Event(APPSTATE_NONE);            break;
         }

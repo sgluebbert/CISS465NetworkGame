@@ -19,7 +19,25 @@ void AppStateLobby::Initialize() {
 	player.player_name = Get_Username();
 	std::cout << "I am " << player.player_name << '\n';
 
-	network = NetworkFactory::getInstance("./conf/networkLobby.conf");
+    if (directedGameHost == 0)
+	   network = NetworkFactory::getInstance("./conf/networkLobby.conf");
+    else
+    {
+        IPaddress hostaddress;
+        hostaddress.host = directedGameHost;
+        hostaddress.port = directedGamePort;
+        const char *hostname = SDLNet_ResolveIP(&hostaddress);
+        std::cout << "Redirected to lobby: " << hostname << '\n';
+        if (hostname == NULL)
+        {
+            std::cerr << "Could not resolve directed host\n";
+            AppStateEvent::New_Event(APPSTATE_MENU);
+            return;
+        }
+        else
+            network = NetworkFactory::getInstance(TCP, hostname, directedGamePort);
+    }
+
 	if (network->Init() == -1)
 	{
 		// LobbyServer is not listening... Try the actual game server on udp
@@ -72,8 +90,15 @@ void AppStateLobby::Draw() {
     // Draw players table
     TextureManager *textureManager = TextureManager::GetInstance();
 
+    glColor4f(1, 1, 1, 1);
+    textureManager->background_game2->DrawAtRect(0, 0, 1024, 1024);
+
+    std::stringstream stream;
+    stream << directedLobbyName;
+    DrawText(10, 10, stream.str().c_str(), textureManager->fonts.font_Impact_20, &WHITE);
+
     int drawx = viewport.w - 300;
-    int drawy = 50;
+    int drawy = 70;
 
     DrawText(drawx, drawy - 22, "Team Red", textureManager->fonts.font_Impact_20, &WHITE);
 
@@ -85,13 +110,13 @@ void AppStateLobby::Draw() {
             continue;
 
         // Add other things like exp lvl?
-        std::stringstream stream;
+        stream.str(std::string());
         stream << clients[i]->player_name;
         DrawText(drawx, drawy + offset * 18, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
         offset++;
     }
 
-    drawy += offset * 18 + 40;
+    drawy += offset * 18 + 80;
     DrawText(drawx, drawy - 22, "Team Blue", textureManager->fonts.font_Impact_20, &WHITE);
 
     // Draw all team 1 players
@@ -102,7 +127,7 @@ void AppStateLobby::Draw() {
             continue;
 
         // Add other things like exp lvl?
-        std::stringstream stream;
+        stream.str(std::string());
         stream << clients[i]->player_name;
         DrawText(drawx, drawy + offset * 18, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
         offset++;
@@ -111,20 +136,21 @@ void AppStateLobby::Draw() {
 
     ////////////////////////////////////////////////////////////////////////////
     // Draw Map
-    DrawRect(10, 10, 480, 400, false, &WHITE);
-    map->DrawLobbyPreview(10, 10, 470, 390);
+    DrawRect(10, 40, 480, 440, true, &BLACK);
+    DrawRect(10, 40, 480, 440, false, &WHITE);
+    map->DrawLobbyPreview(10, 40, 480, 440);
 
-    std::stringstream stream;
+    stream.str(std::string());
     stream << "Map name (seed): MAP" << map->SEED;
-    DrawText(10, 400, stream.str().c_str(), textureManager->fonts.font_FreeMono_20, &WHITE);
+    DrawText(10, 440, stream.str().c_str(), textureManager->fonts.font_FreeMono_20, &WHITE);
 
     stream.str(std::string());
     stream << "Min players per team: " << map->min_players_per_team;
-    DrawText(10, 424, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+    DrawText(10, 464, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
 
     stream.str(std::string());
     stream << "Max players per team: " << map->max_players_per_team;
-    DrawText(10, 442, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
+    DrawText(10, 482, stream.str().c_str(), textureManager->fonts.font_FreeMono_16, &WHITE);
     ////////////////////////////////////////////////////////////////////////////
 
     stateText.Draw(viewport.w / 2 - stateText.width / 2, viewport.h - stateText.height - 10);

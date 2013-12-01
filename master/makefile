@@ -6,12 +6,10 @@ all:
 	make build
 	make build
 
-build: ./Source/HeadServer.o ./Source/Lobby.o
+build: ./Source/HeadServer.o
 	$(CC) main.cpp ./Source/*.o ../Source/Networking/*.o -o mainserver $(CPPFLAGS)
 
 HeadServer.o: ./Source/HeadServer.cpp ./Source/HeadServer.h
-
-Lobby.o: ./Source/Lobby.cpp ./Source/Lobby.h
 
 clean:
 	rm -f mainserver ./Source/*.o

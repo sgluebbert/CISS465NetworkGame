@@ -10,11 +10,16 @@ AppStateGame::AppStateGame() {
     player.offline = false;
     player.player_name = Get_Username();
 
+    Drawable::objects.clear();
+    Rigid_Body::objects.clear();
+    Collidable::objects.clear();
+
     map = new Map(0, 1.0);
     requestingGreeting = true;
 
     for (int i = 0; i < MaximumClients; ++i)
         players[i] = NULL;
+
 
     time(&secondsToStartLastTick);
     secondsToStart = 100;
@@ -26,7 +31,24 @@ AppStateGame::AppStateGame() {
 }
 
 void AppStateGame::Initialize() {
-    network = NetworkFactory::getInstance();
+    if (directedGameHost == 0)
+       network = NetworkFactory::getInstance();
+    else
+    {
+        IPaddress hostaddress;
+        hostaddress.host = directedGameHost;
+        hostaddress.port = directedGamePort;
+        const char *hostname = SDLNet_ResolveIP(&hostaddress);
+        if (hostname == NULL)
+        {
+            std::cerr << "Could not resolve directed host\n";
+            AppStateEvent::New_Event(APPSTATE_MENU);
+            return;
+        }
+        else
+            network = NetworkFactory::getInstance(UDP, hostname, directedGamePort);
+    }
+
     network->Init();
     background_texture = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
@@ -176,6 +198,7 @@ void AppStateGame::Receive() {
         NetString *temp = network->GetData();
         if (temp != NULL)
             netString += *temp;
+        delete temp;
     }
 
     netString.Seek(0);

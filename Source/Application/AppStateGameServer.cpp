@@ -460,6 +460,7 @@ void AppStateGameServer::UpdateGame() {
 			state = GSE_GAME_ENDED;
 			SendStateUpdate();
 			AppStateEvent::New_Event(APPSTATE_NONE);
+			return;
 		}
 		else if (team2Count < map->min_players_per_team)
 		{
@@ -468,6 +469,7 @@ void AppStateGameServer::UpdateGame() {
 			state = GSE_GAME_ENDED;
 			SendStateUpdate();
 			AppStateEvent::New_Event(APPSTATE_NONE);
+			return;
 		}
 	}
 

@@ -2,13 +2,19 @@
 
 HeadServer::HeadServer()
 {
-	network = NetworkFactory::getInstance();
-	network->Init(true);
+	networkLobbies = NetworkFactory::getInstance("./conf/networkLobbies.conf");
+	networkLobbies->Init(true);
+	networkPlayers = NetworkFactory::getInstance("./conf/networkPlayers.conf");
+	networkPlayers->Init(true);
+
+	for (int i = 0; i < MaximumClients; ++i)
+		activePlayers[i] = false;
 }
 
 HeadServer::~HeadServer()
 {
-	network->Close();
+	networkLobbies->Close();
+	networkPlayers->Close();
 	for (int i = 0; i < lobbies.size(); i++)
 	{
 		if (lobbies[i] == NULL)
@@ -27,23 +33,77 @@ bool HeadServer::Update()
 		lobbies.pop_back();
 	////////////////////////////////////////////////////////////////
 
-	Receive();
+	ReceiveLobbies();
+	ReceivePlayers();
 
 	return false;
 }
 
-void HeadServer::Receive()
+void HeadServer::ReceivePlayers()
 {
 	while (true)
 	{
+		std::vector<int> newPlayers, removedPlayers;
+		int receiveId = networkPlayers->ReceiveData(&newPlayers, &removedPlayers);
+
+		// Handle new connections
+		for (std::vector<int>::iterator it = newPlayers.begin(); it != newPlayers.end(); it++)
+		{
+			activePlayers[*it] = true;
+
+			NotifyPlayers(*it);
+			std::cout << "[ New Player Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
+		}
+
+		for (std::vector<int>::iterator it = removedPlayers.begin(); it != removedPlayers.end(); it++)
+		{
+			activePlayers[*it] = false;
+
+			std::cout << "[ Player Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
+		}
+
+		// Did we get a message ready to read?
+		if (receiveId == -1)
+			break;
+
+		NetString *netString = networkPlayers->GetData(receiveId);
+		bool reading = true;
+		while (reading)
+		{
+			unsigned char temp;
+			if (!netString->ReadUChar(temp))
+				break;
+			NetworkChunkEnums type = (NetworkChunkEnums)temp;
+
+			switch (type)
+			{
+
+				case NCE_END:
+					break;
+
+				default:
+					reading = false;
+					break;
+			}
+		}
+	}
+
+}
+
+void HeadServer::ReceiveLobbies()
+{
+	bool updatePlayers = false;
+
+	while (true)
+	{
 		std::vector<int> newLobbies, removedLobbies;
-		int receiveId = network->ReceiveData(&newLobbies, &removedLobbies);
+		int receiveId = networkLobbies->ReceiveData(&newLobbies, &removedLobbies);
 
 		// Handle new connections
 		for (std::vector<int>::iterator it = newLobbies.begin(); it != newLobbies.end(); it++)
 		{
 			Lobby *lobby = new Lobby();
-			IPaddress *address = network->GetIPAddress(*it);
+			IPaddress *address = networkLobbies->GetIPAddress(*it);
 			if (address == NULL)
 			{
 				lobby->address.host = 0;
@@ -57,6 +117,7 @@ void HeadServer::Receive()
 
 			lobby->channelId = *it;
 			lobbies.push_back(lobby);
+			updatePlayers = true;
 
 			std::cout << "[ New Lobby Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
 		}
@@ -80,6 +141,8 @@ void HeadServer::Receive()
 
 				std::cout << "[ Lobby Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
 			}
+
+			updatePlayers = true;
 		}
 
 		// Did we get a message ready to read?
@@ -98,12 +161,23 @@ void HeadServer::Receive()
 
 		if (lobby == NULL)
 		{
+			NetString *netString = networkLobbies->GetData(receiveId);
 			std::cout << "[ ERROR ] " << CurrentDateTime() << " >>> Message received from untracked lobby: " << receiveId << "\n";
-			network->RemoveConnection(lobby->channelId);
+			if (netString != NULL)
+			{
+				std::cout << *netString << '\n';
+				delete netString;
+			}
+			
+			networkLobbies->RemoveConnection(receiveId);
+			updatePlayers = true;
 			break;
 		}
 
-		NetString *netString = network->GetData(receiveId);
+		NetString *netString = networkLobbies->GetData(receiveId);
+		if (netString == NULL)
+			continue;
+
 		bool reading = true;
 		while (reading)
 		{
@@ -129,6 +203,7 @@ void HeadServer::Receive()
 					netString->ReadUChar(lobby->playerCount);
 
 					std::cout << "Got: " << lobby->name << "; port: " << lobby->gamePort << "; state: " << lobby->state << "; players: " << (int)lobby->playerCount << '\n';
+					updatePlayers = true;
 					break;
 				}
 
@@ -140,7 +215,40 @@ void HeadServer::Receive()
 					break;
 			}
 		}
+
+		delete netString;
 	}
+
+	if (updatePlayers)
+		NotifyPlayers();
+}
+
+void HeadServer::NotifyPlayers(char id)
+{
+	NetString string;
+	string.WriteUChar(NCE_LOBBY_SYNC);
+
+	for (int i = 0; i < lobbies.size(); i++)
+	{
+		if (lobbies[i] == NULL)
+			continue;
+
+		string.WriteUChar(NCE_LOBBY);
+		NetString *temp = lobbies[i]->Serialize();
+		if (temp != NULL)
+			string += *temp;
+		delete temp;
+	}
+
+	string.WriteUChar(NCE_END);
+
+	if (id == -1)
+	{
+		for (int i = 0; i < MaximumClients; i++)
+			networkPlayers->SendData(&string, i);
+	}
+	else
+		networkPlayers->SendData(&string, id);
 }
 
 const std::string CurrentDateTime()

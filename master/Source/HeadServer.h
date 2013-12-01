@@ -1,7 +1,7 @@
 #ifndef HEADSERVER
 #define HEADSERVER
 
-#include "Lobby.h"
+#include "../../Source/Networking/Lobby.h"
 #include <deque>
 
 struct HeadServer
@@ -10,11 +10,15 @@ struct HeadServer
 	~HeadServer();
 
 	bool Update();
-	void Receive();
+	void ReceivePlayers();
+	void ReceiveLobbies();
+	void NotifyPlayers(char id = -1);
 	
 private:
-	Network *network;
+	Network *networkLobbies;
+	Network *networkPlayers;
 	std::deque<Lobby *> lobbies;
+	bool activePlayers[MaximumClients];
 };
 
 const std::string CurrentDateTime();
