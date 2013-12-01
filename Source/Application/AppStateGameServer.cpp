@@ -394,6 +394,13 @@ void AppStateGameServer::SendStateUpdate(int id) {
 		string.WriteUChar(secondsToStart);
 		string.WriteInt(secondsToStartLastTick);
 	}
+	else if (state == GSE_GAME_ENDED)
+	{
+		if (team1Count < map->min_players_per_team)
+			string.WriteUChar(BLUE_TEAM);
+		else
+			string.WriteUChar(RED_TEAM);
+	}
 
 	string.WriteUChar(NCE_END);
 
@@ -443,6 +450,26 @@ void AppStateGameServer::UpdateGame() {
 		if (Rigid_Body::objects[i] != NULL)
 			Rigid_Body::objects[i]->Update(dt);
 	/////////////////////////////////////////////////////////////////////////////////////////
+
+	if (state == GSE_GAME)
+	{
+		if (team1Count < map->min_players_per_team)
+		{
+			// Team 2 won
+			std::cout << "Team blue Won!\n";
+			state = GSE_GAME_ENDED;
+			SendStateUpdate();
+			AppStateEvent::New_Event(APPSTATE_NONE);
+		}
+		else if (team2Count < map->min_players_per_team)
+		{
+			// Team 1 won
+			std::cout << "Team red Won!\n";
+			state = GSE_GAME_ENDED;
+			SendStateUpdate();
+			AppStateEvent::New_Event(APPSTATE_NONE);
+		}
+	}
 
 	// Update all of the connections to the game state
 	UpdateGameConnections();
@@ -611,10 +638,11 @@ void AppStateGameServer::HandleGameConnections()
 						// Unexpected, so give it a team
 						if (!wasFromLobby)
 						{
+							// Insert logic to check for team size again
+							// If max is reached, kick player
+							
 							client->player_id = GetNextPlayerId();
 							MakeTeamsEven(client->channel_id);
-
-							// Insert logic to check for team size again
 						}
 					}
 
@@ -641,6 +669,22 @@ void AppStateGameServer::HandleGameConnections()
 					break;
 				}
 
+				case NCE_PLAYER_EXITED:
+				{
+					string.WriteUChar(NCE_REMOVE_PLAYER);
+					string.WriteUChar(client->player_id);
+					if (client->team_id == RED_TEAM)
+						team2Count--;
+					else
+						team1Count--;
+					availablePlayerIds[client->player_id] = true;
+					clients[receiveId] = NULL;
+					clientCount--;
+					UpdateMainServer();
+
+					networkGame->RemoveConnection(receiveId); // Sync with networkGame
+				}
+
 				default:
 					reading = false;
 			}
@@ -662,6 +706,10 @@ void AppStateGameServer::HandleGameConnections()
 		{
 			string.WriteUChar(NCE_REMOVE_PLAYER);
 			string.WriteUChar(clients[i]->player_id);
+			if (clients[i]->team_id == RED_TEAM)
+				team2Count--;
+			else
+				team1Count--;
 			availablePlayerIds[clients[i]->player_id] = true;
 			clients[i] = NULL;
 			clientCount--;

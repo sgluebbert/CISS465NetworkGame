@@ -99,6 +99,7 @@ void HeadServer::Receive()
 		if (lobby == NULL)
 		{
 			std::cout << "[ ERROR ] " << CurrentDateTime() << " >>> Message received from untracked lobby: " << receiveId << "\n";
+			network->RemoveConnection(lobby->channelId);
 			break;
 		}
 

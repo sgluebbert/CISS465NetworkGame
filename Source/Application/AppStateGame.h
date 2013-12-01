@@ -35,8 +35,9 @@ private:
         bool requestingGreeting;
         Map *map;
 
-        time_t secondsToStartLastTick;
-        int secondsToStart;
+        time_t secondsToStartLastTick, secondsToEndLastTick, secondsSinceLastMessageTick;
+        int secondsToStart, secondsToEnd, secondsSinceLastMessage;
+        Team teamWon;
 public:
  
         void Initialize();

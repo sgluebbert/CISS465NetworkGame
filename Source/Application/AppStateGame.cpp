@@ -18,6 +18,11 @@ AppStateGame::AppStateGame() {
 
     time(&secondsToStartLastTick);
     secondsToStart = 100;
+    time(&secondsToEndLastTick);
+    secondsToEnd = 5;
+    time(&secondsSinceLastMessageTick);
+    secondsSinceLastMessage = 0;
+    teamWon = NO_TEAM;
 }
 
 void AppStateGame::Initialize() {
@@ -37,17 +42,41 @@ void AppStateGame::Update() {
     Send();
     Receive();
 
+    time_t now;
+    time(&now);
+    secondsSinceLastMessage = (now - secondsSinceLastMessageTick);
+
+    if (secondsSinceLastMessage > 3 && teamWon == NO_TEAM)
+    {
+        std::cout << "Communication to server has timed out.\n";
+        AppStateEvent::New_Event(APPSTATE_MENU);
+    }
+
     if (requestingGreeting)
         return;
 
     if (secondsToStart >= 0 && secondsToStart < 100)
     {
-        time_t now;
-        time(&now);
         if (now - secondsToStartLastTick >= 1)
         {
             time(&secondsToStartLastTick);
             secondsToStart--;
+        }
+    }
+
+    if (teamWon != NO_TEAM)
+    {
+        if (secondsToEnd > 0)
+        {
+            if (now - secondsToEndLastTick >= 1)
+            {
+                time(&secondsToEndLastTick);
+                secondsToEnd--;
+            }
+        }
+        else
+        {
+            AppStateEvent::New_Event(APPSTATE_MENU);
         }
     }
 
@@ -100,9 +129,25 @@ void AppStateGame::Draw() {
         Color color(1, 1, 1, .5);
         DrawText(temp_rect.w / 2.0 - length * 20, temp_rect.h / 2.0 - 40, buf.c_str(), textureManager->fonts.font_Impact_80, &color);
     }
+
+    if (teamWon != NO_TEAM)
+    {
+        std::stringstream s;
+        if (teamWon == RED_TEAM)
+            s << "Red Team Won";
+        else
+            s << "Blue Team Won";
+        std::string buf = s.str();
+        int length = buf.length();
+        Color color(1, 1, 1, .5);
+        DrawText(temp_rect.w / 2.0 - length * 20, temp_rect.h / 2.0 - 40, buf.c_str(), textureManager->fonts.font_Impact_80, &color);
+    }
 }
 
 void AppStateGame::Send() {
+    if (teamWon != NO_TEAM)
+        return;
+
     if (!requestingGreeting)
     {
         Parser parser;
@@ -126,6 +171,8 @@ void AppStateGame::Receive() {
     NetString netString;
     while (network->ReceiveData() != -1)
     {
+        time(&secondsSinceLastMessageTick);
+        secondsSinceLastMessage = 0;
         NetString *temp = network->GetData();
         if (temp != NULL)
             netString += *temp;
@@ -299,6 +346,16 @@ void AppStateGame::Receive() {
                         secondsToStartLastTick = tempI;
                         break;
                     }
+
+                    case GSE_GAME_ENDED:
+                    {
+                        unsigned char tempC;
+                        netString.ReadUChar(tempC);
+                        teamWon = (Team)tempC;
+                        time(&secondsToEndLastTick);
+                        secondsToEnd = 5;
+                        break;
+                    }
                 }
             }
 
@@ -313,6 +370,16 @@ void AppStateGame::Receive() {
 }
 
 void AppStateGame::Cleanup() {
+    if (teamWon == NO_TEAM)
+    {
+        // no team won so the player must be exiting.
+        NetString string;
+        string.WriteUChar(NCE_PLAYER_EXITED);
+        string.WriteUChar(NCE_END);
+        network->SendData(&string, player.channel_id);
+        std::cout << "Exiting\n";
+    }
+
     for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] != NULL && players[i] != player.pawn)

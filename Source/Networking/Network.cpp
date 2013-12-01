@@ -237,6 +237,12 @@ void UDPNetwork::RemoveConnection(int id)
 {
 	delete _usedSockets[id];
 	_usedSockets[id] = NULL;
+	while (!_pendingData[id].empty())
+	{
+		delete _pendingData[id].front();
+		_pendingData[id].pop();
+	}
+
 	SDLNet_UDP_Unbind(_sd, id);
 }
 
@@ -564,6 +570,12 @@ void TCPNetwork::RemoveConnection(int id)
 		return;
 	SDLNet_TCP_DelSocket(_set, _listenSockets[id]);
 	SDLNet_TCP_Close(_listenSockets[id]);
+	while (!_pendingData[id].empty())
+	{
+		delete _pendingData[id].front();
+		_pendingData[id].pop();
+	}
+	
 	_listenSockets[id] = NULL;
 	_freeSockets[id] = true;
 	_listnerCount--;
