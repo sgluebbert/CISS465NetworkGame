@@ -9,8 +9,7 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
 {
 	tryMainAgain = 0;
-	srand(time(NULL));
-	map = new Map(rand(), 1.0);
+
 	time(&secondsToStartLastTick);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
@@ -18,6 +17,10 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 }
 
 void AppStateGameServer::Initialize() {
+	srand(time(NULL));
+	map = new Map(rand(), 1.0);
+	lobbyName = std::string("General Lobby");
+
 	networkGame = NetworkFactory::getInstance("./conf/networkLobby.conf");
 	networkGame->Init(true);
 	networkMainServer = NetworkFactory::getInstance("./conf/networkMainServer.conf");
@@ -103,16 +106,16 @@ void AppStateGameServer::UpdateMainServer()
 	if (!networkMainServer->IsInited())
 		return;
 
-	std::string name("General Lobby");
-
 	NetString string;
 	string.WriteUChar(NCE_LOBBY);
-	string.WriteString(name);
+	string.WriteString(lobbyName);
 	Uint16 encodedPort = networkGame->GetRecvPort();
 	int port = SDLNet_Read16(&encodedPort);
 	string.WriteInt(port);
 	string.WriteUChar(state);
 	string.WriteUChar((unsigned char)clientCount);
+	string.WriteInt(map->SEED);
+	string.WriteFloat(map->map_scale);
 	string.WriteUChar(NCE_END);
 	networkMainServer->SendData(&string, 0);
 }
@@ -302,6 +305,7 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 	NetString string;
 	string.WriteUChar(NCE_MAP);
 	string.WriteInt(map->SEED);
+	string.WriteInt(map->map_scale);
 	string.WriteUChar(NCE_END);
 
 	string.WriteUChar(NCE_LOBBY_PLAYER_SYNC);
@@ -653,6 +657,7 @@ void AppStateGameServer::HandleGameConnections()
 					response.WriteInt(client->player_id);
 					response.WriteUChar(client->team_id);
 					response.WriteInt(map->SEED);
+					response.WriteInt(map->map_scale);
 					response.WriteUChar(NCE_END);
 					networkGame->SendData(&response, receiveId);
 

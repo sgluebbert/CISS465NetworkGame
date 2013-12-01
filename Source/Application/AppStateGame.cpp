@@ -235,12 +235,14 @@ void AppStateGame::Receive() {
             case NCE_PLAYER_GREETING:
             {
                 int temp;
+                float temp2;
                 netString.ReadInt(temp);
                 player.player_id = temp;
                 unsigned char tempc;
                 netString.ReadUChar(tempc);
                 player.team_id = (Team)temp;
                 netString.ReadInt(temp);
+                netString.ReadFloat(temp2);
 
                 if (player.pawn == NULL)
                 {
@@ -251,7 +253,7 @@ void AppStateGame::Receive() {
                 if (requestingGreeting)
                 {
                     delete map;
-                    map = new Map(temp, 1.0);
+                    map = new Map(temp, temp2);
                     map->Generate_Map();
                     std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
                     std::cout << "Map: " << temp << '\n';

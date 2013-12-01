@@ -168,7 +168,7 @@ void HeadServer::ReceiveLobbies()
 				std::cout << *netString << '\n';
 				delete netString;
 			}
-			
+
 			networkLobbies->RemoveConnection(receiveId);
 			updatePlayers = true;
 			break;
@@ -201,6 +201,8 @@ void HeadServer::ReceiveLobbies()
 					lobby->state = (GameServerEnums)tempc;
 
 					netString->ReadUChar(lobby->playerCount);
+					netString->ReadInt(lobby->mapSeed);
+					netString->ReadFloat(lobby->mapScale);
 
 					std::cout << "Got: " << lobby->name << "; port: " << lobby->gamePort << "; state: " << lobby->state << "; players: " << (int)lobby->playerCount << '\n';
 					updatePlayers = true;

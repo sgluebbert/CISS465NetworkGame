@@ -39,6 +39,7 @@ private:
         std::bitset<MaximumClients> availablePlayerIds;
 
         Map *map;
+        std::string lobbyName;
 
         unsigned char GetNextPlayerId();
         void HandleLobbyConnections();

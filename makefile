@@ -41,6 +41,7 @@ clean:
 	rm -f Source/*.o
 	rm -f Source/*/*.o
 	rm -f app/starclash
+	rm -f master/masterserver
 
 # This gets the repo up and ready for pushing to the master origin on github.
 # Make sure you see all your changes when the status is displayed.

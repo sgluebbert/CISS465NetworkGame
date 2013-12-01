@@ -208,9 +208,11 @@ void AppStateLobby::Receive() {
 
             case NCE_MAP:
             	int temp1;
+                float temp2;
             	netString.ReadInt(temp1);
+                netString.ReadFloat(temp2);
             	delete map;
-            	map = new Map(temp1, 1.0);
+            	map = new Map(temp1, temp2);
                 map->Generate_Map();
             	std::cout << "Map Seed: " << temp1 << '\n';
 
