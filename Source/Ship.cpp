@@ -162,32 +162,6 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 Ship::~Ship()
 {
-	// for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
-	// {
-	// 	if (*it == this)
-	// 	{
-	// 		Drawable::objects.erase(it);
-	// 		break;
-	// 	}
-	// }
-
- //    for (std::deque<Rigid_Body *>::iterator it = Rigid_Body::objects.begin(); it != Rigid_Body::objects.end(); it++)
-	// {
-	// 	if (*it == this)
-	// 	{
-	// 		Rigid_Body::objects.erase(it);
-	// 		break;
-	// 	}
-	// }
-
- //    for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
-	// {
-	// 	if (*it == this)
-	// 	{
-	// 		Collidable::objects.erase(it);
-	// 		break;
-	// 	}
-	// }
 }
 
 
@@ -420,6 +394,12 @@ void Ship::Draw() {
     texture_c->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
+void Ship::Sync() {
+	Entity::Sync();
+	bounding_volume.x = x;
+	bounding_volume.y = y;
+}
+
 
 
 int Ship::Add_Ship(Team _team, Ship_Type _type, float _x, float _y, float respawn_time) {
@@ -449,6 +429,33 @@ void Ship::Remove_Ship(int index) {
 
 	if (Ship::ships[index] == NULL)
 		return;
+
+	for (std::deque<Drawable *>::iterator it = Drawable::objects.begin(); it != Drawable::objects.end(); it++)
+	{
+		if (*it == Ship::ships[index])
+		{
+			Drawable::objects.erase(it);
+			break;
+		}
+	}
+
+    for (std::deque<Rigid_Body *>::iterator it = Rigid_Body::objects.begin(); it != Rigid_Body::objects.end(); it++)
+	{
+		if (*it == Ship::ships[index])
+		{
+			Rigid_Body::objects.erase(it);
+			break;
+		}
+	}
+
+    for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
+	{
+		if (*it == Ship::ships[index])
+		{
+			Collidable::objects.erase(it);
+			break;
+		}
+	}
 
 	delete Ship::ships[index];
 	Ship::ships[index] = NULL;

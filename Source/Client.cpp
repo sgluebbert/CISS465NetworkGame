@@ -36,6 +36,8 @@ Client::Client() {
 
 
 Client::~Client() {
+	Ship::Remove_Ship(player_id);
+	pawn = NULL;
 }
 
 

@@ -22,6 +22,10 @@ void AppStateTest::Initialize() {
 
     //background_texture = surface_manager->background_game;
 
+    std::cout << "Beginning Math Initialization..." << std::endl;
+    srand(time(NULL));
+    Initialize_Trig_Table();
+
     std::cout << "Beginning Map Initialization..." << std::endl;
     map = new Map(rand(), 0.5);
     map->Generate_Map();
@@ -33,9 +37,9 @@ void AppStateTest::Initialize() {
     if (pawn_index >= 0)
         player.pawn = Ship::ships[pawn_index];
 
-    std::cout << "Beginning Math Initialization..." << std::endl;
-    srand(time(NULL));
-    Initialize_Trig_Table();
+    Print_Collidables();
+    Print_Drawables();
+    Print_Rigid_Bodies();
 }
 
 void AppStateTest::Events(SDL_Event * Event) {

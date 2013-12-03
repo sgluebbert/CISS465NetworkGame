@@ -19,6 +19,7 @@ public:
     
     virtual void Update(double);
     virtual void Draw();
+    virtual void Sync();
 
     Team team_id;
 };

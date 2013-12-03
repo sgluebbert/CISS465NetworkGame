@@ -28,3 +28,8 @@ void Entity::Draw() {
         texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
 }
+
+void Entity::Sync() {
+    drawing_box.x = x - draw_scale / 2.0;
+    drawing_box.y = y - draw_scale / 2.0;
+}
