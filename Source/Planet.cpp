@@ -117,28 +117,19 @@ void Planet::Draw()
 
 
 
-void Planet::Generate_Moons()
+void Planet::Generate_Moons(float scale)
 {
-    int num_moons = -1;
-    float num_moon_calc = mass;
+  
+    int num_moons = rand() % 4;
 
-    //COMMENTED OUT JUST FOR TESTING PURPOSES
-    /*while (num_moon_calc > 1)
-    {
-        num_moon_calc /= 10;
-        num_moons++;
-    }*/
-
-    if (num_moons == -1)
-        num_moons = 1;
-
-    float moon_size = mass / (float)num_moons;
+    float moon_mass = mass / 2.0f;
+    float moon_size = scale / 2.0f;
 
     Moon * moon = NULL;
     for (int i = 0; i < num_moons; i++) {
         float x_offset = sin(rand() % 180 / PI) * 500;
         float y_offset = cos(rand() % 180 / PI) * 500;
-        moon = new Moon(x + x_offset, y + y_offset, moon_size, 100.0f, 50.0f);
+        moon = new Moon(x + x_offset, y + y_offset, moon_mass, moon_size, 50.0f);
         moons.push_back(moon);
     }
 }
@@ -170,7 +161,7 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = half_num; i > 0; i--) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(RED_TEAM, -interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
+        planet->Generate_Moons(size_modifier * scale);
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
@@ -181,7 +172,7 @@ void Planet::Generate_Planets(int num, float scale) {
     if (num % 2 == 1) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(NEUTRAL_TEAM, 0.0, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
+        planet->Generate_Moons(size_modifier * scale);
         planet->Lock(false);
         Planet::planet_graph.push_back(planet);
     }
@@ -193,7 +184,7 @@ void Planet::Generate_Planets(int num, float scale) {
     for (int i = 1; i <= half_num; i++) {
         scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
         planet = new Planet(BLUE_TEAM, interval_modifier * scale * i, 0.0, mass_modifier * scale, size_modifier * scale, capture_modifier / scale);
-        planet->Generate_Moons();
+        planet->Generate_Moons(size_modifier * scale);
         Planet::planet_graph.push_back(planet);
     }
     //////////////////////////////////////////////////
