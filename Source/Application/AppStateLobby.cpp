@@ -16,7 +16,7 @@ AppStateLobby::AppStateLobby()
 }
 
 void AppStateLobby::Initialize() {
-	player.player_name = Get_Username();
+	player.player_name = username;
 	std::cout << "I am " << player.player_name << '\n';
 
     if (directedGameHost == 0)

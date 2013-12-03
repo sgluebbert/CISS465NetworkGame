@@ -28,11 +28,17 @@ private:
         void MoveUp();
         void MoveDown();
         void MakeSelection();
+        void Login();
 
         Lobby *lobbies[MaximumClients];
         int highlightedLobby;
         int lobbyCount;
         char channelId;
+        std::string usernamePrompt;
+        std::string passwordPrompt;
+        bool usernameInput;
+        bool shiftOn;
+        bool authenticating;
 public:
  
         void Initialize();

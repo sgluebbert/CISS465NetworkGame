@@ -3,27 +3,64 @@
 Uint32 directedGameHost = 0;
 Uint16 directedGamePort = 0;
 std::string directedLobbyName("Undefined");
+bool authenticated = false;
+std::string username = "Guest";
 
-std::string Get_Username() {
-    static int i = -1;
+char ConvertToChar(SDLKey sym, bool shiftOn)
+{
+    if (sym > SDLK_z || sym < SDLK_SPACE)
+        return 0;
 
-    if (i == -1)
+    if (sym >= SDLK_a && sym <= SDLK_z)
     {
-        srand(time(NULL));
-        i = rand() % 8;
+        if (shiftOn)
+            return 'A' + (sym - SDLK_a);
+        else
+            return 'a' + (sym - SDLK_a);
     }
 
-    switch (i)
+    switch (sym)
     {
-        case 0: return "Sam";
-        case 1: return "Ujjwal";
-        case 2: return "Mark";
-        case 3: return "Trevin";
-        case 4: return "Other1";
-        case 5: return "Other2";
-        case 6: return "Other3";
-        case 7: return "Other4";
+        case SDLK_SPACE:    return ' ';
+        case SDLK_EXCLAIM:  return '!';
+        case SDLK_QUOTEDBL: return '"';
+        case SDLK_HASH:     return '#';
+        case SDLK_DOLLAR:   return '$';
+        case SDLK_AMPERSAND:return '&';
+        case SDLK_QUOTE:    return (shiftOn ? '"' : '\'');
+        case SDLK_LEFTPAREN:return '(';
+        case SDLK_RIGHTPAREN:return ')';
+        case SDLK_ASTERISK: return '*';
+        case SDLK_PLUS:     return '+';
+        case SDLK_COMMA:    return (shiftOn ? '<' : ',');
+        case SDLK_MINUS:    return (shiftOn ? '_' : '-');
+        case SDLK_PERIOD:   return (shiftOn ? '>' : '.');
+        case SDLK_SLASH:    return (shiftOn ? '?' : '/');
+        case SDLK_0:        return (shiftOn ? ')' : '0');
+        case SDLK_1:        return (shiftOn ? '!' : '1');
+        case SDLK_2:        return (shiftOn ? '@' : '2');
+        case SDLK_3:        return (shiftOn ? '#' : '3');
+        case SDLK_4:        return (shiftOn ? '$' : '4');
+        case SDLK_5:        return (shiftOn ? '%' : '5');
+        case SDLK_6:        return (shiftOn ? '^' : '6');
+        case SDLK_7:        return (shiftOn ? '&' : '7');
+        case SDLK_8:        return (shiftOn ? '*' : '8');
+        case SDLK_9:        return (shiftOn ? '(' : '9');
+        case SDLK_COLON:    return ':';
+        case SDLK_SEMICOLON:return (shiftOn ? ':' : ';');
+        case SDLK_LESS:     return '<';
+        case SDLK_EQUALS:   return '=';
+        case SDLK_GREATER:  return '>';
+        case SDLK_QUESTION: return '?';
+        case SDLK_LEFTBRACKET:return (shiftOn ? '{' : '[');
+        case SDLK_BACKSLASH:return '\\';
+        case SDLK_RIGHTBRACKET:return (shiftOn ? '}' : ']');
+        case SDLK_CARET:    return '^';
+        case SDLK_UNDERSCORE:return '_';
+        case SDLK_BACKQUOTE:return (shiftOn ? '~' : '`');
     }
+
+    return 0;
 }
 
 /*

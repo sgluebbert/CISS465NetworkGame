@@ -8,7 +8,7 @@ AppStateBase * AppStateGame::instance = NULL;
 
 AppStateGame::AppStateGame() {
     player.offline = false;
-    player.player_name = Get_Username();
+    player.player_name = username;
 
     Drawable::objects.clear();
     Rigid_Body::objects.clear();

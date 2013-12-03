@@ -34,7 +34,8 @@ static const int ROOM_HEIGHT = 2000;
 extern Uint32 directedGameHost;
 extern Uint16 directedGamePort;
 extern std::string directedLobbyName;
-
+extern bool authenticated;
+extern std::string username;
 
 
 /*System Functions*/
@@ -68,8 +69,6 @@ bool Initialize_System() {
 
     return true;
 }
-
-std::string Get_Username();
     
 
 int Parse_Line(char * line) {
@@ -119,6 +118,6 @@ inline float point_distance(float x1, float y1, float x2, float y2)
     return sqrt(pow(y2 - y1, 2) + pow(x2 - x1, 2));
 }
 
-
+char ConvertToChar(SDLKey sym, bool shiftOn = false);
 
 #endif

@@ -12,6 +12,9 @@ AppStateMasterLobby::AppStateMasterLobby()
 		lobbies[i] = NULL;
 	highlightedLobby = -1;
 	lobbyCount = 0;
+    usernameInput = true;
+    shiftOn = false;
+    authenticating = false;
 }
 
 void AppStateMasterLobby::Initialize() {
@@ -39,6 +42,10 @@ void AppStateMasterLobby::Events(SDL_Event * Event) {
 }
 
 void AppStateMasterLobby::Update() {
+    if (!authenticated)
+    {
+
+    }
 
     Receive();
 }
@@ -86,6 +93,8 @@ void AppStateMasterLobby::Draw() {
     int maxPlayersCountWidth = tableWidth * .12;
     title.Reload("Max Players");
     title.Draw(maxPlayersCountX + maxPlayersCountWidth / 2 - title.width / 2, 16);
+
+    DrawText(28, viewport.h - 38, "Press Escape to go back.", textureManager->fonts.font_FreeMono_16, &WHITE);
 
     if (lobbyCount == 0)
     	highlightedLobby = -1;
@@ -153,6 +162,58 @@ void AppStateMasterLobby::Draw() {
 	}
     ///////////////////////////////////////////////////////////////////////////
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Draw login
+    if (!authenticated)
+    {
+        Rect<int> loginBounds(viewport.w / 2 - 200, viewport.h / 2 - 38, 400, 76);
+
+        color = Color(0, 0, .3, .4);
+        DrawRect(loginBounds.x, loginBounds.y, loginBounds.x + loginBounds.w, loginBounds.y + loginBounds.h, true, &color);
+        color = Color(.3, .3, 1, .6);
+        DrawRect(loginBounds.x, loginBounds.y, loginBounds.x + loginBounds.w, loginBounds.y + loginBounds.h, false, &color);
+
+        if (!usernameInput)
+            color = Color(1, 1, 1, .6);
+        else
+            color = WHITE;
+        DrawText(loginBounds.x + 10, loginBounds.y + 2, "Username:", textureManager->fonts.font_FreeMono_20, &color);
+        if (usernamePrompt.length() > 0)
+            DrawText(loginBounds.x + 130, loginBounds.y + 2, usernamePrompt.c_str(), textureManager->fonts.font_FreeMono_20, &color);
+
+        if (usernameInput)
+            color = Color(1, 1, 1, .6);
+        else
+            color = WHITE;
+        DrawText(loginBounds.x + 10, loginBounds.y + 32, "Password:", textureManager->fonts.font_FreeMono_20, &color);
+        if (passwordPrompt.length() > 0)
+        {
+            std::stringstream temp;
+            for (int i = 0; i < passwordPrompt.length(); ++i)
+                temp << "*";
+            DrawText(loginBounds.x + 130, loginBounds.y + 32, temp.str().c_str(), textureManager->fonts.font_FreeMono_20, &color);
+        }
+
+        if (authenticating)
+        {
+            color = Color(0, 0, 0, .4);
+            DrawRect(loginBounds.x, loginBounds.y, loginBounds.x + loginBounds.w, loginBounds.y + loginBounds.h, true, &color);
+        }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+}
+
+void AppStateMasterLobby::Login() {
+    if (authenticating)
+        return;
+    authenticating = true;
+
+    NetString stream;
+    stream.WriteUChar(NCE_PLAYER_LOGIN);
+    stream.WriteString(usernamePrompt);
+    stream.WriteString(passwordPrompt);
+    stream.WriteUChar(NCE_END);
+    network->SendData(&stream, 0);
 }
 
 void AppStateMasterLobby::Receive() {
@@ -200,6 +261,27 @@ void AppStateMasterLobby::Receive() {
             	unsigned char tempC;
                 netString.ReadUChar(tempC);
                 channelId = tempC;
+                break;
+            }
+
+            case NCE_PLAYER_LOGIN:
+            {
+                bool pass;
+                netString.ReadBool(pass);
+                if (pass)
+                {
+                    if (usernamePrompt == "test" || usernamePrompt == "Test")
+                    {
+                        std::stringstream temp;
+                        temp << usernamePrompt << rand();
+                        username = temp.str();
+                    }
+                    else
+                        username = usernamePrompt;
+                    authenticated = true;
+                }
+
+                authenticating = false;
                 break;
             }
 
@@ -302,16 +384,51 @@ AppStateBase * AppStateMasterLobby::GetInstance() {
 
 void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    case SDLK_UP:		MoveUp();				break;
-    case SDLK_DOWN:		MoveDown();				break;
-    case SDLK_RETURN:	MakeSelection();		break;
-    case SDLK_o:        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;                                   break;
-    default:    break;
+        case SDLK_UP:           MoveUp(); usernameInput = !usernameInput;       break;
+        case SDLK_DOWN:         MoveDown(); usernameInput = !usernameInput;		break;
+        case SDLK_ESCAPE:       AppStateEvent::New_Event(APPSTATE_MENU);        break;
+        case SDLK_TAB:          usernameInput = !usernameInput;                 break;
+        case SDLK_RSHIFT:       shiftOn = true;         break;
+        case SDLK_LSHIFT:       shiftOn = true;         break;
+        case SDLK_RETURN:
+            if (authenticating)
+                break;
+            if (!authenticated)
+                Login();
+            else
+                MakeSelection();
+            break;
+        case SDLK_BACKSPACE:
+            if (authenticating)
+                break;
+            if (usernameInput && usernamePrompt.length() > 0)
+                usernamePrompt = usernamePrompt.substr(0, usernamePrompt.length() - 1);
+            else if (passwordPrompt.length() > 0)
+                passwordPrompt = passwordPrompt.substr(0, passwordPrompt.length() - 1);
+            break;
+        default:
+        {
+            if (authenticating)
+                break;
+            if (authenticated)
+                break;
+            char key = ConvertToChar(sym, shiftOn);
+            if (key != 0)
+            {
+                if (usernameInput)
+                    usernamePrompt += key;
+                else
+                    passwordPrompt += key;
+            }
+            break;
+        }
     }
 }
 
 void AppStateMasterLobby::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
-    default:    break;
+        case SDLK_RSHIFT:       shiftOn = false;         break;
+        case SDLK_LSHIFT:       shiftOn = false;         break;
+        default:    break;
     }
 }

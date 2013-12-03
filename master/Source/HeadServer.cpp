@@ -77,6 +77,22 @@ void HeadServer::ReceivePlayers()
 
 			switch (type)
 			{
+				case NCE_PLAYER_LOGIN:
+				{
+					std::string name, password;
+					netString->ReadString(name);
+					netString->ReadString(password);
+
+					// Perform login check
+					bool pass = true;
+
+					NetString response;
+					response.WriteUChar(NCE_PLAYER_LOGIN);
+					response.WriteBool(pass);
+					response.WriteUChar(NCE_END);
+					networkPlayers->SendData(&response, receiveId);
+					break;
+				}
 
 				case NCE_END:
 					break;
