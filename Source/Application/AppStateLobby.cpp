@@ -354,6 +354,7 @@ AppStateBase * AppStateLobby::GetInstance() {
 void AppStateLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
     case SDLK_o:        std::cout << "Memory Usage: " << Get_Memory_Usage() << "kb" << std::endl;                                   break;
+    case SDLK_ESCAPE:   AppStateEvent::New_Event(APPSTATE_MENU);    break;
     default:    break;
     }
 }

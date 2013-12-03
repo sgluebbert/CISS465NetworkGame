@@ -15,6 +15,9 @@
  
 
 enum DebugLevel { DL_NONE, DL_LOW, DL_MED, DL_HIGH };
+
+// After how much inactivity should the server kill itself?
+const int TimeoutInSeconds = 10;
  
  
 class AppStateGameServer : public AppStateBase {
@@ -26,7 +29,7 @@ private:
         int tryMainAgain;
 
 	DebugLevel debugLevel;
-	time_t lastSpeedDisplay;
+	time_t lastSpeedDisplay, lastActivity;
 	Client *clients[MaximumClients];
         std::vector<Client*> expectedClients;
 	int clientCount;

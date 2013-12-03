@@ -94,6 +94,29 @@ void HeadServer::ReceivePlayers()
 					break;
 				}
 
+				case NCE_CREATE_LOBBY:
+				{
+					std::string name;
+					netString->ReadString(name);
+					float scale;
+					netString->ReadFloat(scale);
+
+					// Insert logic to pick next port...
+					int port = 8080;
+
+					if (CreateLobby(name, port, scale))
+					{
+						NetString response;
+						response.WriteUChar(NCE_CREATE_LOBBY);
+						response.WriteString(name);
+						response.WriteInt(port);
+						response.WriteUChar(NCE_END);
+						networkPlayers->SendData(&response, receiveId);
+					}
+
+					break;
+				}
+
 				case NCE_END:
 					break;
 
@@ -267,6 +290,44 @@ void HeadServer::NotifyPlayers(char id)
 	}
 	else
 		networkPlayers->SendData(&string, id);
+}
+
+bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
+{
+	const char * logLocation = "./lobbiesLog.log";
+	char portBuffer[10];
+	char scaleBuffer[30];
+
+	std::stringstream stream;
+	stream << port;
+	memcpy(portBuffer, stream.str().c_str(), stream.str().length() + 1);
+
+	stream.str(std::string());
+	stream << mapScale;
+	memcpy(scaleBuffer, stream.str().c_str(), stream.str().length() + 1);
+
+	char* const args[] = { (char*)"./starclash", (char*)"server", portBuffer, (char*)name.c_str(), scaleBuffer, (char *)0 };
+
+	int pid = fork();
+	if (pid == -1)
+		return false;
+
+	// Am i the child?
+	if (pid == 0)
+	{
+		// Redirect stdout and stderr
+		int fd = open(logLocation, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
+		dup2(fd, 1);
+		dup2(fd, 2);
+
+		chdir("../app");
+		execv("./starclash", args);
+
+		// This is ran when an error occurs
+		exit(1);
+	}
+
+	return true;
 }
 
 const std::string CurrentDateTime()

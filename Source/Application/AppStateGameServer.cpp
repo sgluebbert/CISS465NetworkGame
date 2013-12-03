@@ -19,16 +19,28 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 void AppStateGameServer::Initialize() {
 	srand(time(NULL));
 	map = new Map(rand(), 1.0);
-	lobbyName = std::string("General Lobby");
+	lobbyName = std::string(lobbySetName);
 
-	networkGame = NetworkFactory::getInstance("./conf/networkLobby.conf");
-	networkGame->Init(true);
+	if (lobbySetPort == 0)
+	{
+		networkGame = NetworkFactory::getInstance("./conf/networkLobby.conf");
+		if (networkGame->Init(true) == -1)
+			exit(1);
+	}
+	else
+	{
+		networkGame = NetworkFactory::getInstance(TCP, "localhost", lobbySetPort);
+		if (networkGame->Init(true) == -1)
+			exit(1);
+	}
+
 	networkMainServer = NetworkFactory::getInstance("./conf/networkMainServer.conf");
 	if (networkMainServer->Init() != 1)
 		tryMainAgain = 100;
 	else
 		UpdateMainServer();
 
+	time(&lastActivity);
 	time(&lastSpeedDisplay);
 	std::cout << "[ Server Started ] " << CurrentDateTime() << std::endl;
 }
@@ -47,12 +59,23 @@ void AppStateGameServer::SwitchToGameMode() {
 	clientCount = 0;
 	networkGame->Close();
 	delete networkGame;
-	networkGame = NetworkFactory::getInstance();
-	networkGame->Init(true);
+
+	if (lobbySetPort == 0)
+	{
+		networkGame = NetworkFactory::getInstance();
+		networkGame->Init(true);
+	}
+	else
+	{
+		networkGame = NetworkFactory::getInstance(UDP, "localhost", lobbySetPort);
+		networkGame->Init(true);
+	}
+
 	state = GSE_GAME_COUNTDOWN;
 	inLobby = false;
 	secondsToStart = 15;
 	time(&secondsToStartLastTick);
+	time(&lastActivity);
 }
 
 void AppStateGameServer::Events(SDL_Event * Event) {
@@ -60,10 +83,11 @@ void AppStateGameServer::Events(SDL_Event * Event) {
 }
 
 void AppStateGameServer::Update() {
+	time_t now;
+	time(&now);
+
 	if (debugLevel > DL_LOW)
 	{
-		time_t now;
-		time(&now);
 		if (now - lastSpeedDisplay >= 1)
 		{
 			time(&lastSpeedDisplay);
@@ -99,6 +123,13 @@ void AppStateGameServer::Update() {
 		UpdateLobby();
 	else
 		UpdateGame();
+
+	if (now - lastActivity > TimeoutInSeconds && clientCount == 0)
+	{
+		std::cout << "[ Server Timed Out ] " << CurrentDateTime() << " >>> No activity for " << TimeoutInSeconds << " seconds." << std::endl;
+
+		AppStateEvent::New_Event(APPSTATE_NONE);
+	}
 }
 
 void AppStateGameServer::UpdateMainServer()
@@ -202,6 +233,8 @@ void AppStateGameServer::HandleLobbyConnections() {
 				if (debugLevel > DL_NONE)
 					std::cout << "[ New Client Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
 			}
+
+			time(&lastActivity);
 		}
 
 		for (std::vector<int>::iterator it = removedClients.begin(); it != removedClients.end(); it++)
@@ -220,11 +253,15 @@ void AppStateGameServer::HandleLobbyConnections() {
 
 			if (debugLevel > DL_NONE)
 				std::cout << "[ Client Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
+
+			time(&lastActivity);
 		}
 
 		// Did we get a message ready to read?
 		if (receiveId == -1)
 			break;
+
+		time(&lastActivity);
 
 		// Read that new message
 		client = clients[receiveId];
@@ -513,6 +550,8 @@ void AppStateGameServer::HandleGameConnections()
 
 			if (debugLevel > DL_NONE)
 				std::cout << "[ New Client Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
+
+			time(&lastActivity);
 		}
 
 		// Handle removed connections by tcp drops
@@ -533,12 +572,15 @@ void AppStateGameServer::HandleGameConnections()
 
 			if (debugLevel > DL_NONE)
 				std::cout << "[ Client Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
+
+			time(&lastActivity);
 		}
 
 		// Did we get a message ready to read?
 		if (receiveId == -1)
 			break;
 
+		time(&lastActivity);
 
 		// Read that new message
 		client = clients[receiveId];

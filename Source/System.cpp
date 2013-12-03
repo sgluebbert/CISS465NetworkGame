@@ -6,6 +6,10 @@ std::string directedLobbyName("Undefined");
 bool authenticated = false;
 std::string username = "Guest";
 
+Uint16 lobbySetPort = 0;
+std::string lobbySetName = "General Lobby";
+float lobbySetMapScale = 1.0;
+
 char ConvertToChar(SDLKey sym, bool shiftOn)
 {
     if (sym > SDLK_z || sym < SDLK_SPACE)

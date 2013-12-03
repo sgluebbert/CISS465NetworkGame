@@ -312,6 +312,17 @@ void AppStateMasterLobby::Receive() {
             	break;
             }
 
+            case NCE_CREATE_LOBBY:
+            {
+                std::string name;
+                int port;
+                netString.ReadString(name);
+                netString.ReadInt(port);
+
+                // Could redirect player to new lobby...
+                break;
+            }
+
             case NCE_END:
             	// std::cout << "End\n";
             	break;
@@ -429,6 +440,18 @@ void AppStateMasterLobby::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
         case SDLK_RSHIFT:       shiftOn = false;         break;
         case SDLK_LSHIFT:       shiftOn = false;         break;
+        case SDLK_RCTRL:
+        {
+            NetString string;
+            string.WriteUChar(NCE_CREATE_LOBBY);
+            std::string name = "New Lobby";
+            float size = 2;
+            string.WriteString(name);
+            string.WriteFloat(size);
+            string.WriteUChar(NCE_END);
+            network->SendData(&string, 0);
+            break;
+        }
         default:    break;
     }
 }

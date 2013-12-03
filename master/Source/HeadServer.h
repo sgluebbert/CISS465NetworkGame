@@ -2,6 +2,9 @@
 #define HEADSERVER
 
 #include "../../Source/Networking/Lobby.h"
+#include <unistd.h>
+#include <fcntl.h>
+#include <vector>
 #include <deque>
 
 struct HeadServer
@@ -13,6 +16,7 @@ struct HeadServer
 	void ReceivePlayers();
 	void ReceiveLobbies();
 	void NotifyPlayers(char id = -1);
+	bool CreateLobby(std::string name, int port, float mapScale);
 	
 private:
 	Network *networkLobbies;

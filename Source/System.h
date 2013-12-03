@@ -37,6 +37,10 @@ extern std::string directedLobbyName;
 extern bool authenticated;
 extern std::string username;
 
+extern Uint16 lobbySetPort;
+extern std::string lobbySetName;
+extern float lobbySetMapScale;
+
 
 /*System Functions*/
 static void Initialize_Key_Array();
