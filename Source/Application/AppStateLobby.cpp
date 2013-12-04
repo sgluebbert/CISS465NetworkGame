@@ -106,7 +106,7 @@ void AppStateLobby::Draw() {
     int offset = 0;
     for (int i = 0; i < MaximumClients; i++)
     {
-        if (clients[i] == NULL || clients[i]->team_id != BLUE_TEAM)
+        if (clients[i] == NULL || clients[i]->team_id == BLUE_TEAM)
             continue;
 
         // Add other things like exp lvl?
@@ -123,7 +123,7 @@ void AppStateLobby::Draw() {
     offset = 0;
     for (int i = 0; i < MaximumClients; i++)
     {
-        if (clients[i] == NULL || clients[i]->team_id != RED_TEAM)
+        if (clients[i] == NULL || clients[i]->team_id == RED_TEAM)
             continue;
 
         // Add other things like exp lvl?

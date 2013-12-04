@@ -10,11 +10,15 @@ AppStateMasterLobby::AppStateMasterLobby()
 	channelId = -1;
 	for (int i = 0; i < MaximumClients; ++i)
 		lobbies[i] = NULL;
-	highlightedLobby = -1;
+	highlightedOption = -2;
 	lobbyCount = 0;
     usernameInput = true;
     shiftOn = false;
     authenticating = false;
+
+    createLobby = false;
+    lobbySize = 0;
+    lobbyButton = 0;
 }
 
 void AppStateMasterLobby::Initialize() {
@@ -60,49 +64,45 @@ void AppStateMasterLobby::Draw() {
     ///////////////////////////////////////////////////////////////////////////
     // Draw lobby table
     Color color(0, 0, .3, .4);
-    DrawRect(16, 16, viewport.w - 16, viewport.h - 48, true, &color);
+    DrawRect(16, 48, viewport.w - 16, viewport.h - 16, true, &color);
     color = Color(0, 0, .6, .6);
-    DrawRect(16, 16, viewport.w - 16, viewport.h - 48, false, &color);
+    DrawRect(16, 48, viewport.w - 16, viewport.h - 16, false, &color);
     color = Color(0, 0, 0, .5);
-    DrawRect(22, 42, viewport.w - 22, viewport.h - 54, true, &color);
+    DrawRect(22, 74, viewport.w - 22, viewport.h - 22, true, &color);
     color = Color(0, 0, .6, .6);
-    DrawRect(22, 42, viewport.w - 22, viewport.h - 54, false, &color);
+    DrawRect(22, 74, viewport.w - 22, viewport.h - 22, false, &color);
 
     int tableWidth = viewport.w - 32;
 
     Text title("Lobby Name", textureManager->fonts.font_FreeMono_14, WHITE);
-    int nameX = 28, nameWidth = tableWidth * .2;
-    title.Draw(nameX + nameWidth / 2 - title.width / 2, 16);
+    int nameX = 24, nameWidth = tableWidth * .2;
+    title.Draw(nameX + nameWidth / 2 - title.width / 2, 50);
 
     int gameStateX = nameX + nameWidth + 4;
     int gameStateWidth = tableWidth * .4;
     title.Reload("Lobby State");
-    title.Draw(gameStateX + gameStateWidth / 2 - title.width / 2, 16);
+    title.Draw(gameStateX + gameStateWidth / 2 - title.width / 2, 50);
 
     int minPlayersCountX = gameStateX + gameStateWidth + 2;
     int minPlayersCountWidth = tableWidth * .12;
     title.Reload("Min Players");
-    title.Draw(minPlayersCountX + minPlayersCountWidth / 2 - title.width / 2, 16);
+    title.Draw(minPlayersCountX + minPlayersCountWidth / 2 - title.width / 2, 50);
 
     int playersCountX = minPlayersCountX + minPlayersCountWidth + 2;
     int playersCountWidth = tableWidth * .12;
     title.Reload("Players");
-    title.Draw(playersCountX + playersCountWidth / 2 - title.width / 2, 16);
+    title.Draw(playersCountX + playersCountWidth / 2 - title.width / 2, 50);
 
     int maxPlayersCountX = playersCountX + playersCountWidth + 2;
     int maxPlayersCountWidth = tableWidth * .12;
     title.Reload("Max Players");
-    title.Draw(maxPlayersCountX + maxPlayersCountWidth / 2 - title.width / 2, 16);
+    title.Draw(maxPlayersCountX + maxPlayersCountWidth / 2 - title.width / 2, 50);
 
-    DrawText(28, viewport.h - 38, "Press Escape to go back.", textureManager->fonts.font_FreeMono_16, &WHITE);
-
-    if (lobbyCount == 0)
-    	highlightedLobby = -1;
-    else
+    if (lobbyCount != 0)
     {
     	bool highlightValid = false;
 	    std::stringstream stream;
-	    int yoffset = 44;
+	    int yoffset = 76;
 	    Text row(" ", textureManager->fonts.font_FreeMono_14, WHITE);
 	    Lobby *lobby;
 	    for (int i = 0; i < MaximumClients; ++i)
@@ -111,11 +111,11 @@ void AppStateMasterLobby::Draw() {
 	    	if (lobby == NULL)
 	    		continue;
 
-	    	if (i == highlightedLobby)
+	    	if (i == highlightedOption)
 	    	{
 	    		highlightValid = true;
 			    color = Color(.3, .3, 1, .6);
-			    DrawRect(22, yoffset + 2, viewport.w - 22, yoffset + 20, false, &color);
+			    DrawRect(22, yoffset, viewport.w - 22, yoffset + 22, false, &color);
 	    	}
 
 	    	stream.str(std::string());
@@ -147,19 +147,40 @@ void AppStateMasterLobby::Draw() {
 	    	yoffset += 18;
 	    }
 
-	    if (!highlightValid)
+	    if (!highlightValid && highlightedOption >= 0)
 	    {
 	    	// Automatically select the first available lobby.
 	    	for (int i = 0; i < MaximumClients; ++i)
 		    {
 		    	if (lobbies[i] != NULL)
 		    	{
-		    		highlightedLobby = i;
+		    		highlightedOption = i;
 		    		break;
 		    	}
 		    }
 		}
 	}
+
+    Text buttonText("Go Back", textureManager->fonts.font_FreeMono_16, WHITE);
+    color = Color(0, 0, .3, .4);
+    DrawRect(16, 8, 108, 40, true, &color);
+    if (highlightedOption == -2)
+        color = Color(.3, .3, 1, .6);
+    else
+        color = Color(0, 0, .6, .6);
+    DrawRect(16, 8, 108, 40, false, &color);
+    buttonText.Draw(25, 13);
+
+
+    buttonText.Reload("Create Lobby");
+    color = Color(0, 0, .3, .4);
+    DrawRect(viewport.w - 152, 8, viewport.w - 16, 40, true, &color);
+    if (highlightedOption == -1)
+        color = Color(.3, .3, 1, .6);
+    else
+        color = Color(0, 0, .6, .6);
+    DrawRect(viewport.w - 152, 8, viewport.w - 16, 40, false, &color);
+    buttonText.Draw(viewport.w - 25 - buttonText.width, 13);
     ///////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////
@@ -199,6 +220,57 @@ void AppStateMasterLobby::Draw() {
             color = Color(0, 0, 0, .4);
             DrawRect(loginBounds.x, loginBounds.y, loginBounds.x + loginBounds.w, loginBounds.y + loginBounds.h, true, &color);
         }
+    }
+    ///////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Draw login
+    if (createLobby)
+    {
+        Rect<int> createBounds(viewport.w / 2 - 200, viewport.h / 2 - 50, 400, 100);
+
+        color = Color(0, 0, .3, .4);
+        DrawRect(createBounds.x, createBounds.y, createBounds.x + createBounds.w, createBounds.y + createBounds.h, true, &color);
+        color = Color(.3, .3, 1, .6);
+        DrawRect(createBounds.x, createBounds.y, createBounds.x + createBounds.w, createBounds.y + createBounds.h, false, &color);
+
+        if (lobbyButton == 0)
+            color = WHITE;
+        else
+            color = Color(1, 1, 1, .6);
+        DrawText(createBounds.x + 10, createBounds.y + 2, "Title:", textureManager->fonts.font_FreeMono_20, &color);
+        if (lobbyNamePrompt.length() > 0)
+            DrawText(createBounds.x + 90, createBounds.y + 2, lobbyNamePrompt.c_str(), textureManager->fonts.font_FreeMono_20, &color);
+
+        if (lobbyButton == 1)
+            color = WHITE;
+        else
+            color = Color(1, 1, 1, .6);
+        DrawText(createBounds.x + 10, createBounds.y + 32, "Size:", textureManager->fonts.font_FreeMono_20, &color);
+
+        DrawText(createBounds.x + 90, createBounds.y + 34, "Small", textureManager->fonts.font_FreeMono_18, &color);
+        DrawText(createBounds.x + 200, createBounds.y + 34, "Medium", textureManager->fonts.font_FreeMono_18, &color);
+        DrawText(createBounds.x + 324, createBounds.y + 34, "Large", textureManager->fonts.font_FreeMono_18, &color);
+
+        color = Color(.3, .3, 1, .6);
+        if (lobbySize == 0)
+            DrawRect(createBounds.x + 80, createBounds.y + 36, createBounds.x + 160, createBounds.y + 60, false, &color);
+        else if (lobbySize == 1)
+            DrawRect(createBounds.x + 190, createBounds.y + 36, createBounds.x + 280, createBounds.y + 60, false, &color);
+        else
+            DrawRect(createBounds.x + 314, createBounds.y + 36, createBounds.x + 388, createBounds.y + 60, false, &color);
+
+        if (lobbyButton == 2)
+            color = WHITE;
+        else
+            color = Color(1, 1, 1, .6);
+        DrawText(createBounds.x + 10, createBounds.y + 62, "Cancel", textureManager->fonts.font_FreeMono_20, &color);
+
+        if (lobbyButton == 3)
+            color = WHITE;
+        else
+            color = Color(1, 1, 1, .6);
+        DrawText(createBounds.x + 320, createBounds.y + 62, "Create", textureManager->fonts.font_FreeMono_20, &color);
     }
     ///////////////////////////////////////////////////////////////////////////
 }
@@ -309,8 +381,8 @@ void AppStateMasterLobby::Receive() {
             	if (lobbies[lobby->channelId] != NULL)
             		delete lobbies[lobby->channelId];
             	lobbies[lobby->channelId] = lobby;
-            	if (highlightedLobby == -1)
-            		highlightedLobby = lobby->channelId;
+            	if (highlightedOption == -1)
+            		highlightedOption = lobby->channelId;
             	lobbyCount++;
             	// std::cout << "Got lobby: " << lobby->name << '\n';
             	break;
@@ -339,10 +411,26 @@ void AppStateMasterLobby::Receive() {
 }
 
 void AppStateMasterLobby::MoveUp() {
-	if (lobbyCount == 0 || highlightedLobby == 0)
+    if (!authenticated)
+        return;
+
+    if (createLobby)
+    {
+        if (lobbyButton > 0)
+            lobbyButton--;
+        return;
+    }
+
+	if (highlightedOption == -2)
 		return;
 
-	int newHighlight = highlightedLobby - 1;
+    if (highlightedOption <= 0)
+    {
+        highlightedOption--;
+        return;
+    }
+
+	int newHighlight = highlightedOption - 1;
 	while (lobbies[newHighlight] == NULL)
 	{
 		newHighlight--;
@@ -350,31 +438,93 @@ void AppStateMasterLobby::MoveUp() {
 			return;
 	}
 
-	highlightedLobby = newHighlight;
+	highlightedOption = newHighlight;
 }
 
 void AppStateMasterLobby::MoveDown() {
-	if (lobbyCount == 0 || highlightedLobby == MaximumClients - 1)
+    if (!authenticated)
+        return;
+
+    if (createLobby)
+    {
+        if (lobbyButton < 3)
+            lobbyButton++;
+        return;
+    }
+    
+    if (highlightedOption == MaximumClients - 1)
 		return;
 
-	int newHighlight = highlightedLobby + 1;
+    if (highlightedOption == -2)
+    {
+        highlightedOption++;
+        return;
+    }
+
+	int newHighlight = highlightedOption + 1;
 	while (lobbies[newHighlight] == NULL)
 	{
 		newHighlight++;
 		if (newHighlight == MaximumClients)
+        {
+            highlightedOption = -2;
 			return;
+        }
 	}
 
-	highlightedLobby = newHighlight;
+	highlightedOption = newHighlight;
 }
 
 void AppStateMasterLobby::MakeSelection() {
-	if (highlightedLobby == -1)
-		return;
+    if (createLobby)
+    {
+        if (lobbyButton == 2)
+        {
+            createLobby = false;
+            lobbyNamePrompt = std::string();
+            lobbySize = 0;
+        }
+        else if (lobbyButton == 3)
+        {
+            if (lobbyNamePrompt.length() == 0)
+                return;
+            
+            NetString string;
+            string.WriteUChar(NCE_CREATE_LOBBY);
+            std::string name = lobbyNamePrompt;
+            float size = 1.5;
+            if (lobbySize == 1)
+                size = 2.0;
+            else if (lobbySize == 2)
+                size = 2.5;
+            string.WriteString(name);
+            string.WriteFloat(size);
+            string.WriteUChar(NCE_END);
+            network->SendData(&string, 0);
 
-	directedGameHost = lobbies[highlightedLobby]->address.host;
-	directedGamePort = lobbies[highlightedLobby]->gamePort;
-	directedLobbyName = lobbies[highlightedLobby]->name;
+            createLobby = false;
+            lobbyNamePrompt = std::string();
+            lobbySize = 0;
+        }
+
+        return;
+    }
+
+	if (highlightedOption == -2)
+    {
+        AppStateEvent::New_Event(APPSTATE_MENU);
+        return;
+    }
+    
+    if (highlightedOption == -1)
+    {
+        createLobby = true;
+		return;
+    }
+
+	directedGameHost = lobbies[highlightedOption]->address.host;
+	directedGamePort = lobbies[highlightedOption]->gamePort;
+	directedLobbyName = lobbies[highlightedOption]->name;
 	AppStateEvent::New_Event(APPSTATE_LOBBY);
 }
 
@@ -401,6 +551,8 @@ void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
         case SDLK_UP:           MoveUp(); usernameInput = !usernameInput;       break;
         case SDLK_DOWN:         MoveDown(); usernameInput = !usernameInput;		break;
+        case SDLK_LEFT:         if (createLobby && lobbySize > 0 && lobbyButton == 1) lobbySize--;  break;
+        case SDLK_RIGHT:        if (createLobby && lobbySize < 2 && lobbyButton == 1) lobbySize++;  break;
         case SDLK_ESCAPE:       AppStateEvent::New_Event(APPSTATE_MENU);        break;
         case SDLK_TAB:          usernameInput = !usernameInput;                 break;
         case SDLK_RSHIFT:       shiftOn = true;         break;
@@ -416,24 +568,41 @@ void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
         case SDLK_BACKSPACE:
             if (authenticating)
                 break;
-            if (usernameInput && usernamePrompt.length() > 0)
-                usernamePrompt = usernamePrompt.substr(0, usernamePrompt.length() - 1);
-            else if (passwordPrompt.length() > 0)
-                passwordPrompt = passwordPrompt.substr(0, passwordPrompt.length() - 1);
+            if (!authenticated)
+            {
+                if (usernameInput && usernamePrompt.length() > 0)
+                    usernamePrompt = usernamePrompt.substr(0, usernamePrompt.length() - 1);
+                else if (passwordPrompt.length() > 0)
+                    passwordPrompt = passwordPrompt.substr(0, passwordPrompt.length() - 1);
+            }
+            else if (createLobby)
+            {
+                if (lobbyNamePrompt.length() > 0)
+                    lobbyNamePrompt = lobbyNamePrompt.substr(0, lobbyNamePrompt.length() - 1);
+            }
             break;
         default:
         {
             if (authenticating)
                 break;
-            if (authenticated)
-                break;
-            char key = ConvertToChar(sym, shiftOn);
-            if (key != 0)
+            if (!authenticated)
             {
-                if (usernameInput)
-                    usernamePrompt += key;
-                else
-                    passwordPrompt += key;
+                char key = ConvertToChar(sym, shiftOn);
+                if (key != 0)
+                {
+                    if (usernameInput)
+                        usernamePrompt += key;
+                    else
+                        passwordPrompt += key;
+                }
+            }
+            else if (createLobby)
+            {
+                char key = ConvertToChar(sym, shiftOn);
+                if (key != 0)
+                {
+                    lobbyNamePrompt += key;
+                }
             }
             break;
         }
@@ -444,18 +613,6 @@ void AppStateMasterLobby::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
     switch(sym) {
         case SDLK_RSHIFT:       shiftOn = false;         break;
         case SDLK_LSHIFT:       shiftOn = false;         break;
-        case SDLK_RCTRL:
-        {
-            NetString string;
-            string.WriteUChar(NCE_CREATE_LOBBY);
-            std::string name = "New Lobby";
-            float size = 2;
-            string.WriteString(name);
-            string.WriteFloat(size);
-            string.WriteUChar(NCE_END);
-            network->SendData(&string, 0);
-            break;
-        }
         default:    break;
     }
 }
