@@ -19,7 +19,7 @@ class Planet : public Entity, public Collidable {
 public:
 	virtual void Update(double);
     virtual void Draw();
-	void Generate_Moons();
+	void Generate_Moons(float);
 	void Lock(bool);
 
 	Texture * field;

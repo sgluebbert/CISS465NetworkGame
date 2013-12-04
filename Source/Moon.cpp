@@ -6,6 +6,7 @@ Moon::Moon(float _x, float _y, float _m, float _r, float fr)
 	Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    
     Set_Group(MOON_GROUP);
 
 	int type_num = rand() % 4;
@@ -41,6 +42,12 @@ Moon::Moon(float _x, float _y, float _m, float _r, float fr)
     drawing_box.w = 2 * bounding_volume.r;
     drawing_box.h = 2 * bounding_volume.r;
 }
+
+Moon::~Moon() {
+
+}
+
+
 
 void Moon::Move()
 {

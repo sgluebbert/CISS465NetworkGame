@@ -142,8 +142,12 @@ static void Print_Planets() {
 }
 
 static void Print_Ships() {
+	std::cout << "/*Ships*/" << std::endl;
+	
 	/*for (int i = 0; i < Ship::objects.size() i++)
-		std::cout << Ship::objects[i];*/
+		std::cout << *(Ship::objects[i]) << std::endl;*/
+
+	std::cout << std::endl;
 }
 
 

@@ -32,9 +32,9 @@ void TextureManager::Load()
 	button 					= new Texture("./Art/Button.png");
 	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
 	planet_glow				= new Texture("./Art/PlanetGravityGlow.png");
-	red_planet				= new Texture("./Art/RedPlanet.png");
-	blue_planet				= new Texture("./Art/BluePlanet.png");
-	neutral_planet			= new Texture("./Art/NeutralPlanet.png");
+	red_planet				= new Texture("./Art/redplanet.png");
+	blue_planet				= new Texture("./Art/blueplanet.png");
+	neutral_planet			= new Texture("./Art/neutralplanet.png");
 	field_glow_locked 		= new Texture("./Art/PlanetGravityGlow.png");
 	field_glow_unlocked     = new Texture("./Art/PlanetGravityGlow2.png");
 	moon					= new Texture("./Art/moon.png");

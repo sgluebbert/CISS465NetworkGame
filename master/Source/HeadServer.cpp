@@ -9,6 +9,9 @@ HeadServer::HeadServer()
 
 	for (int i = 0; i < MaximumClients; ++i)
 		activePlayers[i] = false;
+
+	for (int i = 0; i < AvailablePortsSize; ++i)
+		availablePorts[i] = true;
 }
 
 HeadServer::~HeadServer()
@@ -83,8 +86,7 @@ void HeadServer::ReceivePlayers()
 					netString->ReadString(name);
 					netString->ReadString(password);
 
-					// Perform login check
-					bool pass = true;
+					bool pass = PerformLogin(name, password);
 
 					NetString response;
 					response.WriteUChar(NCE_PLAYER_LOGIN);
@@ -101,17 +103,31 @@ void HeadServer::ReceivePlayers()
 					float scale;
 					netString->ReadFloat(scale);
 
-					// Insert logic to pick next port...
-					int port = 8080;
-
-					if (CreateLobby(name, port, scale))
+					int port = 0;
+					for (int i = 0; i < AvailablePortsSize; ++i)
 					{
-						NetString response;
-						response.WriteUChar(NCE_CREATE_LOBBY);
-						response.WriteString(name);
-						response.WriteInt(port);
-						response.WriteUChar(NCE_END);
-						networkPlayers->SendData(&response, receiveId);
+						if (availablePorts[i])
+						{
+							port = PortRangeStart + i;
+							break;
+						}
+					}
+
+					if (port != 0)
+					{
+						if (CreateLobby(name, port, scale))
+						{
+							NetString response;
+							response.WriteUChar(NCE_CREATE_LOBBY);
+							response.WriteString(name);
+							response.WriteInt(port);
+							response.WriteUChar(NCE_END);
+							networkPlayers->SendData(&response, receiveId);
+						}
+					}
+					else
+					{
+						// Handle errors
 					}
 
 					break;
@@ -126,7 +142,6 @@ void HeadServer::ReceivePlayers()
 			}
 		}
 	}
-
 }
 
 void HeadServer::ReceiveLobbies()
@@ -176,6 +191,13 @@ void HeadServer::ReceiveLobbies()
 
 			if (lobby != NULL)
 			{
+				// Was the lobby on localhost?
+				if (lobby->address.host == LocalhostInt)
+				{
+					int portOffset = lobby->gamePort - PortRangeStart;
+					availablePorts[portOffset] = true;
+				}
+
 				delete lobby;
 
 				std::cout << "[ Lobby Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
@@ -235,6 +257,13 @@ void HeadServer::ReceiveLobbies()
 					netString->ReadInt(temp);
 					lobby->gamePort = (Uint32)temp;
 
+					// Was the lobby on localhost?
+					if (lobby->address.host == LocalhostInt)
+					{
+						int portOffset = lobby->gamePort - PortRangeStart;
+						availablePorts[portOffset] = false;
+					}
+
 					unsigned char tempc;
 					netString->ReadUChar(tempc);
 					lobby->state = (GameServerEnums)tempc;
@@ -290,6 +319,14 @@ void HeadServer::NotifyPlayers(char id)
 	}
 	else
 		networkPlayers->SendData(&string, id);
+}
+
+bool HeadServer::PerformLogin(std::string name, std::string password)
+{
+	if (name.substr(0, 4) == "test" || name.substr(0, 4) == "Test")
+		return true;
+
+	return true;
 }
 
 bool HeadServer::CreateLobby(std::string name, int port, float mapScale)

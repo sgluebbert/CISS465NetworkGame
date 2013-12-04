@@ -52,6 +52,10 @@ void AppStateGame::Initialize() {
     network->Init();
     background_texture = surface_manager->background_game;
     background_rect = Camera::getInstance()->Get_Viewport();
+
+    Collision_Manager::Get_Instance();
+    srand(time(NULL));
+    Initialize_Trig_Table();
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -59,7 +63,46 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
+    
+    // std::cout << "Beginning Updates..." << std::endl;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
+
+    // std::cout << "Beginning Particle Culling..." << std::endl;
+    for (int i = Particle::particles.size() - 1; i >= 0; i--)
+        if (Particle::particles[i]->Is_Dead()) {
+            for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
+                if (Particle::particles[i] == Rigid_Body::objects[j])
+                    Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
+            for (int j = Drawable::objects.size() - 1; j >= 0; j--)
+                if (Particle::particles[i] == Drawable::objects[j])
+                    Drawable::objects.erase(Drawable::objects.begin() + j);
+            for (int j = Collidable::objects.size() - 1; j >= 0; j--)
+                if (Particle::particles[i] == Collidable::objects[j])
+                    Collidable::objects.erase(Collidable::objects.begin() + j);
+
+            delete Particle::particles[i];
+            Particle::particles.erase(Particle::particles.begin() + i);
+        }
+
+    // std::cout << "Beginning Collidable Culling..." << std::endl;
+    for (int i = Collidable::objects.size() - 1; i >= 0; i--)
+        if (Collidable::objects[i] == NULL)
+            Collidable::objects.erase(Collidable::objects.begin() + i);
+
+    // std::cout << "Beginning Drawable Culling..." << std::endl;
+    for (int i = Drawable::objects.size() - 1; i >= 0; i--)
+        if (Drawable::objects[i] == NULL)
+            Drawable::objects.erase(Drawable::objects.begin() + i);
+
+    // std::cout << "Beginning Rigid Body Culling..." << std::endl;
+    for (int i = Rigid_Body::objects.size() - 1; i >= 0; i--)
+        if (Rigid_Body::objects[i] == NULL)
+            Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
+
+    // std::cout << "Beginning Rigid Body Updates..." << std::endl;
+    for (int i = 0; i < Rigid_Body::objects.size(); i++) {
+        Rigid_Body::objects[i]->Update(dt);
+    }
 
     Send();
     Receive();
@@ -102,16 +145,18 @@ void AppStateGame::Update() {
         }
     }
 
+    // std::cout << "Beginning Player Updates..." << std::endl;
     player.Update(dt);
 
-    for (int i = 0; i < Rigid_Body::objects.size(); i++)
-        if (Rigid_Body::objects[i] != NULL)
-            Rigid_Body::objects[i]->Update(-dt);
+    // std::cout << "Beginning Collision Updates..." << std::endl;
+    Collision_Manager::Get_Instance()->Update(dt);
 
+    // std::cout << "Beginning Camera Updates..." << std::endl;
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     viewport.x = player.pawn->x - viewport.w / 2.0;
     viewport.y = player.pawn->y - viewport.h / 2.0;
     Camera::getInstance()->Set_Viewport(viewport);
+    // std::cout << "End of Updates..." << std::endl;
 }
 
 void AppStateGame::Draw() {
@@ -244,22 +289,32 @@ void AppStateGame::Receive() {
                 netString.ReadInt(temp);
                 netString.ReadFloat(temp2);
 
-                if (player.pawn == NULL)
-                {
-                    player.pawn = new Ship(INTERCEPTOR, 0, 0);
-                    players[player.player_id] = player.pawn;
-                }
-
                 if (requestingGreeting)
                 {
                     delete map;
                     map = new Map(temp, temp2);
                     map->Generate_Map();
+                    Ship::Initialize_Ships(map->max_players_per_team * 2);
+
+                    if (player.pawn == NULL)
+                    {
+                        int pawn_index = Ship::Add_Ship(player.team_id, INTERCEPTOR, 100, 100, 5.0);
+                        if (pawn_index >= 0)
+                            player.pawn = Ship::ships[pawn_index];
+                        else
+                        {
+                            std::cerr << "Error initializing ship\n";
+                            AppStateEvent::New_Event(APPSTATE_MENU);
+                        }
+
+                        players[player.player_id] = player.pawn;
+                    }
+
                     std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
                     std::cout << "Map: " << temp << '\n';
+                    requestingGreeting = false;
                 }
 
-                requestingGreeting = false;
                 break;
             }
 
@@ -270,6 +325,9 @@ void AppStateGame::Receive() {
                 unsigned char tempc;
                 netString.ReadUChar(tempc);
                 Team team_id = (Team)tempc;
+
+                if (players[player_id] != NULL)
+                    players[player_id]->team_id = team_id;
 
                 std::string player_name;
                 netString.ReadString(player_name);
@@ -305,7 +363,15 @@ void AppStateGame::Receive() {
                 // New Player?
                 if (players[playerId] == NULL)
                 {
-                    players[playerId] = new Ship(FIGHTER, 0, 0);
+                    int pawn_index = Ship::Add_Ship(NO_TEAM, INTERCEPTOR, 100, 100, 5.0);
+                    if (pawn_index >= 0)
+                        players[playerId] = Ship::ships[pawn_index];
+                    else
+                    {
+                        std::cerr << "Error initializing ship\n";
+                        AppStateEvent::New_Event(APPSTATE_MENU);
+                    }
+
                     NetString query;
                     query.WriteUChar(NCE_LOOKUP_PLAYER);
                     query.WriteUChar(playerId);
@@ -316,6 +382,7 @@ void AppStateGame::Receive() {
 
                 ship = players[playerId];
                 ship->Deserialize(&netString);
+                ship->Sync();
 
                 // Could change this into a loop? eh..
                 bool firedInputs[5];
@@ -343,7 +410,7 @@ void AppStateGame::Receive() {
                 netString.ReadUChar(playerId);
                 if (players[playerId] != NULL && players[playerId] != player.pawn)
                 {
-                    delete players[playerId];
+                    Ship::Remove_Ship(players[playerId]);
                     players[playerId] = NULL;
                 
                     std::cout << "Player Removed: " << (int)playerId << '\n';
@@ -408,7 +475,7 @@ void AppStateGame::Cleanup() {
     for (int i = 0; i < MaximumClients; ++i)
     {
         if (players[i] != NULL && players[i] != player.pawn)
-            delete players[i];
+            Ship::Remove_Ship(players[i]);
     }
 
     network->Close();

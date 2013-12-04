@@ -1,6 +1,27 @@
 #include "Entity.h"
 
-
+std::ostream &operator<<(std::ostream &stream, Team e)
+{
+    switch (e)
+    {
+        case NO_TEAM:
+            stream << "No Team.";
+            break;
+        case RED_TEAM:
+            stream << "Red.";
+            break;
+        case BLUE_TEAM:
+            stream << "Blue.";
+            break;
+        case NEUTRAL_TEAM:
+            stream << "Neutral.";
+            break;
+        default:
+            stream << "Unknown";
+    }
+    
+    return stream;
+}
 
 Entity::Entity() {
     //RigidBody Init
@@ -27,4 +48,9 @@ void Entity::Draw() {
         glColor4f(1.0, 1.0, 1.0, 1.0);
         texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
     }
+}
+
+void Entity::Sync() {
+    drawing_box.x = x - draw_scale / 2.0;
+    drawing_box.y = y - draw_scale / 2.0;
 }

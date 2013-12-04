@@ -206,6 +206,10 @@ void AppStateMasterLobby::Draw() {
 void AppStateMasterLobby::Login() {
     if (authenticating)
         return;
+
+    if (usernamePrompt.length() == 0)
+        return;
+
     authenticating = true;
 
     NetString stream;

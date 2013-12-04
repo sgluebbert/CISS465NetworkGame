@@ -20,11 +20,9 @@ enum Weapon_Type {	ENERGY_TYPE, BALLISTIC_TYPE, PROPELLED_TYPE, BOMB_TYPE, POWER
 
 class Ship : public Entity, public Collidable, public Motor, public Serializable {
 public:
-	/*|NOTICE| THE CONSTRUCTOR AND DESTRUCTOR WILL BE SET PRIVATE SOON, ADJUST CODE ACCORDINGLY*/
 	Ship(Ship_Type, float, float);
 	~Ship();
-	/*|NOTICE| THE CONSTRUCTOR AND DESTRUCTOR WILL BE SET PRIVATE SOON, ADJUST CODE ACCORDINGLY*/
-
+	
     NetString * Serialize();
     bool Deserialize(NetString *);
 
@@ -41,6 +39,7 @@ public:
     void Limit_Motor();
 	void Update(double);
 	void Draw();
+	void Sync();
 
 	Texture * texture_c;
 
@@ -66,6 +65,7 @@ public:
 
 	static int Add_Ship(Team, Ship_Type, float, float, float);
 	static void Remove_Ship(int);
+	static void Remove_Ship(Ship *);
 
 	static void Initialize_Ships(int);
 	static void Cleanup_Ships();
