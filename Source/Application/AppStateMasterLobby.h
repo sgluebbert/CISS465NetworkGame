@@ -15,6 +15,8 @@
 #include "../Map.h"
 #include "../Networking/Lobby.h"
 
+const int LocalhostIntRepresentation = 16777343;
+
 
 class AppStateMasterLobby : public AppStateBase {
 private:

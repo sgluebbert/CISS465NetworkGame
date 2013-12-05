@@ -522,8 +522,11 @@ void AppStateMasterLobby::MakeSelection() {
 		return;
     }
 
-	directedGameHost = lobbies[highlightedOption]->address.host;
 	directedGamePort = lobbies[highlightedOption]->gamePort;
+    if ((int)lobbies[highlightedOption]->address.host == LocalhostIntRepresentation)
+        directedGameHost = network->GetSendHost();
+    else
+       directedGameHost = lobbies[highlightedOption]->address.host;
 	directedLobbyName = lobbies[highlightedOption]->name;
 	AppStateEvent::New_Event(APPSTATE_LOBBY);
 }
