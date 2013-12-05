@@ -19,13 +19,12 @@ class Moon : public Entity, public Collidable
 {
 public:
 
-	Moon(float _x, float _y, float _m, float _r, float fr);
+	Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float _r, float fr);
 	~Moon();
 
 	virtual void Update(double);
     virtual void Draw();
 
-    void Move();
     void TakeDamage();
     void DrawGravityField();
     void DistributeResource();
@@ -35,6 +34,8 @@ public:
     Texture * moon;
     Texture * field;
 
+    float orbit_center_x, orbit_center_y;
+    float orbit_radius;
     float health, max_health;
     float alignment;
     float capture_rate;
