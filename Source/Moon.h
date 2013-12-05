@@ -34,6 +34,7 @@ public:
     Texture * moon;
     Texture * field;
 
+    float orbit_speed;
     float orbit_center_x, orbit_center_y;
     float orbit_radius;
     float health, max_health;

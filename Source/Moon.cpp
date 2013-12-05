@@ -41,6 +41,8 @@ Moon::Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float 
     x = bounding_volume.x = orbit_center_x + orbit_radius * sin(angle*PI/180);
 	y = bounding_volume.y = orbit_center_y + orbit_radius * cos(angle*PI/180);
 
+	orbit_speed = 2.5f;
+
     draw_scale = bounding_volume.r = _r + fr;
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
@@ -98,7 +100,7 @@ void Moon::Draw()
 
 void Moon::Update(double dt)
 {
-	angle += 2.5f * dt;
+	angle += orbit_speed * dt;
 
 	if (angle > 360)
 		angle -= 360;
