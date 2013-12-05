@@ -37,7 +37,7 @@ private:
 
         time_t secondsToStartLastTick;
         unsigned char secondsToStart;
-        int team1Count, team2Count;
+        int teamRedCount, teamBlueCount;
         GameServerEnums state;
         std::bitset<MaximumClients> availablePlayerIds;
 

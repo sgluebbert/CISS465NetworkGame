@@ -13,8 +13,10 @@
 #include "../Camera.h"
 #include "../Client.h"
 #include "../Clock.h"
-#include "../System.h"
+#include "../CollisionManager.h"
 #include "../Map.h"
+#include "../System.h"
+#include "../Planet.h"
 
 
 

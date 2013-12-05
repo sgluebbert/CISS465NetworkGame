@@ -6,7 +6,7 @@ AppStateBase * AppStateGameServer::instance = NULL;
 
 
 AppStateGameServer::AppStateGameServer(DebugLevel l)
-	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), team1Count(0), team2Count(0), state(GSE_WAITING)
+	: debugLevel(l), clientCount(0), secondsToStart(1), inLobby(true), teamRedCount(0), teamBlueCount(0), state(GSE_WAITING)
 {
 	tryMainAgain = 0;
 
@@ -155,14 +155,14 @@ void AppStateGameServer::UpdateLobby() {
 
 	HandleLobbyConnections();
 
-	if (state == GSE_WAITING && team1Count >= map->min_players_per_team && team2Count >= map->min_players_per_team)
+	if (state == GSE_WAITING && teamRedCount >= map->min_players_per_team && teamBlueCount >= map->min_players_per_team)
 	{
 		secondsToStart = 15;
 		state = GSE_LOBBY_COUNTDOWN;
 		SendStateUpdate();
 	}
 
-	if (state == GSE_LOBBY_COUNTDOWN && (team1Count < map->min_players_per_team || team2Count < map->min_players_per_team))
+	if (state == GSE_LOBBY_COUNTDOWN && (teamRedCount < map->min_players_per_team || teamBlueCount < map->min_players_per_team))
 	{
 		state = GSE_WAITING;
 		SendStateUpdate();
@@ -212,7 +212,7 @@ void AppStateGameServer::HandleLobbyConnections() {
 				clients[*it] = NULL;
 			}
 
-			if (team1Count >= map->max_players_per_team && team2Count >= map->max_players_per_team)
+			if (teamRedCount >= map->max_players_per_team && teamBlueCount >= map->max_players_per_team)
 			{
 				NetString netString;
 				netString.WriteUChar(NCE_TOO_MANY_PLAYERS);
@@ -364,8 +364,8 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 }
 
 void AppStateGameServer::MakeTeamsEven(int id) {
-	team1Count = 0;
-	team2Count = 0;
+	teamRedCount = 0;
+	teamBlueCount = 0;
 
 	if (inLobby)
 	{
@@ -374,15 +374,15 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 			if (clients[i] == NULL)
 				continue;
 
-			if (team1Count > team2Count)
+			if (teamRedCount > teamBlueCount)
 			{
-				clients[i]->team_id = RED_TEAM;
-				team2Count++;
+				clients[i]->team_id = BLUE_TEAM;
+				teamBlueCount++;
 			}
 			else
 			{
-				clients[i]->team_id = BLUE_TEAM;
-				team1Count++;
+				clients[i]->team_id = RED_TEAM;
+				teamRedCount++;
 			}
 		}
 	}
@@ -398,29 +398,29 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 				continue;
 
 			if (clients[i]->team_id == RED_TEAM)
-				team2Count++;
+				teamRedCount++;
 			else
-				team1Count++;
+				teamBlueCount++;
 		}
 
 		// count up expected players
 		for (std::vector<Client *>::iterator it = expectedClients.begin(); it != expectedClients.end(); it++)
 		{
 			if ((*it)->team_id == RED_TEAM)
-				team2Count++;
+				teamRedCount++;
 			else
-				team1Count++;
+				teamBlueCount++;
 		}
 
-		if (team1Count > team2Count)
+		if (teamRedCount > teamBlueCount)
 		{
-			clients[id]->team_id = RED_TEAM;
-			team2Count++;
+			clients[id]->team_id = BLUE_TEAM;
+			teamBlueCount++;
 		}
 		else
 		{
-			clients[id]->team_id = BLUE_TEAM;
-			team1Count++;
+			clients[id]->team_id = RED_TEAM;
+			teamRedCount++;
 		}
 	}
 }
@@ -437,7 +437,7 @@ void AppStateGameServer::SendStateUpdate(int id) {
 	}
 	else if (state == GSE_GAME_ENDED)
 	{
-		if (team1Count < map->min_players_per_team)
+		if (teamRedCount < map->min_players_per_team)
 			string.WriteUChar(BLUE_TEAM);
 		else
 			string.WriteUChar(RED_TEAM);
@@ -494,18 +494,18 @@ void AppStateGameServer::UpdateGame() {
 
 	if (state == GSE_GAME)
 	{
-		if (team1Count < map->min_players_per_team)
+		if (teamRedCount < map->min_players_per_team)
 		{
-			// Team 2 won
+			// Team blue won
 			std::cout << "Team blue Won!\n";
 			state = GSE_GAME_ENDED;
 			SendStateUpdate();
 			AppStateEvent::New_Event(APPSTATE_NONE);
 			return;
 		}
-		else if (team2Count < map->min_players_per_team)
+		else if (teamBlueCount < map->min_players_per_team)
 		{
-			// Team 1 won
+			// Team red won
 			std::cout << "Team red Won!\n";
 			state = GSE_GAME_ENDED;
 			SendStateUpdate();
@@ -558,9 +558,9 @@ void AppStateGameServer::HandleGameConnections()
 		for (std::vector<int>::iterator it = removedClients.begin(); it != removedClients.end(); it++)
 		{
 			if (clients[*it]->team_id == RED_TEAM)
-				team2Count--;
+				teamRedCount--;
 			else
-				team1Count--;
+				teamBlueCount--;
 
 			availablePlayerIds[clients[*it]->player_id] = true;
 			string.WriteUChar(NCE_REMOVE_PLAYER);
@@ -723,9 +723,9 @@ void AppStateGameServer::HandleGameConnections()
 					string.WriteUChar(NCE_REMOVE_PLAYER);
 					string.WriteUChar(client->player_id);
 					if (client->team_id == RED_TEAM)
-						team2Count--;
+						teamRedCount--;
 					else
-						team1Count--;
+						teamBlueCount--;
 					availablePlayerIds[client->player_id] = true;
 					clients[receiveId] = NULL;
 					clientCount--;
@@ -756,9 +756,9 @@ void AppStateGameServer::HandleGameConnections()
 			string.WriteUChar(NCE_REMOVE_PLAYER);
 			string.WriteUChar(clients[i]->player_id);
 			if (clients[i]->team_id == RED_TEAM)
-				team2Count--;
+				teamRedCount--;
 			else
-				team1Count--;
+				teamBlueCount--;
 			availablePlayerIds[clients[i]->player_id] = true;
 			clients[i] = NULL;
 			clientCount--;
@@ -782,9 +782,9 @@ void AppStateGameServer::HandleGameConnections()
 		{
 			availablePlayerIds[(*it)->player_id] = true;
 			if ((*it)->team_id == RED_TEAM)
-				team2Count--;
+				teamRedCount--;
 			else
-				team1Count--;
+				teamBlueCount--;
 
 			std::cout << "Player: " << (*it)->player_name << " has not joined in time.\n";
 			delete *it;

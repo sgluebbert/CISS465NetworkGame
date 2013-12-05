@@ -1,5 +1,5 @@
 CC = g++
-CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_net
+CPPFLAGS = -g `sdl-config --cflags --libs` -lSDL_net `mysql_config --cflags --libs`
 
 all:
 	@cd ..;\

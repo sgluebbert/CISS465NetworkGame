@@ -1,5 +1,7 @@
 #include "Pickup_Factory.h"
 
+
+
 Pickup_Factory::Pickup_Factory(float _x, float _y) {
 	Set_Group(FACTORY_GROUP);
 
@@ -31,6 +33,8 @@ Pickup_Factory::~Pickup_Factory() {
 	if (reference != NULL)
 		delete reference;
 }
+
+
 
 void Pickup_Factory::Set_Pickup(Pickup * new_ref) {
 	pickup = NULL;

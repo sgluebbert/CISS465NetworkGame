@@ -31,7 +31,7 @@ private:
         void Login();
 
         Lobby *lobbies[MaximumClients];
-        int highlightedLobby;
+        int highlightedOption;
         int lobbyCount;
         char channelId;
         std::string usernamePrompt;
@@ -39,6 +39,11 @@ private:
         bool usernameInput;
         bool shiftOn;
         bool authenticating;
+
+        bool createLobby;
+        std::string lobbyNamePrompt;
+        int lobbySize;
+        int lobbyButton;
 public:
  
         void Initialize();

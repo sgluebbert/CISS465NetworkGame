@@ -6,6 +6,7 @@ Moon::Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float 
 	Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
+    
     Set_Group(MOON_GROUP);
 
 	int type_num = rand() % 4;
