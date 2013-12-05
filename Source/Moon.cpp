@@ -1,7 +1,7 @@
 #include "Moon.h"
 
 
-Moon::Moon(float _x, float _y, float _m, float _r, float fr)
+Moon::Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float _r, float fr)
 {
 	Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
@@ -32,19 +32,19 @@ Moon::Moon(float _x, float _y, float _m, float _r, float fr)
     moon = surface_manager->moon;
     field = surface_manager->field_glow_unlocked;
 
-    x = bounding_volume.x = _x;
-    y = bounding_volume.y = _y;
-    draw_angle = angle = 0.0;
+    orbit_center_x = _ocx;
+    orbit_center_y = _ocy;
+    orbit_radius = _offset;
+
+    draw_angle = angle = _angle;
+    x = bounding_volume.x = orbit_center_x + orbit_radius * sin(angle*PI/180);
+	y = bounding_volume.y = orbit_center_y + orbit_radius * cos(angle*PI/180);
+
     draw_scale = bounding_volume.r = _r + fr;
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
     drawing_box.w = 2 * bounding_volume.r;
     drawing_box.h = 2 * bounding_volume.r;
-}
-
-void Moon::Move()
-{
-
 }
 
 void Moon::TakeDamage()
@@ -97,6 +97,22 @@ void Moon::Draw()
 
 void Moon::Update(double dt)
 {
+	angle += 2.5f * dt;
+
+	if (angle > 360)
+		angle -= 360;
+
+	if (angle < 0)
+		angle += 360;
+
+	x = orbit_center_x + orbit_radius * sin(angle*PI/180);
+	y = orbit_center_y + orbit_radius * cos(angle*PI/180);
+
+	drawing_box.x = x - bounding_volume.r;
+    drawing_box.y = y - bounding_volume.r;
+ 	bounding_volume.x = x;
+    bounding_volume.y = y;
+
  	Entity::Update(dt);
     drawing_box.Update(dx, -dy);
     bounding_volume.Update(dx, -dy);

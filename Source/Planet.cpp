@@ -120,16 +120,48 @@ void Planet::Draw()
 void Planet::Generate_Moons(float scale)
 {
   
-    int num_moons = rand() % 4;
+    int num_moons = (rand() % 4) + 1;
 
     float moon_mass = mass / 2.0f;
     float moon_size = scale / 2.0f;
 
+    std::vector<float>start_angles;
+
     Moon * moon = NULL;
     for (int i = 0; i < num_moons; i++) {
-        float x_offset = sin(rand() % 180 / PI) * 500;
-        float y_offset = cos(rand() % 180 / PI) * 500;
-        moon = new Moon(x + x_offset, y + y_offset, moon_mass, moon_size, 50.0f);
+        float offset = rand() % 300 + 200;
+        float start_angle = rand() % 360;
+
+        while (1)
+        {
+            bool flag = 0;
+            for (int i = 0; i < start_angles.size();i++)
+            {
+                if (start_angle == start_angles[i])
+                {
+                    flag = 1;
+                    break;
+                }
+            }
+
+            if (flag == 1)
+            {
+                start_angle = rand() % 300 + 30;
+            }
+            else
+            {
+                for (int i = start_angle - 30; i < start_angle + 30; i++)
+                {
+                    start_angles.push_back(i);
+                }
+
+                break;
+            }
+
+        }
+
+
+        moon = new Moon(offset + scale + moon_size, start_angle, x, y, moon_mass, moon_size, 50.0f);
         moons.push_back(moon);
     }
 }
