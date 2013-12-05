@@ -172,6 +172,7 @@ void HeadServer::ReceiveLobbies()
 			lobby->channelId = *it;
 			lobbies.push_back(lobby);
 			updatePlayers = true;
+			AddLobby(*lobby);
 
 			std::cout << "[ New Lobby Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
 		}
@@ -198,6 +199,7 @@ void HeadServer::ReceiveLobbies()
 					availablePorts[portOffset] = true;
 				}
 
+				RemoveLobby(*lobby);
 				delete lobby;
 
 				std::cout << "[ Lobby Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
@@ -272,7 +274,8 @@ void HeadServer::ReceiveLobbies()
 					netString->ReadInt(lobby->mapSeed);
 					netString->ReadFloat(lobby->mapScale);
 
-					std::cout << "Got: " << lobby->name << "; port: " << lobby->gamePort << "; state: " << lobby->state << "; players: " << (int)lobby->playerCount << '\n';
+					// std::cout << "Got: " << lobby->name << "; port: " << lobby->gamePort << "; state: " << lobby->state << "; players: " << (int)lobby->playerCount << '\n';
+					SaveLobby(*lobby);
 					updatePlayers = true;
 					break;
 				}
@@ -323,10 +326,66 @@ void HeadServer::NotifyPlayers(char id)
 
 bool HeadServer::PerformLogin(std::string name, std::string password)
 {
+	// just let anyone using the name test through
 	if (name.substr(0, 4) == "test" || name.substr(0, 4) == "Test")
 		return true;
 
-	return true;
+	bool pass = false;
+
+	Database database;
+	if (database.connect())
+	{
+		int playerId = database.check_player((char *)name.c_str(), (char *)password.c_str());
+		pass = playerId > 0;
+	}
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to perform login." << std::endl;
+
+	database.close();
+
+	return pass;
+}
+
+bool HeadServer::AddLobby(Lobby &lobby)
+{
+	bool success = false;
+
+	Database database;
+	if (database.connect())
+		success = database.insert_lobby((int)lobby.channelId);
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to add lobby." << std::endl;
+
+	database.close();
+	return success;
+}
+
+bool HeadServer::SaveLobby(Lobby &lobby)
+{
+	bool success = false;
+
+	Database database;
+	if (database.connect())
+		success = database.update_lobby_num_players((int)lobby.playerCount, (int)lobby.channelId);
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to update lobby." << std::endl;
+
+	database.close();
+	return success;
+}
+
+bool HeadServer::RemoveLobby(Lobby &lobby)
+{
+	bool success = false;
+
+	Database database;
+	if (database.connect())
+		success = database.delete_lobby((int)lobby.channelId);
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to delete lobby." << std::endl;
+
+	database.close();
+	return success;
 }
 
 bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
