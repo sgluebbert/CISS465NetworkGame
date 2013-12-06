@@ -557,7 +557,7 @@ void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
         case SDLK_LEFT:         if (createLobby && lobbySize > 0 && lobbyButton == 1) lobbySize--;  break;
         case SDLK_RIGHT:        if (createLobby && lobbySize < 2 && lobbyButton == 1) lobbySize++;  break;
         case SDLK_ESCAPE:       AppStateEvent::New_Event(APPSTATE_MENU);        break;
-        case SDLK_TAB:          usernameInput = !usernameInput;                 break;
+        case SDLK_TAB:          usernameInput = !usernameInput; MoveDown();     break;
         case SDLK_RSHIFT:       shiftOn = true;         break;
         case SDLK_LSHIFT:       shiftOn = true;         break;
         case SDLK_RETURN:

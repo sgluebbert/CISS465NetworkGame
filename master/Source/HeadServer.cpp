@@ -390,7 +390,7 @@ bool HeadServer::RemoveLobby(Lobby &lobby)
 
 bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
 {
-	const char * logLocation = "./lobbiesLog.log";
+	const char * logLocation = "./lobbiesLog";
 	char portBuffer[10];
 	char scaleBuffer[30];
 
@@ -402,6 +402,9 @@ bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
 	stream << mapScale;
 	memcpy(scaleBuffer, stream.str().c_str(), stream.str().length() + 1);
 
+	stream.str(std::string());
+	stream << logLocation << port << ".log";
+
 	char* const args[] = { (char*)"./starclash", (char*)"server", portBuffer, (char*)name.c_str(), scaleBuffer, (char *)0 };
 
 	int pid = fork();
@@ -412,7 +415,7 @@ bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
 	if (pid == 0)
 	{
 		// Redirect stdout and stderr
-		int fd = open(logLocation, O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
+		int fd = open(stream.str().c_str(), O_CREAT | O_APPEND | O_WRONLY, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
 		dup2(fd, 1);
 		dup2(fd, 2);
 

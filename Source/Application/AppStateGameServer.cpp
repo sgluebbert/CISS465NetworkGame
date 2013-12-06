@@ -14,11 +14,16 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
 	availablePlayerIds.set();
+
+	winner = NO_TEAM;
 }
 
 void AppStateGameServer::Initialize() {
 	srand(time(NULL));
 	map = new Map(rand(), 1.0);
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Server stuff
 	lobbyName = std::string(lobbySetName);
 
 	if (lobbySetPort == 0)
@@ -43,6 +48,10 @@ void AppStateGameServer::Initialize() {
 	time(&lastActivity);
 	time(&lastSpeedDisplay);
 	std::cout << "[ Server Started ] " << CurrentDateTime() << std::endl;
+	//////////////////////////////////////////////////////////////////////////////////
+
+    Collision_Manager::Get_Instance();
+    Initialize_Trig_Table();
 }
 
 void AppStateGameServer::SwitchToGameMode() {
@@ -76,6 +85,11 @@ void AppStateGameServer::SwitchToGameMode() {
 	secondsToStart = 15;
 	time(&secondsToStartLastTick);
 	time(&lastActivity);
+
+	std::cout << "[ Server Switching ] " << CurrentDateTime() << " >>> Switching to game mode. Map Seed: " << map->SEED << "." << std::endl;
+
+	map->Generate_Map();
+	Ship::Initialize_Ships(map->max_players_per_team * 2);
 }
 
 void AppStateGameServer::Events(SDL_Event * Event) {
@@ -83,6 +97,10 @@ void AppStateGameServer::Events(SDL_Event * Event) {
 }
 
 void AppStateGameServer::Update() {
+	// Insert game logic in UpdateGame()
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Server Stuff
 	time_t now;
 	time(&now);
 
@@ -130,6 +148,7 @@ void AppStateGameServer::Update() {
 
 		AppStateEvent::New_Event(APPSTATE_NONE);
 	}
+	//////////////////////////////////////////////////////////////////////////////////
 }
 
 void AppStateGameServer::UpdateMainServer()
@@ -363,7 +382,7 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 	UpdateMainServer();
 }
 
-void AppStateGameServer::MakeTeamsEven(int id) {
+bool AppStateGameServer::MakeTeamsEven(int id) {
 	teamRedCount = 0;
 	teamBlueCount = 0;
 
@@ -389,7 +408,7 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 	else
 	{
 		if (id < 0 || clients[id] == NULL) // shouldn't happen
-			return;
+			return false;
 
 		// count up existing players.
 		for (int i = 0; i < MaximumClients; i++)
@@ -401,6 +420,9 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 				teamRedCount++;
 			else
 				teamBlueCount++;
+
+			if (clients[i]->pawn != NULL)
+				clients[i]->pawn->team_id = clients[i]->team_id;
 		}
 
 		// count up expected players
@@ -412,17 +434,26 @@ void AppStateGameServer::MakeTeamsEven(int id) {
 				teamBlueCount++;
 		}
 
+		if (teamRedCount >= map->max_players_per_team && teamBlueCount >= map->max_players_per_team)
+			return false;
+
 		if (teamRedCount > teamBlueCount)
 		{
 			clients[id]->team_id = BLUE_TEAM;
+			if (clients[id]->pawn != NULL)
+				clients[id]->pawn->team_id = clients[id]->team_id;
 			teamBlueCount++;
 		}
 		else
 		{
 			clients[id]->team_id = RED_TEAM;
+			if (clients[id]->pawn != NULL)
+				clients[id]->pawn->team_id = clients[id]->team_id;
 			teamRedCount++;
 		}
 	}
+
+	return true;
 }
 
 void AppStateGameServer::SendStateUpdate(int id) {
@@ -436,12 +467,7 @@ void AppStateGameServer::SendStateUpdate(int id) {
 		string.WriteInt(secondsToStartLastTick);
 	}
 	else if (state == GSE_GAME_ENDED)
-	{
-		if (teamRedCount < map->min_players_per_team)
-			string.WriteUChar(BLUE_TEAM);
-		else
-			string.WriteUChar(RED_TEAM);
-	}
+		string.WriteUChar(winner);
 
 	string.WriteUChar(NCE_END);
 
@@ -453,10 +479,14 @@ void AppStateGameServer::SendStateUpdate(int id) {
 }
 
 void AppStateGameServer::UpdateGame() {
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Server Stuff
+
 	// Handle new/removed connections and their input
 	HandleGameConnections();
 
-	/////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
 	// Game Logic
 	double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
@@ -487,18 +517,70 @@ void AppStateGameServer::UpdateGame() {
 		}
 	}
 
-	for (int i = 0; i < Rigid_Body::objects.size(); i++)
-		if (Rigid_Body::objects[i] != NULL)
-			Rigid_Body::objects[i]->Update(dt);
-	/////////////////////////////////////////////////////////////////////////////////////////
 
-	if (state == GSE_GAME)
+	// std::cout << "Beginning Particle Culling..." << std::endl;
+	for (int i = Particle::particles.size() - 1; i >= 0; i--)
+	{
+		if (Particle::particles[i]->Is_Dead())
+		{
+			for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
+			{
+				if (Particle::particles[i] == Rigid_Body::objects[j])
+					Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
+			}
+
+			for (int j = Drawable::objects.size() - 1; j >= 0; j--)
+			{
+				if (Particle::particles[i] == Drawable::objects[j])
+					Drawable::objects.erase(Drawable::objects.begin() + j);
+			}
+
+			for (int j = Collidable::objects.size() - 1; j >= 0; j--)
+			{
+				if (Particle::particles[i] == Collidable::objects[j])
+					Collidable::objects.erase(Collidable::objects.begin() + j);
+			}
+
+			delete Particle::particles[i];
+			Particle::particles.erase(Particle::particles.begin() + i);
+		}
+	}
+
+	// std::cout << "Beginning Collidable Culling..." << std::endl;
+	for (int i = Collidable::objects.size() - 1; i >= 0; i--)
+	{
+		if (Collidable::objects[i] == NULL)
+			Collidable::objects.erase(Collidable::objects.begin() + i);
+	}
+
+	// std::cout << "Beginning Drawable Culling..." << std::endl;
+	for (int i = Drawable::objects.size() - 1; i >= 0; i--)
+	{
+		if (Drawable::objects[i] == NULL)
+			Drawable::objects.erase(Drawable::objects.begin() + i);
+	}
+
+	// std::cout << "Beginning Rigid Body Culling..." << std::endl;
+	for (int i = Rigid_Body::objects.size() - 1; i >= 0; i--)
+	{
+		if (Rigid_Body::objects[i] == NULL)
+			Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
+	}
+
+	// std::cout << "Beginning Rigid Body Updates..." << std::endl;
+	for (int i = 0; i < Rigid_Body::objects.size(); i++)
+		Rigid_Body::objects[i]->Update(dt);
+
+    Collision_Manager::Get_Instance()->Update(dt);
+
+	if (state == GSE_GAME) // contrary to game countdown or game ended
 	{
 		if (teamRedCount < map->min_players_per_team)
 		{
 			// Team blue won
 			std::cout << "Team blue Won!\n";
 			state = GSE_GAME_ENDED;
+			winner = BLUE_TEAM;
 			SendStateUpdate();
 			AppStateEvent::New_Event(APPSTATE_NONE);
 			return;
@@ -508,11 +590,27 @@ void AppStateGameServer::UpdateGame() {
 			// Team red won
 			std::cout << "Team red Won!\n";
 			state = GSE_GAME_ENDED;
+			winner = RED_TEAM;
+			SendStateUpdate();
+			AppStateEvent::New_Event(APPSTATE_NONE);
+			return;
+		}
+
+		// std::cout << Planet::planet_graph.front()->team_id << "  " << Planet::planet_graph.back()->team_id << '\n';
+		Team planetsWinner = Planet::Win_Condition();
+		if (planetsWinner != NO_TEAM)
+		{
+			std::cout << "Team " << planetsWinner << " Won!\n";
+			state = GSE_GAME_ENDED;
+			winner = planetsWinner;
 			SendStateUpdate();
 			AppStateEvent::New_Event(APPSTATE_NONE);
 			return;
 		}
 	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Server Stuff
 
 	// Update all of the connections to the game state
 	UpdateGameConnections();
@@ -539,7 +637,14 @@ void AppStateGameServer::HandleGameConnections()
 			}
 
 			client = new Client();
-			client->pawn = new Ship(INTERCEPTOR, 100, 100);
+			int pawnIndex = Ship::Add_Ship(NO_TEAM, INTERCEPTOR, 100, 100, 5.0); // Will get its teamid later
+			if (pawnIndex >= 0)
+				client->pawn = Ship::ships[pawnIndex];
+			else
+				std::cout << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to create ship." << std::endl;
+
+			// Insert logic to place new ship;
+
 			client->offline = true;
 			client->channel_id = *it;
 			networkGame->Bind(*it);
@@ -686,11 +791,16 @@ void AppStateGameServer::HandleGameConnections()
 						// Unexpected, so give it a team
 						if (!wasFromLobby)
 						{
-							// Insert logic to check for team size again
-							// If max is reached, kick player
+							if (!MakeTeamsEven(client->channel_id))
+							{
+								NetString response;
+								response.WriteUChar(NCE_TOO_MANY_PLAYERS);
+								response.WriteUChar(NCE_END);
+								networkGame->SendData(&response, receiveId);
+								break;
+							}
 							
 							client->player_id = GetNextPlayerId();
-							MakeTeamsEven(client->channel_id);
 						}
 					}
 
@@ -846,7 +956,6 @@ void AppStateGameServer::SendToAll(NetString *string)
 }
 
 void AppStateGameServer::Draw() {
-	
 }
 
 void AppStateGameServer::Cleanup() {
@@ -863,15 +972,9 @@ AppStateBase * AppStateGameServer::GetInstance() {
 }
 
 void AppStateGameServer::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
-	switch(sym) {
-	default:    break;
-	}
 }
 
 void AppStateGameServer::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
-	switch(sym) {
-	default:    break;
-	}
 }
 
 const std::string CurrentDateTime()

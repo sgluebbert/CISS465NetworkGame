@@ -47,6 +47,7 @@ public:
     Particle_Emitter shatter_emitter;
 
     Ship_State state;
+    std::string player_name;
 
     Timer respawn_timer;
 	Timer power_recharge_timer;

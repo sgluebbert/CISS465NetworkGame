@@ -6,6 +6,7 @@
 #include "../Clock.h"
 #include "../System.h"
 #include "../Networking/Network.h"
+#include "../CollisionManager.h"
 #include "../Client.h"
 #include "../Map.h"
 
@@ -17,7 +18,7 @@
 enum DebugLevel { DL_NONE, DL_LOW, DL_MED, DL_HIGH };
 
 // After how much inactivity should the server kill itself?
-const int TimeoutInSeconds = 10;
+const int TimeoutInSeconds = 30;
  
  
 class AppStateGameServer : public AppStateBase {
@@ -38,6 +39,7 @@ private:
         time_t secondsToStartLastTick;
         unsigned char secondsToStart;
         int teamRedCount, teamBlueCount;
+        Team winner;
         GameServerEnums state;
         std::bitset<MaximumClients> availablePlayerIds;
 
@@ -48,7 +50,7 @@ private:
         void HandleLobbyConnections();
         void UpdateLobby();
         void SendLobbyPlayersToAll();
-        void MakeTeamsEven(int id = -1);
+        bool MakeTeamsEven(int id = -1);
         void SendStateUpdate(int id = -1);
 
         void HandleGameConnections();

@@ -10,7 +10,7 @@ const float Map::DEFAULT_SECTION_SPACING = 1000.0;
 
 Map::Map(int seed, float scale)
 	: SEED(seed) {
-	srand(seed);
+	srand(SEED);
 
 	if (scale < 0.5)
 		map_scale = 0.5;
@@ -27,6 +27,8 @@ Map::Map(int seed, float scale)
 	map_bounds.y = map_scale * -1000.0;
 	map_bounds.w = number_of_planets * map_scale * 1000.0;
 	map_bounds.h = map_scale * 2000.0;
+
+	srand(time(NULL));
 }
 
 Map::~Map() {
@@ -46,5 +48,7 @@ void Map::DrawLobbyPreview(int x, int y, int w, int h) {
 }
 
 void Map::Generate_Map() {
+	srand(SEED);
 	Planet::Generate_Planets(number_of_planets, map_scale);
+	srand(time(NULL));
 }

@@ -114,7 +114,7 @@ void AppStateGame::Update() {
     if (secondsSinceLastMessage > 3 && teamWon == NO_TEAM)
     {
         std::cout << "Communication to server has timed out.\n";
-        AppStateEvent::New_Event(APPSTATE_MENU);
+        AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
     }
 
     if (requestingGreeting)
@@ -140,9 +140,7 @@ void AppStateGame::Update() {
             }
         }
         else
-        {
-            AppStateEvent::New_Event(APPSTATE_MENU);
-        }
+            AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
     }
 
     // std::cout << "Beginning Player Updates..." << std::endl;
@@ -312,6 +310,7 @@ void AppStateGame::Receive() {
 
                     std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
                     std::cout << "Map: " << temp << '\n';
+                    player.info_feed.Player_Joined(player.player_name);
                     requestingGreeting = false;
                 }
 
@@ -326,13 +325,15 @@ void AppStateGame::Receive() {
                 netString.ReadUChar(tempc);
                 Team team_id = (Team)tempc;
 
-                if (players[player_id] != NULL)
-                    players[player_id]->team_id = team_id;
-
                 std::string player_name;
                 netString.ReadString(player_name);
 
-                std::cout << "New Player Joined: " << player_name << "; ID: " << player_id << "; team: " << team_id << '\n';
+                if (players[player_id] != NULL)
+                {
+                    players[player_id]->team_id = team_id;
+                    players[player_id]->player_name = player_name;
+                }
+
                 break;
             }
 
@@ -344,13 +345,17 @@ void AppStateGame::Receive() {
                 netString.ReadUChar(tempc);
                 Team team_id = (Team)tempc;
 
-                if (players[player_id] != NULL)
-                    players[player_id]->team_id = team_id;
-
                 std::string player_name;
                 netString.ReadString(player_name);
                 
+                if (players[player_id] != NULL)
+                {
+                    players[player_id]->team_id = team_id;
+                    players[player_id]->player_name = player_name;
+                }
+
                 std::cout << "New Player Joined: " << player_name << "; ID: " << player_id << "; team: " << team_id << '\n';
+                player.info_feed.Player_Joined(player_name);
                 break;
             }
 
@@ -410,6 +415,7 @@ void AppStateGame::Receive() {
                 netString.ReadUChar(playerId);
                 if (players[playerId] != NULL && players[playerId] != player.pawn)
                 {
+                    player.info_feed.Player_Disconnected(players[playerId]->player_name);
                     Ship::Remove_Ship(players[playerId]);
                     players[playerId] = NULL;
                 

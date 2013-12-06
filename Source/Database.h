@@ -11,8 +11,8 @@
 using namespace std;
 
 const static char * ip = "127.0.0.1";
-const static char * usr = "root";
-const static char * pass = "root";
+const static char * usr = "starclash";
+const static char * pass = "starclash";
 const static char * db =  "Starclash";
 
 static int query_state;
