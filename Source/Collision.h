@@ -93,8 +93,6 @@ public:
 };
 /////////////////////////////////////////////////////////
 
-
-
 static void Collides(Collidable * lhs, Collidable * rhs) {
 	if (lhs->mask[rhs->group] == false)
 		return;

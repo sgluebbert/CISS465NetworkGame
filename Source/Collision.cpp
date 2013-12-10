@@ -194,7 +194,11 @@ void BulletToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rh
 
 void BulletToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
     Particle * bullet = (Particle *) lhs;
-	//Moon * moon = (Moon *) rhs;
+	Moon * moon = (Moon *) rhs;
+
+    if (DoCollide(moon, bullet))
+        moon->TakeDamage(50);
+
 
     bullet->distance_travelled = 9999.9999;
 }

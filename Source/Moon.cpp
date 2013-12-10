@@ -50,9 +50,17 @@ Moon::Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float 
     drawing_box.h = 2 * bounding_volume.r;
 }
 
-void Moon::TakeDamage()
+void Moon::TakeDamage(float damage)
 {
-	
+	health -= damage;
+
+	std::cout << "health: " << health << std::endl;
+
+	if (health <= 0)
+	{
+		health = 0;
+		type = DEAD_MOON;
+	}
 }
 
 void Moon::DrawGravityField()
@@ -60,19 +68,26 @@ void Moon::DrawGravityField()
     if (field == NULL)
         return;
 
-    if (alignment > 0.0)
-        glColor4f(0.5, 0.5, 0.5 + alignment / 2.0, 1.0);
-    else if (alignment < 0.0f)
-        glColor4f(0.5 - alignment / 2.0, 0.5, 0.5, 1.0);
+    if (type == DEAD_MOON)
+    {
+    	 glColor4f(0.2, 0.2, 0.2, 1.0);
+    }
     else
-        glColor4f(0.5, 0.5, 0.5, 1.0);
+    {
+	    if (alignment > 0.0)
+	        glColor4f(0.5, 0.5, 0.5 + alignment / 2.0, 1.0);
+	    else if (alignment < 0.0f)
+	        glColor4f(0.5 - alignment / 2.0, 0.5, 0.5, 1.0);
+	    else
+	        glColor4f(0.5, 0.5, 0.5, 1.0);
+    }
 
     field->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }
 
 void Moon::Draw()
 {
-  if (moon == NULL || alive == false)
+  if (moon == NULL)
         return;
 
     DrawGravityField();
@@ -92,6 +107,10 @@ void Moon::Draw()
 	else if (type == ARMOR)
 	{
 		glColor4f(0.0, 1.0, 0.0, 1.0);
+	}
+	else if (type == DEAD_MOON)
+	{
+		glColor4f(0.5, 0.5, 0.5, 1.0);
 	}
 
     moon->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale - field_radius);

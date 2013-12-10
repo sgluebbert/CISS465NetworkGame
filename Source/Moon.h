@@ -11,7 +11,7 @@
 
 
 
-enum MOON_TYPE { HEALTH, SHIELD, POWER, ARMOR };
+enum MOON_TYPE { HEALTH, SHIELD, POWER, ARMOR, DEAD_MOON};
 
 
 
@@ -25,7 +25,7 @@ public:
 	virtual void Update(double);
     virtual void Draw();
 
-    void TakeDamage();
+    void TakeDamage(float);
     void DrawGravityField();
     void DistributeResource();
     void RemoveResource(Team);
