@@ -1,6 +1,5 @@
 #include "AppStateMenu.h"
-
-
+#include "../SoundManager.h"
 
 AppStateBase * AppStateMenu::instance = NULL;
 
@@ -17,6 +16,10 @@ void AppStateMenu::Initialize() {
     main_menu.Add_Option("Exit");
     
     main_menu.Center_To_Window();
+
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Load_Music("Sound/Music/Main_Menu.ogg");
+    music->Play_Music();
 }
 
 void AppStateMenu::Events(SDL_Event * Event) {
@@ -32,6 +35,8 @@ void AppStateMenu::Draw() {
 }
 
 void AppStateMenu::Cleanup() {
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Stop_Music();
 }
 
 AppStateBase * AppStateMenu::GetInstance() {

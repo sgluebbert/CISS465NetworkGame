@@ -1,6 +1,7 @@
 #include "AppStateTest.h"
 #include "../CollisionManager.h"
 #include "../Debug.h"
+#include "../SoundManager.h"
 
 
 
@@ -15,6 +16,10 @@ AppStateTest::AppStateTest() {
 
 void AppStateTest::Initialize() {
     std::cout << "Beginning Initialization..." << std::endl;
+
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Load_Music("Sound/Music/Battle.ogg");
+    music->Play_Music();
 
     //Just makes sure the instance is initialized before gameplay begins
     std::cout << "Beginning Collision_Manager Initialization..." << std::endl;
@@ -119,6 +124,10 @@ void AppStateTest::Cleanup() {
             delete Particle::particles[i];
 
     Ship::Cleanup_Ships();
+
+
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Stop_Music();
 
     Particle::particles.clear();
 

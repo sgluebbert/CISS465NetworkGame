@@ -11,8 +11,6 @@
 #include "../System.h"
 #include "../Planet.h"
 
-
-
 class AppStateTest : public AppStateBase {
 private:
         static AppStateBase * instance;

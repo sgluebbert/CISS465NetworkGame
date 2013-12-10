@@ -1,5 +1,5 @@
 #include "AppStateIntro.h"
-
+#include "../SoundManager.h"
 
 AppStateBase * AppStateIntro::instance = NULL;
 
@@ -20,6 +20,10 @@ void AppStateIntro::Initialize()
     current_bumper = 0;
     bumper_timer = 0.0;
     current_color = 0.0;
+
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Load_Music("Sound/Music/Intro.ogg");
+    music->Play_Music();
 }
 
 void AppStateIntro::Events(SDL_Event * Event)
@@ -72,6 +76,8 @@ void AppStateIntro::Draw()
 
 void AppStateIntro::Cleanup()
 {
+    Sound_Manager * music = Sound_Manager::Get_Instance();
+    music->Stop_Music();
 }
 
 AppStateBase * AppStateIntro::GetInstance()
