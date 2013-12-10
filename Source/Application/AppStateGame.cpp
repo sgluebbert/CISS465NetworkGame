@@ -309,7 +309,7 @@ void AppStateGame::Receive() {
                     }
 
                     std::cout << "I am player: " << (int)player.player_id << "; team: " << player.team_id << '\n';
-                    std::cout << "Map: " << temp << '\n';
+                    std::cout << "Map: " << temp << "; Scale: " << temp2 << '\n';
                     player.info_feed.Player_Joined(player.player_name);
                     requestingGreeting = false;
                 }

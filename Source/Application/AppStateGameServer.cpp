@@ -20,7 +20,7 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 
 void AppStateGameServer::Initialize() {
 	srand(time(NULL));
-	map = new Map(rand(), 1.0);
+	map = new Map(rand(), lobbySetMapScale);
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Server stuff
@@ -49,9 +49,6 @@ void AppStateGameServer::Initialize() {
 	time(&lastSpeedDisplay);
 	std::cout << "[ Server Started ] " << CurrentDateTime() << std::endl;
 	//////////////////////////////////////////////////////////////////////////////////
-
-    Collision_Manager::Get_Instance();
-    Initialize_Trig_Table();
 }
 
 void AppStateGameServer::SwitchToGameMode() {
@@ -86,8 +83,10 @@ void AppStateGameServer::SwitchToGameMode() {
 	time(&secondsToStartLastTick);
 	time(&lastActivity);
 
-	std::cout << "[ Server Switching ] " << CurrentDateTime() << " >>> Switching to game mode. Map Seed: " << map->SEED << "." << std::endl;
+	std::cout << "[ Server Switching ] " << CurrentDateTime() << " >>> Switching to game mode. Map Seed: " << map->SEED << ". Map Scale: " << map->map_scale << '.' << std::endl;
 
+	Collision_Manager::Get_Instance();
+    Initialize_Trig_Table();
 	map->Generate_Map();
 	Ship::Initialize_Ships(map->max_players_per_team * 2);
 }
@@ -361,7 +360,7 @@ void AppStateGameServer::SendLobbyPlayersToAll()
 	NetString string;
 	string.WriteUChar(NCE_MAP);
 	string.WriteInt(map->SEED);
-	string.WriteInt(map->map_scale);
+	string.WriteFloat(map->map_scale);
 	string.WriteUChar(NCE_END);
 
 	string.WriteUChar(NCE_LOBBY_PLAYER_SYNC);
@@ -490,16 +489,7 @@ void AppStateGameServer::UpdateGame() {
 	// Game Logic
 	double dt = Clock::Frame_Control.Get_Time_Per_Frame();
 
-	if (state == GSE_GAME)
-	{
-		for (int i = 0; i < MaximumClients; i++)
-		{
-			if (clients[i] == NULL)
-				continue;
-			clients[i]->Update(dt);
-		}
-	}
-	else if (state == GSE_GAME_COUNTDOWN)
+	if (state == GSE_GAME_COUNTDOWN)
 	{
 		time_t now;
 		time(&now);
@@ -517,64 +507,69 @@ void AppStateGameServer::UpdateGame() {
 		}
 	}
 
-
-	// std::cout << "Beginning Particle Culling..." << std::endl;
-	for (int i = Particle::particles.size() - 1; i >= 0; i--)
-	{
-		if (Particle::particles[i]->Is_Dead())
-		{
-			for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
-			{
-				if (Particle::particles[i] == Rigid_Body::objects[j])
-					Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
-			}
-
-			for (int j = Drawable::objects.size() - 1; j >= 0; j--)
-			{
-				if (Particle::particles[i] == Drawable::objects[j])
-					Drawable::objects.erase(Drawable::objects.begin() + j);
-			}
-
-			for (int j = Collidable::objects.size() - 1; j >= 0; j--)
-			{
-				if (Particle::particles[i] == Collidable::objects[j])
-					Collidable::objects.erase(Collidable::objects.begin() + j);
-			}
-
-			delete Particle::particles[i];
-			Particle::particles.erase(Particle::particles.begin() + i);
-		}
-	}
-
-	// std::cout << "Beginning Collidable Culling..." << std::endl;
-	for (int i = Collidable::objects.size() - 1; i >= 0; i--)
-	{
-		if (Collidable::objects[i] == NULL)
-			Collidable::objects.erase(Collidable::objects.begin() + i);
-	}
-
-	// std::cout << "Beginning Drawable Culling..." << std::endl;
-	for (int i = Drawable::objects.size() - 1; i >= 0; i--)
-	{
-		if (Drawable::objects[i] == NULL)
-			Drawable::objects.erase(Drawable::objects.begin() + i);
-	}
-
-	// std::cout << "Beginning Rigid Body Culling..." << std::endl;
-	for (int i = Rigid_Body::objects.size() - 1; i >= 0; i--)
-	{
-		if (Rigid_Body::objects[i] == NULL)
-			Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
-	}
-
-	// std::cout << "Beginning Rigid Body Updates..." << std::endl;
-	for (int i = 0; i < Rigid_Body::objects.size(); i++)
-		Rigid_Body::objects[i]->Update(dt);
-
-    Collision_Manager::Get_Instance()->Update(dt);
-
 	if (state == GSE_GAME) // contrary to game countdown or game ended
 	{
+		// std::cout << "Beginning Particle Culling..." << std::endl;
+		for (int i = Particle::particles.size() - 1; i >= 0; i--)
+		{
+			if (Particle::particles[i]->Is_Dead())
+			{
+				for (int j = Rigid_Body::objects.size() - 1; j >= 0; j--)
+				{
+					if (Particle::particles[i] == Rigid_Body::objects[j])
+						Rigid_Body::objects.erase(Rigid_Body::objects.begin() + j);
+				}
+
+				for (int j = Drawable::objects.size() - 1; j >= 0; j--)
+				{
+					if (Particle::particles[i] == Drawable::objects[j])
+						Drawable::objects.erase(Drawable::objects.begin() + j);
+				}
+
+				for (int j = Collidable::objects.size() - 1; j >= 0; j--)
+				{
+					if (Particle::particles[i] == Collidable::objects[j])
+						Collidable::objects.erase(Collidable::objects.begin() + j);
+				}
+
+				delete Particle::particles[i];
+				Particle::particles.erase(Particle::particles.begin() + i);
+			}
+		}
+
+		// std::cout << "Beginning Collidable Culling..." << std::endl;
+		for (int i = Collidable::objects.size() - 1; i >= 0; i--)
+		{
+			if (Collidable::objects[i] == NULL)
+				Collidable::objects.erase(Collidable::objects.begin() + i);
+		}
+
+		// std::cout << "Beginning Drawable Culling..." << std::endl;
+		for (int i = Drawable::objects.size() - 1; i >= 0; i--)
+		{
+			if (Drawable::objects[i] == NULL)
+				Drawable::objects.erase(Drawable::objects.begin() + i);
+		}
+
+		// std::cout << "Beginning Rigid Body Culling..." << std::endl;
+		for (int i = Rigid_Body::objects.size() - 1; i >= 0; i--)
+		{
+			if (Rigid_Body::objects[i] == NULL)
+				Rigid_Body::objects.erase(Rigid_Body::objects.begin() + i);
+		}
+
+		// std::cout << "Beginning Rigid Body Updates..." << std::endl;
+		for (int i = 0; i < Rigid_Body::objects.size(); i++)
+			Rigid_Body::objects[i]->Update(dt);
+
+		for (int i = 0; i < MaximumClients; ++i)
+		{
+			if (clients[i] != NULL)
+				clients[i]->Update(dt);
+		}
+
+		Collision_Manager::Get_Instance()->Update(dt);
+
 		if (teamRedCount < map->min_players_per_team)
 		{
 			// Team blue won
@@ -596,7 +591,6 @@ void AppStateGameServer::UpdateGame() {
 			return;
 		}
 
-		// std::cout << Planet::planet_graph.front()->team_id << "  " << Planet::planet_graph.back()->team_id << '\n';
 		Team planetsWinner = Planet::Win_Condition();
 		if (planetsWinner != NO_TEAM)
 		{
@@ -782,6 +776,7 @@ void AppStateGameServer::HandleGameConnections()
 							{
 								client->player_id = (*it)->player_id;
 								client->team_id = (*it)->team_id;
+								client->pawn->team_id = (*it)->team_id;
 								expectedClients.erase(it);
 								wasFromLobby = true;
 								break;
@@ -809,7 +804,7 @@ void AppStateGameServer::HandleGameConnections()
 					response.WriteInt(client->player_id);
 					response.WriteUChar(client->team_id);
 					response.WriteInt(map->SEED);
-					response.WriteInt(map->map_scale);
+					response.WriteFloat(map->map_scale);
 					response.WriteUChar(NCE_END);
 					networkGame->SendData(&response, receiveId);
 

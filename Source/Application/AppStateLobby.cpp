@@ -213,8 +213,7 @@ void AppStateLobby::Receive() {
                 netString.ReadFloat(temp2);
             	delete map;
             	map = new Map(temp1, temp2);
-                map->Generate_Map();
-            	std::cout << "Map Seed: " << temp1 << '\n';
+            	std::cout << "Map Seed: " << temp1 << " Map Scale: " << temp2 << '\n';
 
             case NCE_LOBBY_PLAYER_SYNC:
             	for (int i = 0; i < MaximumClients; i++)

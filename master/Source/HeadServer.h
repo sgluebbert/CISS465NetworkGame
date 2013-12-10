@@ -9,7 +9,7 @@
 #include <deque>
 
 const int PortRangeStart = 1236;
-const int AvailablePortsSize = 5;
+const int AvailablePortsSize = 4;
 const int LocalhostInt = 16777343; // Int representation of "localhost" in sdlnet
 
 struct HeadServer

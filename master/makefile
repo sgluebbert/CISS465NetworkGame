@@ -11,5 +11,11 @@ build: ./Source/HeadServer.o
 
 HeadServer.o: ./Source/HeadServer.cpp ./Source/HeadServer.h
 
+publish:
+	@read -p "bilbo.ccis.edu username: " USERNAME;\
+	ssh $$USERNAME@bilbo.ccis.edu "mkdir -p ~/ciss465/master; mkdir -p ~/ciss465/app;";\
+	scp -r mainserver conf $$USERNAME@bilbo.ccis.edu:~/ciss465/master/;\
+	scp -r ../app/starclash ../app/conf $$USERNAME@bilbo.ccis.edu:~/ciss465/app/;\
+
 clean:
 	rm -f mainserver ./Source/*.o

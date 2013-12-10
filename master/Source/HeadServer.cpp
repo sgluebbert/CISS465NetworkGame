@@ -156,6 +156,8 @@ void HeadServer::ReceiveLobbies()
 		// Handle new connections
 		for (std::vector<int>::iterator it = newLobbies.begin(); it != newLobbies.end(); it++)
 		{
+			updatePlayers = true;
+			
 			Lobby *lobby = new Lobby();
 			IPaddress *address = networkLobbies->GetIPAddress(*it);
 			if (address == NULL)
@@ -171,7 +173,6 @@ void HeadServer::ReceiveLobbies()
 
 			lobby->channelId = *it;
 			lobbies.push_back(lobby);
-			updatePlayers = true;
 			AddLobby(*lobby);
 
 			std::cout << "[ New Lobby Accepted ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
@@ -179,6 +180,8 @@ void HeadServer::ReceiveLobbies()
 
 		for (std::vector<int>::iterator it = removedLobbies.begin(); it != removedLobbies.end(); it++)
 		{
+			updatePlayers = true;
+
 			Lobby *lobby = NULL;
 			for (int i = 0; i < lobbies.size(); i++)
 			{
@@ -204,8 +207,6 @@ void HeadServer::ReceiveLobbies()
 
 				std::cout << "[ Lobby Connection Dropped ] " << CurrentDateTime() << " >>> Channel: " << *it << std::endl;
 			}
-
-			updatePlayers = true;
 		}
 
 		// Did we get a message ready to read?
@@ -415,7 +416,7 @@ bool HeadServer::CreateLobby(std::string name, int port, float mapScale)
 	if (pid == 0)
 	{
 		// Redirect stdout and stderr
-		int fd = open(stream.str().c_str(), O_CREAT | O_APPEND | O_WRONLY, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
+		int fd = open(stream.str().c_str(), O_CREAT | O_TRUNC | O_WRONLY, S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH);
 		dup2(fd, 1);
 		dup2(fd, 2);
 
