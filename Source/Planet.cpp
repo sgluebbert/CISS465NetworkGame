@@ -241,6 +241,56 @@ void Planet::Generate_Planets(int num, float scale) {
     //////////////////////////////////////////////////
 }
 
+void Planet::Preview_Planets(int num, float scale, int offsetx, int offsety, float widthScale) {
+    if (num < 1)//1 is essentially capture the hill, but doesn't fail game logic
+        num = 1;
+
+    if (scale < 0.5)
+        scale = 0.5;
+    else if (scale > 2.5)
+        scale = 2.5;
+
+    int half_num = num / 2;
+    float variance = scale * 0.2;
+
+    float mass_modifier = 1000.0;
+    float size_modifier = 200.0;
+    float interval_modifier = 1000.0;
+    float capture_modifier = 0.025;
+
+    Planet * planet = NULL;
+
+
+    //Create Red Team Planets
+    //////////////////////////////////////////////////
+    for (int i = half_num; i > 0; i--) {
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        surface_manager->red_planet->DrawCentered(offsetx + -interval_modifier * scale * i * widthScale, offsety, 0, size_modifier * scale * .2);
+        // planet->Generate_Moons(size_modifier * scale);
+    }
+    //////////////////////////////////////////////////
+
+
+    //Create Neutral Planet, if number of planets is odd
+    //////////////////////////////////////////////////
+    if (num % 2 == 1) {
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        surface_manager->neutral_planet->DrawCentered(offsetx, offsety, 0, size_modifier * scale * .2);
+        // planet->Generate_Moons(size_modifier * scale);
+    }
+    //////////////////////////////////////////////////
+
+
+    //Create Blue Team Planets
+    //////////////////////////////////////////////////
+    for (int i = 1; i <= half_num; i++) {
+        scale = (float(rand()) / float(RAND_MAX) * 2 * variance) - variance + scale;
+        surface_manager->blue_planet->DrawCentered(offsetx + interval_modifier * scale * i * widthScale, offsety, 0, size_modifier * scale * .2);
+        // planet->Generate_Moons(size_modifier * scale);
+    }
+    //////////////////////////////////////////////////
+}
+
 void Planet::Clear_Planets() {
     while (!Planet::planet_graph.empty()) {
         delete Planet::planet_graph.front();

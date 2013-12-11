@@ -34,6 +34,7 @@ public:
 	static float field_modifier;
 
 	static void Generate_Planets(int, float);
+	static void Preview_Planets(int, float, int, int, float);
 	static void Clear_Planets();
 	static Team Win_Condition();
 

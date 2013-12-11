@@ -55,6 +55,7 @@ void Map::Draw() {
 void Map::DrawLobbyPreview(int x, int y, int w, int h) {
 	// Draws a mini map for use in the lobby.  Should put everything in the rectangle given.
 	// We could center it within the rectangle if the rectangle is not the correct aspect ratio.
+	srand(SEED);
 
     TextureManager *textureManager = TextureManager::GetInstance();
 
@@ -80,13 +81,15 @@ void Map::DrawLobbyPreview(int x, int y, int w, int h) {
 
 	glColor4f(1, 0, 0, 1);
 	for (int i = 0; i < red_spawn_points.size(); ++i)
-		textureManager->spawn_point_icon->DrawCentered(preview_bounds.x + preview_bounds.w / 2 + red_spawn_points[i].x * scaleWidth, preview_bounds.y + preview_bounds.h / 2 + red_spawn_points[i].y * scaleHeight, 0, 6);
+		textureManager->spawn_point_icon->DrawCentered(preview_bounds.x + preview_bounds.w / 2 + red_spawn_points[i].x / 2 * scaleWidth, preview_bounds.y + preview_bounds.h / 2 + red_spawn_points[i].y * scaleHeight, 0, 6);
 
 	glColor4f(0, 0, 1, 1);
 	for (int i = 0; i < blue_spawn_points.size(); ++i)
-		textureManager->spawn_point_icon->DrawCentered(preview_bounds.x + preview_bounds.w / 2 + blue_spawn_points[i].x * scaleWidth, preview_bounds.y + preview_bounds.h / 2 + blue_spawn_points[i].y * scaleHeight, 0, 6);
+		textureManager->spawn_point_icon->DrawCentered(preview_bounds.x + preview_bounds.w / 2 + blue_spawn_points[i].x / 2 * scaleWidth, preview_bounds.y + preview_bounds.h / 2 + blue_spawn_points[i].y * scaleHeight, 0, 6);
 
 	glColor4f(1, 1, 1, 1);
+	Planet::Preview_Planets(number_of_planets, map_scale * ar, preview_bounds.x + preview_bounds.w / 2, preview_bounds.y + preview_bounds.h / 2, scaleWidth);
+	srand(time(NULL));
 }
 
 void Map::Generate_Map() {
