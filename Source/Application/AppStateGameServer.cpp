@@ -467,7 +467,21 @@ void AppStateGameServer::SendStateUpdate(int id) {
 		string.WriteInt(secondsToStartLastTick);
 	}
 	else if (state == GSE_GAME_ENDED)
+	{
+		for (int i = 0; i < MaximumClients; i++)
+		{
+			if (clients[i] != NULL)
+			{
+				if (clients[i]->team_id == winner)
+					clients[i]->stats.wins++;
+				else
+					clients[i]->stats.losses++;
+			}
+		}
+
+		ForceSaveStats();
 		string.WriteUChar(winner);
+	}
 
 	string.WriteUChar(NCE_END);
 
@@ -665,6 +679,7 @@ void AppStateGameServer::HandleGameConnections()
 			availablePlayerIds[clients[*it]->player_id] = true;
 			string.WriteUChar(NCE_REMOVE_PLAYER);
 			string.WriteUChar(clients[*it]->player_id);
+			ForceSaveStats(*it);
 			delete clients[*it];
 			clients[*it] = NULL;
 			clientCount--;
@@ -828,6 +843,7 @@ void AppStateGameServer::HandleGameConnections()
 				{
 					string.WriteUChar(NCE_REMOVE_PLAYER);
 					string.WriteUChar(client->player_id);
+					ForceSaveStats(receiveId);
 					if (client->team_id == RED_TEAM)
 						teamRedCount--;
 					else
@@ -866,6 +882,7 @@ void AppStateGameServer::HandleGameConnections()
 			else
 				teamBlueCount--;
 			availablePlayerIds[clients[i]->player_id] = true;
+			ForceSaveStats(i);
 			clients[i] = NULL;
 			clientCount--;
 			UpdateMainServer();
@@ -937,7 +954,6 @@ void AppStateGameServer::UpdateGameConnections()
 
 		if (checkStats && client->stats.ContainsNew())
 		{
-			client->stats = PlayerStats(); // Clear stats
 			masterStream.WriteUChar(NCE_PLAYER_STATS);
 			masterStream.WriteString(client->player_name);
 			NetString *temp = client->stats.Serialize();
@@ -946,6 +962,8 @@ void AppStateGameServer::UpdateGameConnections()
 				masterStream += *temp;
 				delete temp;
 			}
+
+			client->stats = PlayerStats(); // Clear stats
 		}
 	}
 
@@ -953,6 +971,61 @@ void AppStateGameServer::UpdateGameConnections()
 	{
 		playersStream.WriteUChar(NCE_END);
 		SendToAll(&playersStream);
+	}
+
+	if (masterStream.BufferLength() > 0)
+	{
+		masterStream.WriteUChar(NCE_END);
+		networkMainServer->SendData(&masterStream, 0);
+	}
+}
+
+void AppStateGameServer::ForceSaveStats(int id)
+{
+	NetString masterStream;
+	Client *client;
+	
+	if (id == -1)
+	{
+		time(&lastSaveStats);
+
+		for (int i = 0; i < MaximumClients; ++i)
+		{
+			client = clients[i];
+			if (client == NULL)
+				continue;
+
+			if (client->stats.ContainsNew())
+			{
+				masterStream.WriteUChar(NCE_PLAYER_STATS);
+				masterStream.WriteString(client->player_name);
+				NetString *temp = client->stats.Serialize();
+				if (temp != NULL)
+				{
+					masterStream += *temp;
+					delete temp;
+				}
+
+				client->stats = PlayerStats(); // Clear stats
+			}
+		}
+	}
+	else
+	{
+		client = clients[id];
+		if (client == NULL)
+			return;
+
+		masterStream.WriteUChar(NCE_PLAYER_STATS);
+		masterStream.WriteString(client->player_name);
+		NetString *temp = client->stats.Serialize();
+		if (temp != NULL)
+		{
+			masterStream += *temp;
+			delete temp;
+		}
+
+		client->stats = PlayerStats(); // Clear stats
 	}
 
 	if (masterStream.BufferLength() > 0)

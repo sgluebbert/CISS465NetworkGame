@@ -223,21 +223,19 @@ void HeadServer::ReceiveLobbies()
 			}
 		}
 
+		bool untracked = false;
 		if (lobby == NULL)
 		{
-			NetString *netString = networkLobbies->GetData(receiveId);
+			untracked = true;
 			std::cout << "[ ERROR ] " << CurrentDateTime() << " >>> Message received from untracked lobby: " << receiveId << "\n";
-			if (netString != NULL)
-				delete netString;
-
-			networkLobbies->RemoveConnection(receiveId);
-			updatePlayers = true;
-			break;
 		}
 
 		NetString *netString = networkLobbies->GetData(receiveId);
 		if (netString == NULL)
 			continue;
+
+		// if (untracked)
+		// 	std::cout << *netString << '\n';
 
 		bool reading = true;
 		while (reading)
@@ -251,6 +249,11 @@ void HeadServer::ReceiveLobbies()
 			{
 				case NCE_LOBBY:
 				{
+					// If the lobby is untracked, it is an old lobby lingering. We may want what it is saying (stats from ended game).
+					// but we don't care about this case, so we create a temp lobby to eat the message.
+					if (untracked)
+						lobby = new Lobby();
+
 					netString->ReadString(lobby->name);
 
 					int temp;
@@ -258,7 +261,7 @@ void HeadServer::ReceiveLobbies()
 					lobby->gamePort = (Uint32)temp;
 
 					// Was the lobby on localhost?
-					if (lobby->address.host == LocalhostInt)
+					if (lobby->address.host == LocalhostInt && !untracked)
 					{
 						int portOffset = lobby->gamePort - PortRangeStart;
 						availablePorts[portOffset] = false;
@@ -271,6 +274,13 @@ void HeadServer::ReceiveLobbies()
 					netString->ReadUChar(lobby->playerCount);
 					netString->ReadInt(lobby->mapSeed);
 					netString->ReadFloat(lobby->mapScale);
+
+					if (untracked)
+					{
+						delete lobby;
+						lobby = NULL;
+						break;
+					}
 
 					// std::cout << "Got: " << lobby->name << "; port: " << lobby->gamePort << "; state: " << lobby->state << "; players: " << (int)lobby->playerCount << '\n';
 					SaveLobby(*lobby);
@@ -398,11 +408,15 @@ bool HeadServer::PerformLogin(std::string name, std::string password)
 
 bool HeadServer::SaveStats(std::string &name, PlayerStats &stats)
 {
-	bool success = true;
+	if (name.substr(0, 4) == "test" || name.substr(0, 4) == "Test")
+		return true;
+
+	bool success = false;
 
 	Database database;
 	if (database.connect())
 	{
+		success = true;
 		int id = database.get_player_id(name.c_str());
 		if (id != -1)
 		{
@@ -435,7 +449,8 @@ bool HeadServer::SaveStats(std::string &name, PlayerStats &stats)
 			}
 		}
 	}
-	else
+	
+	if (!success)
 		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to save stats." << std::endl;
 
 	database.close();

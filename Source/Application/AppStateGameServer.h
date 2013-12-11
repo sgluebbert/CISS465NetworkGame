@@ -56,6 +56,7 @@ private:
 
         void HandleGameConnections();
         void UpdateGameConnections();
+        void ForceSaveStats(int id = -1);
         void SendToAll(NetString*);
         void SwitchToGameMode();
         void UpdateGame();

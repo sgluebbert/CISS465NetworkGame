@@ -58,7 +58,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return get_player_id_with_username(username);
 		}
 
@@ -876,7 +876,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -902,7 +902,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -927,7 +927,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -952,7 +952,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -977,7 +977,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -1002,7 +1002,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -1028,7 +1028,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1054,7 +1054,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1067,7 +1067,7 @@ public:
 	{
 		if (query_state !=0) 
 		{
-			cout << mysql_error(connection) << endl;
+			// cout << mysql_error(connection) << endl;
 			return -1;
 		}
 
@@ -1080,7 +1080,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1106,7 +1106,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1132,7 +1132,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1158,7 +1158,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1184,7 +1184,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1210,7 +1210,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1236,7 +1236,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1262,7 +1262,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1288,7 +1288,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -1315,7 +1315,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1341,7 +1341,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1367,7 +1367,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -1392,7 +1392,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1422,7 +1422,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1448,7 +1448,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1474,7 +1474,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			return row[0];
 		}
 		
@@ -1499,7 +1499,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1530,7 +1530,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1556,7 +1556,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1582,7 +1582,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}
@@ -1608,7 +1608,7 @@ public:
 
 		if(row = mysql_fetch_row(result))
 		{
-			std::cout << row[0] << std::endl;
+			// std::cout << row[0] << std::endl;
 			int k = atoi(row[0]);
 			return k;
 		}

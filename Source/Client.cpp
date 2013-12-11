@@ -83,15 +83,20 @@ void Client::Update(double dt) {
  				pawn->Turn_Right(dt);
  
  			if (inputs[FIRE_ENERGY])
- 				pawn->Fire(ENERGY_TYPE);
+ 				if (pawn->Fire(ENERGY_TYPE))
+ 					stats.shotsFired++;
  			if (inputs[FIRE_BALLISTIC])
- 				pawn->Fire(BALLISTIC_TYPE);
+ 				if (pawn->Fire(BALLISTIC_TYPE))
+ 					stats.shotsFired++;
  			if (inputs[FIRE_PROPELLED])
- 				pawn->Fire(PROPELLED_TYPE);
+ 				if (pawn->Fire(PROPELLED_TYPE))
+ 					stats.shotsFired++;
  			if (inputs[FIRE_MINE])
- 				pawn->Fire(BOMB_TYPE);
+ 				if (pawn->Fire(BOMB_TYPE))
+ 					stats.shotsFired++;
  			if (inputs[FIRE_POWERUP])
- 				pawn->Fire(POWERUP_TYPE);
+ 				if (pawn->Fire(POWERUP_TYPE))
+ 					stats.shotsFired++;
  		}
 
 		armor_bar.Notify(pawn->armor / pawn->max_armor);
