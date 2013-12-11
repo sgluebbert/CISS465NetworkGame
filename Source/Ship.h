@@ -17,6 +17,19 @@ enum Ship_Type	 {	INTERCEPTOR, FIGHTER, FRIGATE, BOMBER	};
 enum Weapon_Type {	ENERGY_TYPE, BALLISTIC_TYPE, PROPELLED_TYPE, BOMB_TYPE, POWERUP_TYPE	};
 
 
+struct SpawnPoint
+{
+	SpawnPoint()
+		: x(0), y(0)
+	{}
+	SpawnPoint(float _x, float _y)
+		: x(_x), y(_y)
+	{}
+
+	float x, y;
+};
+
+
 
 class Ship : public Entity, public Collidable, public Motor, public Serializable {
 public:

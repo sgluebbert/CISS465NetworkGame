@@ -26,6 +26,7 @@ void TextureManager::Load()
 	ship_bomber_c			= new Texture("./Art/ship_bomber_c.png");
 	ship_frigate			= new Texture("./Art/ship_frigate.png");
 	ship_frigate_c			= new Texture("./Art/ship_frigate_c.png");
+	spawn_point_icon		= new Texture("./Art/SpawnIcon.png");
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
 	background_game 		= new Texture("./Art/Background.png");
 	background_game2 		= new Texture("./Art/Background2.png");

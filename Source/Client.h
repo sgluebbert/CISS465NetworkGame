@@ -16,8 +16,6 @@
 
 enum INPUTS {	MOVE_FORWARD, MOVE_BACKWARD, TURN_LEFT, TURN_RIGHT, FIRE_ENERGY, FIRE_BALLISTIC, FIRE_PROPELLED, FIRE_MINE, FIRE_POWERUP, NUMBER_OF_INPUTS	};
 
-
-
 class Client {
 public:
 	bool inputs[NUMBER_OF_INPUTS];
@@ -31,6 +29,7 @@ public:
 
 	Ship * pawn;
 	PlayerStats stats;
+	std::vector<SpawnPoint> spawnPoints;
 
 	Health_Bar armor_bar;
 	Health_Bar hull_bar;
@@ -46,7 +45,7 @@ public:
 	Client();
 	~Client();
 
-	void Respawn(double, double);
+	void Respawn(int spawnIndex = -1);
 
 	void Update(double);
 	void Draw();

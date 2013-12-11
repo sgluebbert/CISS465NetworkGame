@@ -793,6 +793,11 @@ void AppStateGameServer::HandleGameConnections()
 								client->player_id = (*it)->player_id;
 								client->team_id = (*it)->team_id;
 								client->pawn->team_id = (*it)->team_id;
+								if ((*it)->team_id == RED_TEAM)
+									client->spawnPoints = map->red_spawn_points;
+								else
+									client->spawnPoints = map->blue_spawn_points;
+								client->Respawn(client->player_id);
 								expectedClients.erase(it);
 								wasFromLobby = true;
 								break;
@@ -812,6 +817,11 @@ void AppStateGameServer::HandleGameConnections()
 							}
 							
 							client->player_id = GetNextPlayerId();
+							if (client->team_id == RED_TEAM)
+								client->spawnPoints = map->red_spawn_points;
+							else
+								client->spawnPoints = map->blue_spawn_points;
+							client->Respawn(client->player_id);
 						}
 					}
 

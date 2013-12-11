@@ -137,8 +137,8 @@ void AppStateLobby::Draw() {
     ////////////////////////////////////////////////////////////////////////////
     // Draw Map
     DrawRect(10, 40, 480, 440, true, &BLACK);
-    DrawRect(10, 40, 480, 440, false, &WHITE);
     map->DrawLobbyPreview(10, 40, 480, 440);
+    DrawRect(10, 40, 480, 440, false, &WHITE);
 
     stream.str(std::string());
     stream << "Map name (seed): MAP" << map->SEED;

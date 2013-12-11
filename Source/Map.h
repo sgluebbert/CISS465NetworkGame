@@ -31,6 +31,8 @@ public:
 	Rect<int> map_bounds;
 
 	std::deque<Pickup_Factory *> pickups;
+	std::vector<SpawnPoint> red_spawn_points;
+	std::vector<SpawnPoint> blue_spawn_points;
 
 	void Update(double);
 	void Draw();

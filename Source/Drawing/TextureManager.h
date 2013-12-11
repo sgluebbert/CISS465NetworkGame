@@ -39,6 +39,7 @@ public:
 	Texture * ship_bomber_c;
 	Texture * ship_frigate;
 	Texture * ship_frigate_c;
+	Texture * spawn_point_icon;
 	Texture * background_main_menu;
 	Texture * background_game;
 	Texture * background_game2;

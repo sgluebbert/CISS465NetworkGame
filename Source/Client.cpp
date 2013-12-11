@@ -42,12 +42,27 @@ Client::~Client() {
 
 
 
-void Client::Respawn(double _x, double _y) {
+void Client::Respawn(int spawnIndex) {
+	float _x = 0, _y = 0;
+	if (spawnPoints.size() != 0)
+	{
+		SpawnPoint spawnPoint;
+		if (spawnIndex == -1)
+			spawnPoint = spawnPoints[rand() % spawnPoints.size()];
+		else
+			spawnPoint = spawnPoints[spawnIndex % spawnPoints.size()];
+		_x = spawnPoint.x + rand() % 80 - 40;
+		_y = spawnPoint.y + rand() % 80 - 40;
+	}
+
 	pawn->dx = pawn->dy = pawn->force = pawn->torque = pawn->velocity = pawn->rotation = 0.0;
 
 	pawn->x = pawn->bounding_volume.x = _x;
 	pawn->y = pawn->bounding_volume.y = _y;
-	pawn->draw_angle = pawn->angle = 0.0;
+	if (pawn->team_id == RED_TEAM)
+		pawn->draw_angle = pawn->angle = 0.0 + rand() % 20 - 10;
+	else
+		pawn->draw_angle = pawn->angle = -180 + rand() % 20 - 10;
 	pawn->drawing_box.x = pawn->x - pawn->bounding_volume.r;
 	pawn->drawing_box.y = pawn->y - pawn->bounding_volume.r;
 
@@ -138,7 +153,7 @@ void Client::Update(double dt) {
 		radar.Notify(pawn);
 
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
-			Respawn(0.0, 0.0);
+			Respawn();
 	}
 
 	while (planet_alignment_bars.size() < Planet::planet_graph.size()) {
