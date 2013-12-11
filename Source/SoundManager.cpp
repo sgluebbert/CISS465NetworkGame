@@ -16,6 +16,8 @@ Sound_Manager::Sound_Manager() {
     if (Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096) < 0)
     	printf("Mix_OpenAudio: %s\n", Mix_GetError());
 
+	atexit(Mix_Quit);
+
     music_stream = NULL;
 }
 
