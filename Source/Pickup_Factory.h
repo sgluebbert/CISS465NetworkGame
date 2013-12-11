@@ -11,7 +11,7 @@
 
 
 
-class Pickup_Factory : public Collidable, public Drawable, public Rigid_Body {
+class Pickup_Factory : public Entity, public Collidable {
 public:
 	Pickup_Factory(float, float);
 	~Pickup_Factory();

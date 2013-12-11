@@ -28,11 +28,22 @@ Map::Map(int seed, float scale)
 	map_bounds.w = number_of_planets * map_scale * 1000.0;
 	map_bounds.h = map_scale * 2000.0;
 
+	for (int i = -1; i < 2; i += 2) {
+		Pickup_Factory * temp = new Pickup_Factory(0, i * 250);
+
+		temp->Set_Pickup(new Collectible());
+
+		pickups.push_back(temp);
+	}
+
 	srand(time(NULL));
 }
 
 Map::~Map() {
 	Planet::Clear_Planets();
+
+	for (int i = 0; i < pickups.size(); i++)
+		delete pickups[i];
 }
 
 void Map::Update(double dt) {

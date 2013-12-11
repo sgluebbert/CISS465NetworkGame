@@ -18,6 +18,8 @@ Particle::Particle() {
     
     //Motor Init
     velocity_limit = rotation_limit = reverse_modifier = force_motor = torque_motor = 0.0;
+
+    Set_Group(NO_GROUP);
 }
 
 Particle::Particle(Particle * p, float & _x, float & _y) {
@@ -25,13 +27,13 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
-    Set_Group(NO_GROUP);
+    Set_Group(p->group);
 
     //Drawable Init
     texture = p->texture;
     drawing_box.x = _x - p->draw_scale / 2.0;
     drawing_box.y = _y - p->draw_scale / 2.0;
-    drawing_box.w = drawing_box.h = draw_scale = p->draw_scale;
+    drawing_box.w = drawing_box.h = bounding_volume.r = draw_scale = p->draw_scale;
     draw_angle = p->draw_angle;
 
     //RigidBody Init
@@ -42,8 +44,8 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     mass = p->mass;
     inertia = p->inertia;
 
-    x = _x;
-    y = _y;
+    bounding_volume.x = x = _x;
+    bounding_volume.y = y = _y;
     angle = p->angle;
 
     //Motor Init
@@ -104,6 +106,7 @@ void Particle::Update(double dt) {
 
     draw_angle = angle;
     drawing_box.Update(dx, -dy);
+    bounding_volume.Update(dx, -dy);
     age_timer.Update(dt);
     distance_travelled += velocity * dt;
 }

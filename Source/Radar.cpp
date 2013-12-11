@@ -17,6 +17,7 @@ Radar::Radar() {
 	radar_bounds.y = bounding_box.y + BORDER_WIDTH;
 	radar_bounds.w = bounding_box.w - BORDER_WIDTH * 2;
 	radar_bounds.h = bounding_box.h - BORDER_WIDTH * 2;
+	player_ship = NULL;
 }
 
 void Radar::Notify(const std::deque<Ship *> & all_ships) {

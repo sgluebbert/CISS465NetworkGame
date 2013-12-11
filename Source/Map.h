@@ -7,6 +7,7 @@
 #include "Moon.h"
 #include "Planet.h"
 #include "Camera.h"
+#include "Pickup_Factory.h"
 #include "Ship.h"
 
 
@@ -28,6 +29,8 @@ public:
 	int number_of_planets;
 
 	Rect<int> map_bounds;
+
+	std::deque<Pickup_Factory *> pickups;
 
 	void Update(double);
 	void Draw();

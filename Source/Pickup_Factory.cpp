@@ -3,6 +3,10 @@
 
 
 Pickup_Factory::Pickup_Factory(float _x, float _y) {
+	Collidable::objects.push_back(this);
+	Drawable::objects.push_back(this);
+	Rigid_Body::objects.push_back(this);
+
 	Set_Group(FACTORY_GROUP);
 
     team_id = NO_TEAM;
@@ -12,7 +16,7 @@ Pickup_Factory::Pickup_Factory(float _x, float _y) {
     x = bounding_volume.x = _x;
     y = bounding_volume.y = _y;
     draw_angle = angle = 0.0;
-    draw_scale = bounding_volume.r = 8.0;
+    draw_scale = bounding_volume.r = 16.0;
     drawing_box.x = x - bounding_volume.r;
     drawing_box.y = y - bounding_volume.r;
     drawing_box.w = 2 * bounding_volume.r;
@@ -21,8 +25,8 @@ Pickup_Factory::Pickup_Factory(float _x, float _y) {
     pickup = NULL;
     reference = NULL;
 
-    mass = _m;
-    Set_Inertia(_r);
+    mass = 1.0;
+    Set_Inertia(draw_scale);
 
     spawn_timer.Set_Interval(15.0);
 }
@@ -47,12 +51,11 @@ void Pickup_Factory::Set_Pickup(Pickup * new_ref) {
 }
 
 Pickup * Pickup_Factory::Grab_Pickup() {
-	Pickup * temp = pickup;
 	pickup = NULL;
 
 	spawn_timer.Start();
 
-	return temp;
+	return reference;
 }
 
 void Pickup_Factory::Update(double dt) {
@@ -66,5 +69,5 @@ void Pickup_Factory::Draw() {
 	if (pickup == NULL)
 		return;
 
-	//Draw Pickup's texture
+    pickup->texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }

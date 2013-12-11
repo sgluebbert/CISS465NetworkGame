@@ -100,6 +100,8 @@ static Particle * Create_Laser_Particle() {
     //Particle Init
 	temp_particle->age_timer.Set_Interval(5.0);
     temp_particle->range = 200.0;
+    
+    temp_particle->Set_Group(BULLET_GROUP);
 
 	return temp_particle;
 }
@@ -128,6 +130,8 @@ static Particle * Create_Gauss_Particle() {
     //Particle Init
     temp_particle->age_timer.Set_Interval(5.0);
     temp_particle->range = 400.0;
+    
+    temp_particle->Set_Group(BULLET_GROUP);
 
 	return temp_particle;
 }
@@ -155,6 +159,8 @@ static Particle * Create_Rocket_Particle() {
     //Particle Init
     temp_particle->age_timer.Set_Interval(5.0);
     temp_particle->range = 400.0;
+    
+    temp_particle->Set_Group(BULLET_GROUP);
 
     return temp_particle;
 }
@@ -181,6 +187,8 @@ static Particle * Create_Mine_Particle() {
     //Particle Init
     temp_particle->age_timer.Set_Interval(90.0);
     temp_particle->range = 100.0;
+    
+    temp_particle->Set_Group(BULLET_GROUP);
 
     return temp_particle;
 }

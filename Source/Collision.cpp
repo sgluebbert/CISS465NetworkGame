@@ -173,7 +173,10 @@ void ShipToAsteroidCollision::ResolveCollision(Collidable * lhs, Collidable * rh
 
 void ShipToFactoryCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Ship * ship = (Ship *) lhs;
-	//Factory * factory = (Factory *) rhs;
+	Pickup_Factory * factory = (Pickup_Factory *) rhs;
+
+    Pickup * pickup = factory->Grab_Pickup();
+    pickup->OnPickup(ship);
 }
 /////////////////////////////////////////////////////////
 
@@ -196,11 +199,15 @@ void BulletToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
     Particle * bullet = (Particle *) lhs;
 	Moon * moon = (Moon *) rhs;
 
-    if (DoCollide(moon, bullet))
+    moon->bounding_volume.r -= moon->field_radius;
+
+    if (DoCollide(moon, bullet)) {
         moon->TakeDamage(50);
+        bullet->distance_travelled = 9999.9999;
+    }
 
+    moon->bounding_volume.r += moon->field_radius;
 
-    bullet->distance_travelled = 9999.9999;
 }
 
 void BulletToAsteroidCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {

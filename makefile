@@ -19,7 +19,7 @@ OBJECTS = Application/Application.o Application/ApplicationEvent.o Application/A
           Camera.o Chat_Feed.o Client.o Clock.o Collidable.o Collision.o CollisionManager.o Drawing/Drawable.o Drawing/Draw.o Entity.o \
           Application/EventHandler.o Map.o Menu.o Networking/NetString.o \
           Networking/Network.o Networking/NetworkParser.o Networking/Parser.o \
-          Particles/Particle.o Particles/Particle_Emitter.o Progress_Bar.o Progress_Circle.o \
+          Particles/Particle.o Particles/Particle_Emitter.o Pickup.o Pickup_Factory.o Progress_Bar.o Progress_Circle.o \
           Quad_Tree.o Radar.o RigidBody.o Ship.o System.o Drawing/Text.o Drawing/Texture.o \
           Drawing/TextureManager.o Timer.o Weapon.o Moon.o Planet.o SoundManager.o
 
