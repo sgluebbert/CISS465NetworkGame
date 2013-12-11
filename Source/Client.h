@@ -10,6 +10,7 @@
 #include "Chat_Feed.h"
 #include "Radar.h"
 #include "Planet.h"
+#include "Stats.h"
 
 
 
@@ -29,6 +30,7 @@ public:
 	bool offline;
 
 	Ship * pawn;
+	PlayerStats stats;
 
 	Health_Bar armor_bar;
 	Health_Bar hull_bar;

@@ -11,6 +11,7 @@ AppStateGameServer::AppStateGameServer(DebugLevel l)
 	tryMainAgain = 0;
 
 	time(&secondsToStartLastTick);
+	time(&lastSaveStats);
 	for (int i = 0; i < MaximumClients; i++)
 		clients[i] = NULL;
 	availablePlayerIds.set();
@@ -906,7 +907,15 @@ void AppStateGameServer::HandleGameConnections()
 
 void AppStateGameServer::UpdateGameConnections()
 {
-	NetString string;
+	NetString playersStream, masterStream;
+	bool checkStats = false;
+	time_t now;
+	time(&now);
+	if (now - lastSaveStats > 2)
+	{
+		time(&lastSaveStats);
+		checkStats = true;
+	}
 
 	Client *client;
 	for (int i = 0; i < MaximumClients; ++i)
@@ -915,22 +924,41 @@ void AppStateGameServer::UpdateGameConnections()
 		if (client == NULL)
 			continue;
 
-		string.WriteUChar(NCE_PLAYER);
-		string.WriteUChar(client->player_id);
+		playersStream.WriteUChar(NCE_PLAYER);
+		playersStream.WriteUChar(client->player_id);
 		NetString *chunk = client->pawn->Serialize();
-		string += *chunk;
-		string.WriteBool(client->inputs[FIRE_ENERGY]);
-		string.WriteBool(client->inputs[FIRE_BALLISTIC]);
-		string.WriteBool(client->inputs[FIRE_PROPELLED]);
-		string.WriteBool(client->inputs[FIRE_MINE]);
-		string.WriteBool(client->inputs[FIRE_POWERUP]);
+		playersStream += *chunk;
+		playersStream.WriteBool(client->inputs[FIRE_ENERGY]);
+		playersStream.WriteBool(client->inputs[FIRE_BALLISTIC]);
+		playersStream.WriteBool(client->inputs[FIRE_PROPELLED]);
+		playersStream.WriteBool(client->inputs[FIRE_MINE]);
+		playersStream.WriteBool(client->inputs[FIRE_POWERUP]);
 		delete chunk;
+
+		if (checkStats && client->stats.ContainsNew())
+		{
+			client->stats = PlayerStats(); // Clear stats
+			masterStream.WriteUChar(NCE_PLAYER_STATS);
+			masterStream.WriteString(client->player_name);
+			NetString *temp = client->stats.Serialize();
+			if (temp != NULL)
+			{
+				masterStream += *temp;
+				delete temp;
+			}
+		}
 	}
 
-	if (string.BufferLength() > 0)
+	if (playersStream.BufferLength() > 0)
 	{
-		string.WriteUChar(NCE_END);
-		SendToAll(&string);
+		playersStream.WriteUChar(NCE_END);
+		SendToAll(&playersStream);
+	}
+
+	if (masterStream.BufferLength() > 0)
+	{
+		masterStream.WriteUChar(NCE_END);
+		networkMainServer->SendData(&masterStream, 0);
 	}
 }
 

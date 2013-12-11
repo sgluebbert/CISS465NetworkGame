@@ -52,25 +52,34 @@ CREATE TABLE IF NOT EXISTS `Player` (
   `fname` varchar(50) NOT NULL,
   `lname` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `total_kills` int(11) NOT NULL,
-  `shots_fired` int(11) NOT NULL,
-  `total_deaths` int(11) NOT NULL,
-  `kill_death_ratio` decimal(10,0) NOT NULL,
-  `accuracy` int(11) NOT NULL,
-  `wins` int(11) NOT NULL,
-  `losses` int(11) NOT NULL,
-  `experience_points` int(11) NOT NULL,
-  `captures` int(11) NOT NULL,
-  `rank` varchar(50) NOT NULL
+  `total_kills` int(11) NOT NULL DEFAULT 0,
+  `shots_fired` int(11) NOT NULL DEFAULT 0,
+  `shots_hit` int(11) NOT NULL DEFAULT 0,
+  `total_deaths` int(11) NOT NULL DEFAULT 0,
+  `kill_death_ratio` decimal(10,0) NOT NULL DEFAULT 0,
+  `accuracy` int(11) NOT NULL DEFAULT 0,
+  `wins` int(11) NOT NULL DEFAULT 0,
+  `losses` int(11) NOT NULL DEFAULT 0,
+  `experience_points` int(11) NOT NULL DEFAULT 0,
+  `captures` int(11) NOT NULL DEFAULT 0,
+  `rank` varchar(50) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `Player`
 --
 
-INSERT INTO `Player` (`player_id`, `username`, `password`, `fname`, `lname`, `email`, `total_kills`, `shots_fired`, `total_deaths`, `kill_death_ratio`, `accuracy`, `wins`, `losses`, `experience_points`, `captures`, `rank`) VALUES
-(1, 'johndoe', 'password', 'John', 'Doe', 'johndoe@gmail.com', 100, 1000, 50, 2, 80, 30, 40, 2000, 5, 'captain'),
-(2, 'janesmith', 'password1', 'Jane', 'Smith', 'janesmith@gmail.com', 70, 1400, 80, 4, 50, 30, 20, 5000, 20, 'novice');
+INSERT INTO `Player` (`player_id`, `username`, `password`, `fname`, `lname`, `email`, `total_kills`, `shots_fired`, `shots_hit`, `total_deaths`, `kill_death_ratio`, `accuracy`, `wins`, `losses`, `experience_points`, `captures`, `rank`) VALUES
+(1, 'johndoe', 'password', 'John', 'Doe', 'johndoe@gmail.com', 100, 1000, 800, 50, 2, 80, 30, 40, 2000, 5, 'captain'),
+(2, 'janesmith', 'password1', 'Jane', 'Smith', 'janesmith@gmail.com', 70, 1400, 700, 80, 4, 50, 30, 20, 5000, 20, 'novice'),
+(3, 'Sam', 'mas', 'Sam', 'Luebbert', 'sgluebbert1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(4, 'Mark', 'kram', 'Mark', 'Vaughn', 'mwvaughn1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(5, 'Trevin', 'nivert', 'Trevin', 'Teacutter', 'tjteacutter1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(6, 'Ujjwal', 'lawjju', 'Ujjwal', 'Pandey', 'ujpandey1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(7, 'Caleb', 'belac', 'Caleb', 'Tucker', 'cetucker2@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(8, 'Jake', 'ekaj', 'Jake', 'Laird', 'jwlaird1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(9, 'Taylor', 'rolyat', 'Taylor', 'Bennett', 'tibennett1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice'),
+(10, 'Deepa', 'apeed', 'Deepa', 'Kodali', 'dkodali1@cougars.ccis.edu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'novice');
 
 -- --------------------------------------------------------
 

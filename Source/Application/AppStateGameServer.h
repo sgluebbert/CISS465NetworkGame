@@ -31,7 +31,7 @@ private:
         int tryMainAgain;
 
 	DebugLevel debugLevel;
-	time_t lastSpeedDisplay, lastActivity;
+	time_t lastSpeedDisplay, lastActivity, lastSaveStats;
 	Client *clients[MaximumClients];
         std::vector<Client*> expectedClients;
 	int clientCount;

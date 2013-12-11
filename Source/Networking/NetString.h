@@ -23,12 +23,14 @@ struct NetString
 	bool WriteBool(bool);
 	bool WriteUChar(unsigned char);
 	bool WriteInt(int);
+	bool WriteUInt(unsigned int);
 	bool WriteFloat(float);
 	bool WriteString(std::string &);
 
 	bool ReadBool(bool &);
 	bool ReadUChar(unsigned char &);
 	bool ReadInt(int &);
+	bool ReadUInt(unsigned int &);
 	bool ReadFloat(float &);
 	bool ReadString(std::string &);
 

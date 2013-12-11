@@ -3,6 +3,7 @@
 
 #include "../../Source/Networking/Lobby.h"
 #include "../../Source/Database.h"
+#include "../../Source/Stats.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <vector>
@@ -27,6 +28,7 @@ struct HeadServer
 	bool SaveLobby(Lobby &);
 	bool RemoveLobby(Lobby &);
 	bool PerformLogin(std::string name, std::string password);
+	bool SaveStats(std::string &name, PlayerStats &stats);
 	
 private:
 	Network *networkLobbies;

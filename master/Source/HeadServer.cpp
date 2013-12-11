@@ -228,10 +228,7 @@ void HeadServer::ReceiveLobbies()
 			NetString *netString = networkLobbies->GetData(receiveId);
 			std::cout << "[ ERROR ] " << CurrentDateTime() << " >>> Message received from untracked lobby: " << receiveId << "\n";
 			if (netString != NULL)
-			{
-				std::cout << *netString << '\n';
 				delete netString;
-			}
 
 			networkLobbies->RemoveConnection(receiveId);
 			updatePlayers = true;
@@ -281,6 +278,16 @@ void HeadServer::ReceiveLobbies()
 					break;
 				}
 
+				case NCE_PLAYER_STATS:
+				{
+					std::string username;
+					netString->ReadString(username);
+					PlayerStats stats;
+					if (stats.Deserialize(netString))
+						SaveStats(username, stats);
+					break;
+				}
+
 				case NCE_END:
 					break;
 
@@ -325,28 +332,6 @@ void HeadServer::NotifyPlayers(char id)
 		networkPlayers->SendData(&string, id);
 }
 
-bool HeadServer::PerformLogin(std::string name, std::string password)
-{
-	// just let anyone using the name test through
-	if (name.substr(0, 4) == "test" || name.substr(0, 4) == "Test")
-		return true;
-
-	bool pass = false;
-
-	Database database;
-	if (database.connect())
-	{
-		int playerId = database.check_player((char *)name.c_str(), (char *)password.c_str());
-		pass = playerId > 0;
-	}
-	else
-		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to perform login." << std::endl;
-
-	database.close();
-
-	return pass;
-}
-
 bool HeadServer::AddLobby(Lobby &lobby)
 {
 	bool success = false;
@@ -386,6 +371,75 @@ bool HeadServer::RemoveLobby(Lobby &lobby)
 		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to delete lobby." << std::endl;
 
 	database.close();
+	return success;
+}
+
+bool HeadServer::PerformLogin(std::string name, std::string password)
+{
+	// just let anyone using the name test through
+	if (name.substr(0, 4) == "test" || name.substr(0, 4) == "Test")
+		return true;
+
+	bool pass = false;
+
+	Database database;
+	if (database.connect())
+	{
+		int playerId = database.check_player((char *)name.c_str(), (char *)password.c_str());
+		pass = playerId > 0;
+	}
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to perform login." << std::endl;
+
+	database.close();
+
+	return pass;
+}
+
+bool HeadServer::SaveStats(std::string &name, PlayerStats &stats)
+{
+	bool success = true;
+
+	Database database;
+	if (database.connect())
+	{
+		int id = database.get_player_id(name.c_str());
+		if (id != -1)
+		{
+			if (!database.add_total_kills(id, stats.totalKills))
+				success = false;
+			else if (!database.add_total_deaths(id, stats.totalDeaths))
+				success = false;
+			else if (!database.add_shots_fired(id, stats.shotsFired))
+				success = false;
+			else if (!database.add_shots_hit(id, stats.shotsHit))
+				success = false;
+			else if (!database.add_wins(id, stats.wins))
+				success = false;
+			else if (!database.add_losses(id, stats.losses))
+				success = false;
+			else if (!database.add_experience_points(id, stats.experiencePoints))
+				success = false;
+			else if (!database.add_captures(id, stats.captures))
+				success = false;
+
+			if (success)
+			{
+				int shots = database.get_shots_fired(id);
+				int hits = database.get_shots_hit(id);
+				database.update_accuracy(id, shots / (float)hits * 100);
+
+				int kills = database.get_total_kills(id);
+				int deaths = database.get_total_deaths(id);
+				database.update_kill_death_ratio(id, kills / (float)deaths);
+			}
+		}
+	}
+	else
+		std::cerr << "[ ERROR ] " << CurrentDateTime() << " >>> Unable to save stats." << std::endl;
+
+	database.close();
+
 	return success;
 }
 

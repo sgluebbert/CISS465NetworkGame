@@ -580,7 +580,7 @@ void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
             }
             else if (createLobby)
             {
-                if (lobbyNamePrompt.length() > 0)
+                if (lobbyNamePrompt.length() > 0 && lobbyButton == 0)
                     lobbyNamePrompt = lobbyNamePrompt.substr(0, lobbyNamePrompt.length() - 1);
             }
             break;
@@ -599,7 +599,7 @@ void AppStateMasterLobby::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
                         passwordPrompt += key;
                 }
             }
-            else if (createLobby)
+            else if (createLobby && lobbyButton == 0)
             {
                 char key = ConvertToChar(sym, shiftOn);
                 if (key != 0)

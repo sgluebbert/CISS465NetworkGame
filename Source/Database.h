@@ -351,6 +351,22 @@ public:
 		return true;
 	}
 
+	bool add_total_kills(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET total_kills = total_kills + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
 	bool update_shots_fired(int player_id, int num)
 	{
 		if (query_state !=0) 
@@ -367,6 +383,54 @@ public:
 		return true;
 	}
 
+	bool add_shots_fired(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET shots_fired = shots_fired + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
+	bool update_shots_hit(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET shots_hit = ('%d') WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
+	bool add_shots_hit(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET shots_hit = shots_hit + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
 	bool update_total_deaths(int player_id, int num)
 	{
 		if (query_state !=0) 
@@ -377,6 +441,22 @@ public:
 
 		char statement[512];
 		sprintf(statement, "UPDATE Player SET total_deaths = ('%d') WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
+	bool add_total_deaths(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET total_deaths = total_deaths + %d WHERE player_id = ('%d')", num, player_id);
 
 		mysql_query(connection, statement);
 		mysql_query(connection, "COMMIT");
@@ -431,6 +511,22 @@ public:
 		return true;
 	}
 
+	bool add_wins(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET wins = wins + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
 	bool update_losses(int player_id, int num)
 	{
 		if (query_state !=0) 
@@ -441,6 +537,22 @@ public:
 
 		char statement[512];
 		sprintf(statement, "UPDATE Player SET losses = ('%d') WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
+	bool add_losses(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET losses = losses + %d WHERE player_id = ('%d')", num, player_id);
 
 		mysql_query(connection, statement);
 		mysql_query(connection, "COMMIT");
@@ -463,6 +575,22 @@ public:
 		return true;
 	}
 
+	bool add_experience_points(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET experience_points = experience_points + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
 	bool update_captures(int player_id, int num)
 	{
 		if (query_state !=0) 
@@ -479,6 +607,22 @@ public:
 		return true;
 	}
 
+	bool add_captures(int player_id, int num)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET captures = captures + %d WHERE player_id = ('%d')", num, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
 	bool update_rank(int player_id, char* rank)
 	{
 		if (query_state !=0) 
@@ -489,6 +633,22 @@ public:
 
 		char statement[512];
 		sprintf(statement, "UPDATE Player SET rank = ('%s') WHERE player_id = ('%d')", rank, player_id);
+
+		mysql_query(connection, statement);
+		mysql_query(connection, "COMMIT");
+		return true;
+	}
+
+	bool add_rank(int player_id, char* rank)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return false;
+		}
+
+		char statement[512];
+		sprintf(statement, "UPDATE Player SET rank = rank + %s WHERE player_id = ('%d')", rank, player_id);
 
 		mysql_query(connection, statement);
 		mysql_query(connection, "COMMIT");
@@ -699,7 +859,7 @@ public:
 
 
 	///////////////////////////////////////////////////////////////////////
-	int get_player_id(int player_id)
+	int get_player_id(const char *username)
 	{
 		if (query_state !=0) 
 		{
@@ -708,7 +868,7 @@ public:
 		}
 
 		char statement[512];
-		sprintf(statement, "SELECT player_id FROM Player where player_id = ('%d')", player_id);
+		sprintf(statement, "SELECT player_id FROM Player where username = ('%s')", username);
 
 		mysql_query(connection, statement);
 		
@@ -887,6 +1047,32 @@ public:
 
 		char statement[512];
 		sprintf(statement, "SELECT shots_fired FROM Player where player_id = ('%d')", player_id);
+
+		mysql_query(connection, statement);
+		
+		result = mysql_store_result(connection);
+
+		if(row = mysql_fetch_row(result))
+		{
+			std::cout << row[0] << std::endl;
+			int k = atoi(row[0]);
+			return k;
+		}
+		
+		mysql_query(connection, "COMMIT");
+		mysql_free_result(result);
+	}
+
+	int get_shots_hit(int player_id)
+	{
+		if (query_state !=0) 
+		{
+			cout << mysql_error(connection) << endl;
+			return -1;
+		}
+
+		char statement[512];
+		sprintf(statement, "SELECT shots_hit FROM Player where player_id = ('%d')", player_id);
 
 		mysql_query(connection, statement);
 		

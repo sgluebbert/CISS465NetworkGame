@@ -216,6 +216,20 @@ bool NetString::WriteInt(int value)
 	return true;
 }
 
+bool NetString::WriteUInt(unsigned int value)
+{
+	if (bufferIndex >= bufferSize - 5)
+	{
+		if (!Expand(std::max(bufferSize * 2, 8)))
+			return false;
+	}
+	
+	SDLNet_Write32(value, buffer + bufferIndex);
+	bufferIndex += 4;
+	bufferLength += 4;
+	return true;
+}
+
 bool NetString::WriteFloat(float value)
 {
 	if (bufferIndex >= bufferSize - 5)
@@ -273,6 +287,16 @@ bool NetString::ReadUChar(unsigned char &out)
 }
 
 bool NetString::ReadInt(int &out)
+{
+	if (bufferIndex >= bufferLength - 4)
+		return false;
+
+	out = SDLNet_Read32(buffer + bufferIndex);
+	bufferIndex += 4;
+	return true;
+}
+
+bool NetString::ReadUInt(unsigned int &out)
 {
 	if (bufferIndex >= bufferLength - 4)
 		return false;
