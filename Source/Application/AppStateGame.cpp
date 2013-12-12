@@ -56,6 +56,10 @@ void AppStateGame::Initialize() {
     Collision_Manager::Get_Instance();
     srand(time(NULL));
     Initialize_Trig_Table();
+
+
+    // Always create HUDs last.
+    createHUD();
 }
 
 void AppStateGame::Events(SDL_Event * Event) {
@@ -543,3 +547,107 @@ void AppStateGame::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
         break;
     }
 }
+
+
+// Creates HUD as required.
+void AppStateGame::createHUD()
+{
+    HUDManager::cleanup();
+
+    //-------------------------------------------------------------------------
+    // Radar stuff
+    //-------------------------------------------------------------------------    
+    HUDElement * radarRoot = HUDManager::createHUDElement(HUD_ROOT);
+
+    HUDElement * radar = HUDManager::createHUDElement(HUD_RADAR);
+    radar -> link(map);
+    radar -> linkParent(radarRoot);
+
+    // Add ship racons for all other ships.
+    for (std::deque< Ship * >::iterator it = Ship::ships.begin();
+         it != Ship::ships.end(); ++it)
+    {
+        if (*it == player.pawn)
+            continue;
+        HUDElement * shipRacon = HUDManager::createHUDElement(HUD_SHIP_RACON);
+        shipRacon -> link(*it);
+        shipRacon -> linkParent(radar);
+    }
+
+    // Planets and Moons. 
+    int i = 0;
+    int j = 0;
+    for (std::list< Planet * >::iterator it = Planet::planet_graph.begin();
+          it != Planet::planet_graph.end(); ++it)
+    {
+        HUDElement * planetRacon = HUDManager::createHUDElement(HUD_PLANET_RACON);
+        planetRacon -> linkParent(radar);
+        planetRacon -> link(*it);
+
+        HUDElement * planetCaptureDisp
+            = HUDManager::createHUDElement(HUD_PCAPTURE_DISP);
+        planetCaptureDisp -> linkParent(radarRoot);
+        planetCaptureDisp -> link(*it);
+        planetCaptureDisp -> y -= i * 25;
+        ++i;
+        
+        for (std::vector< Moon * >::iterator jk = (*it) -> moons.begin();
+             jk != (*it) -> moons.end(); ++jk)
+        {
+            HUDElement * moonRacon = HUDManager::createHUDElement(HUD_MOON_RACON);
+            moonRacon -> linkParent(radar);
+            moonRacon -> link(*jk);
+
+            HUDElement * mCaptureDisp
+                = HUDManager::createHUDElement(HUD_MCAPTURE_DISP);
+            mCaptureDisp -> linkParent(radarRoot);
+            mCaptureDisp -> link(*jk);
+            mCaptureDisp -> y += j * 25;
+            ++j;
+        }
+        
+    }
+    i = 0;
+    j = 0;
+
+    // Resource Bars
+    HUDElement * hullBar = HUDManager::createHUDElement(HUD_HULL_BAR);
+    hullBar -> linkParent(radarRoot);
+    hullBar -> link(player.pawn);
+
+    HUDElement * shieldBar = HUDManager::createHUDElement(HUD_SHIELD_BAR);
+    shieldBar -> linkParent(radarRoot);
+    shieldBar -> link(player.pawn);
+
+    HUDElement * armorBar = HUDManager::createHUDElement(HUD_ARMOR_BAR);
+    armorBar -> linkParent(radarRoot);
+    armorBar -> link(player.pawn);
+
+    HUDElement * powerBar = HUDManager::createHUDElement(HUD_POWER_BAR);
+    powerBar -> linkParent(radarRoot);
+    powerBar -> link(player.pawn);
+
+    // Weapon HUDs
+    HUDElement * weaponBay = HUDManager::createHUDElement(HUD_WEAPON_BAY);
+    weaponBay -> linkParent(radarRoot);
+
+    HUDElement * laserCD = HUDManager::createHUDElement(HUD_LASER_CD);
+    laserCD -> linkParent(weaponBay);
+    laserCD -> link(player.pawn -> weapon_pool[ENERGY_TYPE]);
+
+    HUDElement * gaussCD = HUDManager::createHUDElement(HUD_GAUSS_CD);
+    gaussCD -> linkParent(weaponBay);
+    gaussCD -> link(player.pawn -> weapon_pool[BALLISTIC_TYPE]);
+
+    HUDElement * rocketCD = HUDManager::createHUDElement(HUD_ROCKET_CD);
+    rocketCD -> linkParent(weaponBay);
+    rocketCD -> link(player.pawn -> weapon_pool[PROPELLED_TYPE]);
+
+    HUDElement * bombCD = HUDManager::createHUDElement(HUD_BOMB_CD);
+    bombCD -> linkParent(weaponBay);
+    bombCD -> link(player.pawn -> weapon_pool[BOMB_TYPE]);
+
+    HUDElement * clientRacon = HUDManager::createHUDElement(HUD_CLIENT_RACON);
+    clientRacon -> link(player.pawn);
+    clientRacon -> linkParent(radar);
+}    
