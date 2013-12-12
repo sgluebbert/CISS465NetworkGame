@@ -111,32 +111,10 @@ void Client::Update(double dt) {
 		pawn->kills = 0;
 	}
 
-	while (planet_alignment_bars.size() < Planet::planet_graph.size()) {
-		planet_alignment_bars.push_back(Alignment_Bar());
-        //planet_alignment_bars.back().progress = 0.0f;
-        planet_alignment_bars.back().lhs_color = Color(0.5f, 0.0f, 0.0f, 1.0f);
-        planet_alignment_bars.back().rhs_color = Color(0.0f, 0.0f, 0.5f, 1.0f);
-	}
-
-	{
-		int i = 0;
-	    for (std::list<Planet *>::reverse_iterator it = Planet::planet_graph.rbegin(); it != Planet::planet_graph.rend(); ++it) {
-	    	planet_alignment_bars[i].Set_Rect(0, 580 - 20 * i, 100, 20, 2);
-	    	planet_alignment_bars[i++].Notify((*it)->alignment);
-	    }
-	}
-
-
-	for (int i = 0; i < planet_alignment_bars.size(); i++)
-		planet_alignment_bars[i].Update(dt);
-
 	info_feed.Update(dt);
 }
 
 void Client::Draw() {
-
-	for (int i = 0; i < planet_alignment_bars.size(); i++)
-		planet_alignment_bars[i].Draw();
-
+    
 	info_feed.Draw();
 }

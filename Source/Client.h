@@ -30,10 +30,7 @@ public:
 	Ship * pawn;
 	PlayerStats stats;
 	std::vector<SpawnPoint> spawnPoints;
-
-	Progress_Bar weapon_status_bars[4];
-	std::deque<Alignment_Bar> planet_alignment_bars;
-
+    
 	Chat_Feed info_feed;
 
 	Client();
