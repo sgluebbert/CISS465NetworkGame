@@ -18,6 +18,7 @@ public:
 	Weapon_State state;
 	Timer recharge_timer;
 	Particle_Emitter emitter;
+	Team team_id;
 
 	float x, y;
 

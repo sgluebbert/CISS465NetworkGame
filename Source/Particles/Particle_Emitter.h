@@ -33,6 +33,7 @@ public:
 	void Set_Starting_Angle(double);
 	void Set_Starting_Throttle(double);
 	void Set_Starting_Velocity(double);
+	void Set_Weapon_Team(Team);
 
 	//Variance Configuration Methods
 	void Set_Particle_Count_Variance(int);
@@ -45,6 +46,8 @@ public:
 
 	bool Is_Active();
 
+    Team team_id;
+    float weapon_damage;
 private:
     /*
     active 				| whether the emitter is active or not

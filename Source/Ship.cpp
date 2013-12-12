@@ -168,8 +168,7 @@ Ship::~Ship()
 
 NetString * Ship::Serialize() {
 	NetString * string = new NetString();
-	
-	if (!string->WriteFloat(x) || !string->WriteFloat(y) || !string->WriteFloat(angle) || !string->WriteFloat(health)) {
+	if (!string->WriteFloat(x) || !string->WriteFloat(y) || !string->WriteFloat(angle) || !string->WriteFloat(health) || !string->WriteFloat(shields) || !string->WriteFloat(armor) || !string->WriteFloat(power) || !string->WriteUChar((unsigned char)state)) {
 		delete string;
 		return NULL;
 	}
@@ -178,8 +177,11 @@ NetString * Ship::Serialize() {
 }
 
 bool Ship::Deserialize(NetString *string) {
-	if (!string->ReadFloat(x) || !string->ReadFloat(y) || !string->ReadFloat(angle) || !string->ReadFloat(health))
+	unsigned char temp1;
+	if (!string->ReadFloat(x) || !string->ReadFloat(y) || !string->ReadFloat(angle) || !string->ReadFloat(health) || !string->ReadFloat(shields) || !string->ReadFloat(armor) || !string->ReadFloat(power) || !string->ReadUChar(temp1))
 		return false;
+
+	state = (Ship_State)temp1;
 
 	return true;
 }
@@ -312,6 +314,12 @@ void Ship::Limit_Motor() {
 }
 
 void Ship::Update(double dt) {
+	// Not efficient i know, but the server does not init the ship with a team, so for now...
+	weapon_pool[ENERGY_TYPE]->team_id = team_id;
+	weapon_pool[BALLISTIC_TYPE]->team_id = team_id;
+	weapon_pool[PROPELLED_TYPE]->team_id = team_id;
+	weapon_pool[BOMB_TYPE]->team_id = team_id;
+
 	respawn_timer.Update(dt);
 
 	smoke_emitter.Update(dt, x, y);

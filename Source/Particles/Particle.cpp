@@ -20,6 +20,8 @@ Particle::Particle() {
     velocity_limit = rotation_limit = reverse_modifier = force_motor = torque_motor = 0.0;
 
     Set_Group(NO_GROUP);
+    weapon_damage = 0;
+    team_id = NO_TEAM;
 }
 
 Particle::Particle(Particle * p, float & _x, float & _y) {
@@ -28,6 +30,8 @@ Particle::Particle(Particle * p, float & _x, float & _y) {
     Drawable::objects.push_back(this);
     Rigid_Body::objects.push_back(this);
     Set_Group(p->group);
+    weapon_damage = 0;
+    team_id = NO_TEAM;
 
     //Drawable Init
     texture = p->texture;

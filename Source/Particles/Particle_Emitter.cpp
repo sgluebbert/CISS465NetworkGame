@@ -11,6 +11,8 @@ Particle_Emitter::Particle_Emitter() {
     max_age_variance = velocity_variance = angle_variance = throttle_variance = spawn_timer_variance = 0;
 
     reference = NULL;
+    team_id = NO_TEAM;
+    weapon_damage = 0;
 }
 
 Particle_Emitter::~Particle_Emitter() {
@@ -31,6 +33,8 @@ void Particle_Emitter::Update(double dt, float _x, float _y) {
 		for (int i = 0; i < spawn_count + count_var; i++) {
 			double variance;
 			Particle * temp = new Particle(reference, _x, _y);
+			temp->team_id = team_id;
+			temp->weapon_damage = weapon_damage;
 
 			if (max_age_variance != 0) {
 				variance = (float(rand()) / float(RAND_MAX) * 2 * max_age_variance) - max_age_variance + reference->age_timer.Get_Interval();
@@ -127,6 +131,10 @@ void Particle_Emitter::Set_Starting_Velocity(double new_velocity) {
 		return;
 	
 	reference->velocity = new_velocity;
+}
+
+void Particle_Emitter::Set_Weapon_Team(Team id) {
+	team_id = id;
 }
 
 

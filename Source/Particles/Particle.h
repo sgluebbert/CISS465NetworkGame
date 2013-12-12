@@ -26,6 +26,8 @@ public:
 
 	Timer age_timer;
     float distance_travelled, range;
+    Team team_id;
+    float weapon_damage;
 
     //Need to turn this into a priority queue
     static std::deque<Particle *> particles;

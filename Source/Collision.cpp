@@ -13,6 +13,15 @@ void ShipToShipCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 void ShipToBulletCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 	Ship * ship = (Ship *) lhs;
 	Particle * bullet = (Particle *) rhs;
+
+    if (bullet->team_id != ship->team_id && bullet->team_id != NO_TEAM)
+    {
+        if (DoCollide(ship, bullet))
+        {
+            bullet->distance_travelled = 9999.9999;
+            ship->health -= bullet->weapon_damage;
+        }
+    }
 }
 
 void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
@@ -216,7 +225,7 @@ void BulletToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
     moon->bounding_volume.r -= moon->field_radius;
 
     if (DoCollide(moon, bullet)) {
-        moon->TakeDamage(50);
+        moon->TakeDamage(bullet->weapon_damage);
         bullet->distance_travelled = 9999.9999;
     }
 

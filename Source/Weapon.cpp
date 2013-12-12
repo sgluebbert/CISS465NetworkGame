@@ -41,6 +41,9 @@ void Weapon::Update(double dt, float _a, float _x, float _y) {
 		break;
 	}
 	
+	// See ship update to understand this
+	emitter.Set_Weapon_Team(team_id);
+
 	emitter.Update(dt, x, y);
 }
 
@@ -64,6 +67,7 @@ Laser::Laser() {
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
+	emitter.weapon_damage = damage;
 }
 
 Gauss::Gauss() {
@@ -84,6 +88,7 @@ Gauss::Gauss() {
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
+	emitter.weapon_damage = damage;
 }
 
 Rocket::Rocket() {
@@ -104,6 +109,7 @@ Rocket::Rocket() {
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
+	emitter.weapon_damage = damage;
 }
 
 Bomb::Bomb() {
@@ -124,4 +130,5 @@ Bomb::Bomb() {
 	emitter.Set_Spawn_Count(1);
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
+	emitter.weapon_damage = damage;
 }
