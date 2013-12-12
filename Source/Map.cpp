@@ -26,7 +26,7 @@ Map::Map(int seed, float scale)
 	map_bounds.x = (number_of_planets / 2) * map_scale * -1000.0 - 500.0 * map_scale;
 	map_bounds.y = map_scale * -1000.0;
 	map_bounds.w = number_of_planets * map_scale * 1000.0;
-	map_bounds.h = map_scale * 2000.0;
+	map_bounds.h = map_bounds.w;
 
 	int spawn_points = 3 * map_scale;
 	for (int i = 0; i < spawn_points; ++i)

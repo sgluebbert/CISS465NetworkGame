@@ -45,6 +45,7 @@ void Application::Events(SDL_Event * Event) {
     //Sends Events to appropriate functions
     EventHandler::OnEvent(Event);
     AppStateManager::Events(Event);
+    HUDManager::handleEvent(Event);
 }
 
 void Application::Draw() {
@@ -55,6 +56,7 @@ void Application::Draw() {
     glLoadIdentity();
 
     AppStateManager::Draw();
+    HUDManager::draw();
 
     SDL_GL_SwapBuffers();
 }
@@ -66,6 +68,7 @@ void Application::Update() {
         is_running = false;
 
     AppStateManager::Update();
+    HUDManager::update();
 
     Clock::Frame_Control.Update();
 

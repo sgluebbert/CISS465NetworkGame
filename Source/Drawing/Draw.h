@@ -71,6 +71,11 @@ static const Color HEALTH_COLOR(0.5, 0.5, 0, 1);
 static const Color SHIELD_COLOR(0, 0.5, 0.5, 1);
 static const Color POWER_COLOR(0.5, 0.25, 0, 1);
 
+static const Color RADAR_BORDER(0.545, 0.545, 0);
+static const Color WEAPONBAY_BORDER(0.73, 1, 0.94);
+static const Color WEAPONBAY_BODY(0.671, 0.858, 0.439);
+static const Color WEAPONCD(0, 1, 0.1, .4);
+
 
 static const int SMOOTH_FACTOR = 100;
 

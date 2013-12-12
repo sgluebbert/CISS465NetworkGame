@@ -5,6 +5,21 @@
 Client::Client() {
 	pawn = NULL;
 
+	shield_bar.Set_Rect(0, 0, 100, 20, 2);
+	shield_bar.Set_Color(SHIELD_COLOR);
+
+	hull_bar.Set_Rect(0, 20, 100, 20, 2);
+	hull_bar.Set_Color(HEALTH_COLOR);
+
+	armor_bar.Set_Rect(0, 40, 100, 20, 2);
+	armor_bar.Set_Color(ARMOR_COLOR);
+	
+	power_bar.Set_Rect(0, 60, 100, 20, 2);
+	power_bar.Set_Color(POWER_COLOR);
+	
+	for (int i = 3; i >= 0; i--)
+		weapon_status_bars[i].Set_Rect(700, 580 - 20 * i, 100, 20, 2);
+
 	channel_id = -1;
 	player_id = -1;
 	team_id = NO_TEAM;
@@ -99,6 +114,44 @@ void Client::Update(double dt) {
  					stats.shotsFired++;
  		}
 
+		armor_bar.Notify(pawn->armor / pawn->max_armor);
+		hull_bar.Notify(pawn->health / pawn->max_health);
+		shield_bar.Notify(pawn->shields / pawn->max_shields);
+		power_bar.Notify(pawn->power / pawn->max_power);
+
+		for (int i = 0; i < 4; i++) {
+			if (pawn->weapon_pool[i]->state == WEAPON_READY) {
+				weapon_status_bars[i].normal_color.r = 0.0;
+				weapon_status_bars[i].normal_color.g = 0.0;
+				weapon_status_bars[i].normal_color.b = 0.5;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(1.0);
+			}
+			else if (pawn->weapon_pool[i]->state == WEAPON_FIRING) {
+				weapon_status_bars[i].normal_color.r = 0.5;
+				weapon_status_bars[i].normal_color.g = 0.5;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(1.0);
+			}
+			else if (pawn->weapon_pool[i]->state == WEAPON_RECHARGING) {
+				weapon_status_bars[i].normal_color.r = 0.0;
+				weapon_status_bars[i].normal_color.g = 0.5;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(pawn->weapon_pool[i]->recharge_timer.Get_Progress());
+			}
+			else {
+				weapon_status_bars[i].normal_color.r = 0.5;
+				weapon_status_bars[i].normal_color.g = 0.0;
+				weapon_status_bars[i].normal_color.b = 0.0;
+				weapon_status_bars[i].normal_color.a = 1.0;
+				weapon_status_bars[i].Notify(pawn->weapon_pool[i]->recharge_timer.Get_Progress());
+			}
+		}
+
+		radar.Notify(pawn);
+
 		if (pawn->state == DYING)
 			stats.totalDeaths++;
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
@@ -122,6 +175,10 @@ void Client::Update(double dt) {
 	    }
 	}
 
+	armor_bar.Update(dt);
+	hull_bar.Update(dt);
+	shield_bar.Update(dt);
+	power_bar.Update(dt);
 
 	for (int i = 0; i < planet_alignment_bars.size(); i++)
 		planet_alignment_bars[i].Update(dt);
@@ -130,9 +187,17 @@ void Client::Update(double dt) {
 }
 
 void Client::Draw() {
+	armor_bar.Draw();
+	hull_bar.Draw();
+	shield_bar.Draw();
+	power_bar.Draw();
+	
+	for (int i = 0; i < 4; i++)
+		weapon_status_bars[i].Draw();
 
 	for (int i = 0; i < planet_alignment_bars.size(); i++)
 		planet_alignment_bars[i].Draw();
 
+	radar.Draw();
 	info_feed.Draw();
 }
