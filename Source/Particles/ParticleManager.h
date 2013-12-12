@@ -80,7 +80,7 @@ static Particle * Create_Laser_Particle() {
 	Particle * temp_particle = new Particle();
 
     //Drawable Init
-    temp_particle->texture = surface_manager->bullet;
+    temp_particle->texture = surface_manager->laser;
     temp_particle->draw_angle = temp_particle->angle = 0.0;
     temp_particle->draw_scale = 8.0;
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
@@ -140,7 +140,7 @@ static Particle * Create_Rocket_Particle() {
     Particle * temp_particle = new Particle();
 
     //Drawable Init
-    temp_particle->texture = surface_manager->bullet;
+    temp_particle->texture = surface_manager->missle;
     temp_particle->draw_angle = temp_particle->angle = 0.0;
     temp_particle->draw_scale = 8.0;
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;
@@ -169,7 +169,7 @@ static Particle * Create_Mine_Particle() {
     Particle * temp_particle = new Particle();
 
     //Drawable Init
-    temp_particle->texture = surface_manager->bullet;
+    temp_particle->texture = surface_manager->mine;
     temp_particle->draw_angle = temp_particle->angle = 0.0;
     temp_particle->draw_scale = 8.0;
     temp_particle->drawing_box.w = temp_particle->drawing_box.h = 2 * temp_particle->draw_scale;

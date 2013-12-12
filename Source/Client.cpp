@@ -152,8 +152,12 @@ void Client::Update(double dt) {
 
 		radar.Notify(pawn);
 
+		if (pawn->state == DYING)
+			stats.totalDeaths++;
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
 			Respawn();
+		stats.captures = pawn->captures;
+		pawn->captures = 0;
 	}
 
 	while (planet_alignment_bars.size() < Planet::planet_graph.size()) {

@@ -173,6 +173,17 @@ void AppStateGame::Draw() {
     glColor4f(1, 1, 1, 1);
     backgroundTexture->DrawAtRect(0, 0, 1024, 1024);
 
+    for (int x = -map->map_bounds.w; x < map->map_bounds.w; x += 1024)
+    {
+        for (int y = -map->map_bounds.h; y < map->map_bounds.h; y += 1024)
+        {
+            if (x + 1024 < temp_rect.x || x > temp_rect.x + temp_rect.w || y + 1024 < temp_rect.y || y > temp_rect.y + temp_rect.h)
+                continue;
+
+            textureManager->background_game3->DrawAtRect(x - temp_rect.x, y - temp_rect.y, 1024, 1024);
+        }
+    }
+
     Rect<double> viewport = Camera::getInstance()->Get_Viewport();
     for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);

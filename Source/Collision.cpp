@@ -31,6 +31,11 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
 
     if (planet->alignment > 1.0f) {
         planet->alignment = 1.0f;
+        if (planet->team_id != BLUE_TEAM)
+        {
+            planet->just_captured = true;
+            ship->captures++;
+        }
         planet->team_id = BLUE_TEAM;
         planet->texture = surface_manager->blue_planet;
 
@@ -63,6 +68,11 @@ void ShipToPlanetCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
 
     else if (planet->alignment < -1.0f) {
         planet->alignment = -1.0f;
+        if (planet->team_id != RED_TEAM)
+        {
+            planet->just_captured = true;
+            ship->captures++;
+        }
         planet->team_id = RED_TEAM;
         planet->texture = surface_manager->red_planet;
 
@@ -143,6 +153,8 @@ void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 
     if (moon->alignment > 1.0) {
         moon->alignment = 1.0;
+        if (moon->team_id != BLUE_TEAM)
+            moon->just_captured = true;
         moon->team_id = BLUE_TEAM;
 
         moon->DistributeResource();
@@ -150,6 +162,8 @@ void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
 
     else if (moon->alignment < -1.0) {
         moon->alignment = -1.0;
+        if (moon->team_id != RED_TEAM)
+            moon->just_captured = true;
         moon->team_id = RED_TEAM;
 
         moon->DistributeResource();

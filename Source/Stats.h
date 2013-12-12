@@ -31,6 +31,7 @@ struct PlayerStats
 
 	bool ContainsNew()
 	{
+		experiencePoints = totalKills * 100 + shotsHit + captures * 20 + wins * 1000;
 		return (totalKills != 0 || totalDeaths != 0 || shotsFired != 0 || shotsHit != 0 || experiencePoints != 0 || captures != 0 || wins != 0 || losses != 0);
 	}
 

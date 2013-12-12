@@ -42,7 +42,7 @@ public:
     float capture_rate;
     float boost_factor;
     float field_radius;
-    bool alive;
+    bool alive, just_captured;
 
     MOON_TYPE type;
 };

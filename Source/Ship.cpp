@@ -133,6 +133,7 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
     force_motor = torque_motor = 0.0;
 
 	state = ALIVE;
+	captures = 0;
 
 	smoke_emitter.Set_Particle(Create_Smoke_Particle());
 	shatter_emitter.Set_Particle(Create_Shatter_Particle());

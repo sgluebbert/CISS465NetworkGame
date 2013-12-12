@@ -25,6 +25,7 @@ Moon::Moon(float _offset, float _angle, float _ocx, float _ocy, float _m, float 
 	capture_rate = 0.025;
 	boost_factor = 1.0;
 	alive = true;
+	just_captured = false;
 
 	team_id = NEUTRAL_TEAM;
 	mass = _m;
@@ -119,6 +120,7 @@ void Moon::Draw()
 
 void Moon::Update(double dt)
 {
+	just_captured = false;
 	angle += orbit_speed * dt;
 
 	if (angle > 360)

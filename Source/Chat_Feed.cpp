@@ -10,7 +10,7 @@ Feed_Message::Feed_Message(const std::string & copy, float interval) {
 
 
 
-const float Chat_Feed::MESSAGE_LIFESPAN = 3.0;
+const float Chat_Feed::MESSAGE_LIFESPAN = 10.0;
 const int Chat_Feed::MAX_NUMBER_OF_MESSAGES = 10;
 const int Chat_Feed::FONT_HEIGHT = 10;
 const int Chat_Feed::BORDER_WIDTH = 2;
@@ -103,9 +103,11 @@ void Chat_Feed::Draw() {
 	temp_rect.y = Chat_Feed::BORDER_WIDTH;
 	Color temp_color(1.0, 1.0, 1.0);
 
+	Text text(" ", TextureManager::GetInstance()->fonts.font_FreeMono_10, temp_color);
 	for (int i = messages.size() - 1; i >= 0; i--) {
-		temp_color.a = 1.0 - messages[i].timer.Get_Progress() * messages[i].timer.Get_Progress();
-		DrawText(bounding_box.x + temp_rect.x, bounding_box.y + temp_rect.y, messages[i].message.c_str(), TextureManager::GetInstance()->fonts.font_FreeMono_10, &temp_color);
+		text.color.a = 1.0 - messages[i].timer.Get_Progress() * messages[i].timer.Get_Progress();
+		text.Reload(messages[i].message.c_str());
+		text.Draw(bounding_box.x + bounding_box.w - text.width, bounding_box.y + temp_rect.y);
 		temp_rect.y += FONT_HEIGHT;
 	}
 

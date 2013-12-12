@@ -8,7 +8,7 @@ float Planet::field_modifier = 1.0;
 
 
 Planet::Planet(Team _id, float _x, float _y, float _m, float _r, float _cr)
-    : gravity_radius(_r * field_modifier), capture_rate(_cr)
+    : gravity_radius(_r * field_modifier), capture_rate(_cr), just_captured(false)
 {
     Collidable::objects.push_back(this);
     Drawable::objects.push_back(this);
@@ -75,6 +75,7 @@ void Planet::Lock(bool lock) {
 
 void Planet::Update(double dt)
 {
+    just_captured = false;
     Entity::Update(dt);
     drawing_box.Update(dx, -dy);
     bounding_volume.Update(dx, -dy);

@@ -16,6 +16,9 @@ void TextureManager::Load()
 	fonts.init();
 
 	bullet 					= new Texture("./Art/PPC_Shot.png");
+	laser 					= new Texture("./Art/PPC_Laser.png");
+	missle 					= new Texture("./Art/PPC_Missle.png");
+	mine 					= new Texture("./Art/PPC_Mine.png");
 	smoke 					= new Texture("./Art/smoke.png");
 	shatter 				= new Texture("./Art/Shatter.png");
 	ship_fighter			= new Texture("./Art/ship_fighter.png");
@@ -30,6 +33,7 @@ void TextureManager::Load()
 	background_main_menu 	= new Texture("./Art/Main_Menu.png");
 	background_game 		= new Texture("./Art/Background.png");
 	background_game2 		= new Texture("./Art/Background2.png");
+	background_game3 		= new Texture("./Art/Background3.png");
 	button 					= new Texture("./Art/Button.png");
 	highlightedbutton 		= new Texture("./Art/HighlightedButton.png");
 	planet_glow				= new Texture("./Art/PlanetGravityGlow.png");

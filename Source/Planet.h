@@ -26,7 +26,7 @@ public:
 	float alignment;
 	float capture_rate;
 	float gravity_radius;
-	bool locked;
+	bool locked, just_captured;
 
 	std::vector<Moon *> moons;
 

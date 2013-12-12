@@ -29,6 +29,9 @@ public:
 	static TextureManager * GetInstance();
 
 	Texture * bullet;
+	Texture * laser;
+	Texture * missle;
+	Texture * mine;
 	Texture * smoke;
 	Texture * shatter;
 	Texture * ship_fighter;
@@ -43,6 +46,7 @@ public:
 	Texture * background_main_menu;
 	Texture * background_game;
 	Texture * background_game2;
+	Texture * background_game3;
 	Texture * button;
 	Texture * highlightedbutton;
 	Texture * planet_glow;
