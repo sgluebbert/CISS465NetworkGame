@@ -109,7 +109,7 @@ void AppStateTest::Update() {
 void AppStateTest::Draw() {
     Camera * temp_camera = Camera::getInstance();
 
-    for (int i = Drawable::objects.size() - 1; i >= 0; i--) {
+    for (int i = 0; i < Drawable::objects.size(); i++) {
         temp_camera->Map_To_Viewport(Drawable::objects[i]);
         Drawable::objects[i]->Draw();
         temp_camera->Map_To_World(Drawable::objects[i]);
