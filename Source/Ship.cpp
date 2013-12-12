@@ -461,18 +461,20 @@ void Ship::Remove_Ship(int index) {
 
     for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
 	{
-		Collidable *c = *it;
-		Particle *p = static_cast<Particle *>(c);
-		if (p != NULL)
-		{
-			if (p->owner == Ship::ships[index])
-				p->owner = NULL;
-		}
-
 		if (*it == Ship::ships[index])
 		{
 			Collidable::objects.erase(it);
 			// break;
+		}
+	}
+
+	for (int i = 0; i < Particle::particles.size(); i++)
+	{
+		Particle *p = Particle::particles[i];
+		if (p != NULL)
+		{
+			if (p->owner == Ship::ships[index])
+				p->owner = NULL;
 		}
 	}
 
