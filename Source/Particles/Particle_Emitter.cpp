@@ -13,6 +13,7 @@ Particle_Emitter::Particle_Emitter() {
     reference = NULL;
     team_id = NO_TEAM;
     weapon_damage = 0;
+    owner = NULL;
 }
 
 Particle_Emitter::~Particle_Emitter() {
@@ -35,6 +36,7 @@ void Particle_Emitter::Update(double dt, float _x, float _y) {
 			Particle * temp = new Particle(reference, _x, _y);
 			temp->team_id = team_id;
 			temp->weapon_damage = weapon_damage;
+			temp->owner = owner;
 
 			if (max_age_variance != 0) {
 				variance = (float(rand()) / float(RAND_MAX) * 2 * max_age_variance) - max_age_variance + reference->age_timer.Get_Interval();

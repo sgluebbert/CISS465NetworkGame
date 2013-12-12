@@ -22,6 +22,7 @@ Particle::Particle() {
     Set_Group(NO_GROUP);
     weapon_damage = 0;
     team_id = NO_TEAM;
+    owner = NULL;
 }
 
 Particle::Particle(Particle * p, float & _x, float & _y) {

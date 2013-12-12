@@ -19,7 +19,13 @@ void ShipToBulletCollision::ResolveCollision(Collidable * lhs, Collidable * rhs)
         if (DoCollide(ship, bullet))
         {
             bullet->distance_travelled = 9999.9999;
-            ship->health -= bullet->weapon_damage;
+            ship->Damage_Shields(bullet->weapon_damage);
+            if (bullet->owner != NULL)
+            {
+                bullet->owner->shots_hit++;
+                if (ship->health <= 0)
+                    bullet->owner->kills++;
+            }
         }
     }
 }
@@ -163,7 +169,10 @@ void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
     if (moon->alignment > 1.0) {
         moon->alignment = 1.0;
         if (moon->team_id != BLUE_TEAM)
+        {
             moon->just_captured = true;
+            ship->captures++;
+        }
         moon->team_id = BLUE_TEAM;
 
         moon->DistributeResource();
@@ -172,7 +181,10 @@ void ShipToMoonCollision::ResolveCollision(Collidable * lhs, Collidable * rhs) {
     else if (moon->alignment < -1.0) {
         moon->alignment = -1.0;
         if (moon->team_id != RED_TEAM)
+        {
             moon->just_captured = true;
+            ship->captures++;
+        }
         moon->team_id = RED_TEAM;
 
         moon->DistributeResource();

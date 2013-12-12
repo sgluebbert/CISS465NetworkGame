@@ -48,6 +48,7 @@ public:
 
     Team team_id;
     float weapon_damage;
+    Ship *owner;
 private:
     /*
     active 				| whether the emitter is active or not

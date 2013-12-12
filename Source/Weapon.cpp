@@ -49,7 +49,8 @@ void Weapon::Update(double dt, float _a, float _x, float _y) {
 
 
 
-Laser::Laser() {
+Laser::Laser(Ship *o) {
+	owner = o;
 	shield_modifier = 4.0 / 3.0;
 	hull_modifier = 0.75;
 	armor_modifier = 0.0;
@@ -68,9 +69,11 @@ Laser::Laser() {
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
 	emitter.weapon_damage = damage;
+	emitter.owner = owner;
 }
 
-Gauss::Gauss() {
+Gauss::Gauss(Ship *o) {
+	owner = o;
 	shield_modifier = 0.75;
 	hull_modifier = 4.0 / 3.0;
 	armor_modifier = 0.0;
@@ -89,9 +92,11 @@ Gauss::Gauss() {
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
 	emitter.weapon_damage = damage;
+	emitter.owner = owner;
 }
 
-Rocket::Rocket() {
+Rocket::Rocket(Ship *o) {
+	owner = o;
 	shield_modifier = 1.0;
 	hull_modifier = 1.0;
 	armor_modifier = 1.0;
@@ -110,9 +115,11 @@ Rocket::Rocket() {
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
 	emitter.weapon_damage = damage;
+	emitter.owner = owner;
 }
 
-Bomb::Bomb() {
+Bomb::Bomb(Ship *o) {
+	owner = o;
 	shield_modifier = 1.0;
 	hull_modifier = 1.0;
 	armor_modifier = 0.0;
@@ -131,4 +138,5 @@ Bomb::Bomb() {
 	emitter.Set_Spawn_Delay(0.1);
 	emitter.Set_Range(range);
 	emitter.weapon_damage = damage;
+	emitter.owner = owner;
 }

@@ -63,6 +63,47 @@ void AppStateGame::Events(SDL_Event * Event) {
 }
 
 void AppStateGame::Update() {
+
+    time_t now;
+    time(&now);
+    secondsSinceLastMessage = (now - secondsSinceLastMessageTick);
+
+    if (secondsSinceLastMessage > 3 && teamWon == NO_TEAM)
+    {
+        std::cout << "Communication to server has timed out.\n";
+        AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
+    }
+
+    Send();
+    Receive();
+
+    if (requestingGreeting)
+        return;
+
+    if (secondsToStart >= 0 && secondsToStart < 100)
+    {
+        if (now - secondsToStartLastTick >= 1)
+        {
+            time(&secondsToStartLastTick);
+            secondsToStart--;
+        }
+        
+        return;
+    }
+
+    if (teamWon != NO_TEAM)
+    {
+        if (secondsToEnd > 0)
+        {
+            if (now - secondsToEndLastTick >= 1)
+            {
+                time(&secondsToEndLastTick);
+                secondsToEnd--;
+            }
+        }
+        else
+            AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
+    }
     
     // std::cout << "Beginning Updates..." << std::endl;
     double dt = Clock::Frame_Control.Get_Time_Per_Frame();
@@ -102,45 +143,6 @@ void AppStateGame::Update() {
     // std::cout << "Beginning Rigid Body Updates..." << std::endl;
     for (int i = 0; i < Rigid_Body::objects.size(); i++) {
         Rigid_Body::objects[i]->Update(dt);
-    }
-
-    Send();
-    Receive();
-
-    time_t now;
-    time(&now);
-    secondsSinceLastMessage = (now - secondsSinceLastMessageTick);
-
-    if (secondsSinceLastMessage > 3 && teamWon == NO_TEAM)
-    {
-        std::cout << "Communication to server has timed out.\n";
-        AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
-    }
-
-    if (requestingGreeting)
-        return;
-
-    if (secondsToStart >= 0 && secondsToStart < 100)
-    {
-        if (now - secondsToStartLastTick >= 1)
-        {
-            time(&secondsToStartLastTick);
-            secondsToStart--;
-        }
-    }
-
-    if (teamWon != NO_TEAM)
-    {
-        if (secondsToEnd > 0)
-        {
-            if (now - secondsToEndLastTick >= 1)
-            {
-                time(&secondsToEndLastTick);
-                secondsToEnd--;
-            }
-        }
-        else
-            AppStateEvent::New_Event(APPSTATE_MASTER_LOBBY);
     }
 
     // std::cout << "Beginning Player Updates..." << std::endl;

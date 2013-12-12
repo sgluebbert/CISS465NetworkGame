@@ -10,7 +10,7 @@
 #include "../Motor.h"
 #include "../Timer.h"
 
-
+class Ship;
 
 class Particle : public Entity, public Motor, public Collidable {
 public:
@@ -28,6 +28,7 @@ public:
     float distance_travelled, range;
     Team team_id;
     float weapon_damage;
+    Ship *owner;
 
     //Need to turn this into a priority queue
     static std::deque<Particle *> particles;

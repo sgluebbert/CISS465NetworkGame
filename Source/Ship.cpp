@@ -29,10 +29,10 @@ void Ship::Setup_Interceptor() {
 	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
 	capture_modifier = default_capture_modifier * 4.0 / 3.0;
 
-	weapon_pool[ENERGY_TYPE]	= new Laser();
-	weapon_pool[BALLISTIC_TYPE] = new Gauss();
-	weapon_pool[PROPELLED_TYPE] = new Rocket();
-	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[ENERGY_TYPE]	= new Laser(this);
+	weapon_pool[BALLISTIC_TYPE] = new Gauss(this);
+	weapon_pool[PROPELLED_TYPE] = new Rocket(this);
+	weapon_pool[BOMB_TYPE]		= new Bomb(this);
 	weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
@@ -53,10 +53,10 @@ void Ship::Setup_Fighter() {
 	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
 	capture_modifier = default_capture_modifier;
 
-	weapon_pool[ENERGY_TYPE]	= new Laser();
-	weapon_pool[BALLISTIC_TYPE] = new Gauss();
-	weapon_pool[PROPELLED_TYPE] = new Rocket();
-	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[ENERGY_TYPE]	= new Laser(this);
+	weapon_pool[BALLISTIC_TYPE] = new Gauss(this);
+	weapon_pool[PROPELLED_TYPE] = new Rocket(this);
+	weapon_pool[BOMB_TYPE]		= new Bomb(this);
 	weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
@@ -77,10 +77,10 @@ void Ship::Setup_Frigate() {
 	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
 	capture_modifier = default_capture_modifier * 0.75;
 
-	weapon_pool[ENERGY_TYPE]	= new Laser();
-	weapon_pool[BALLISTIC_TYPE] = new Gauss();
-	weapon_pool[PROPELLED_TYPE] = new Rocket();
-	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[ENERGY_TYPE]	= new Laser(this);
+	weapon_pool[BALLISTIC_TYPE] = new Gauss(this);
+	weapon_pool[PROPELLED_TYPE] = new Rocket(this);
+	weapon_pool[BOMB_TYPE]		= new Bomb(this);
 	weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
@@ -101,10 +101,10 @@ void Ship::Setup_Bomber() {
 	power_recharge_rate = shield_recharge_rate = default_recharge_rate;
 	capture_modifier = default_capture_modifier;
 
-	weapon_pool[ENERGY_TYPE]	= new Laser();
-	weapon_pool[BALLISTIC_TYPE] = new Gauss();
-	weapon_pool[PROPELLED_TYPE] = new Rocket();
-	weapon_pool[BOMB_TYPE]		= new Bomb();
+	weapon_pool[ENERGY_TYPE]	= new Laser(this);
+	weapon_pool[BALLISTIC_TYPE] = new Gauss(this);
+	weapon_pool[PROPELLED_TYPE] = new Rocket(this);
+	weapon_pool[BOMB_TYPE]		= new Bomb(this);
 	weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
@@ -134,6 +134,8 @@ Ship::Ship(Ship_Type ship_type, float _x, float _y) {
 
 	state = ALIVE;
 	captures = 0;
+	kills = 0;
+	shots_hit = 0;
 
 	smoke_emitter.Set_Particle(Create_Smoke_Particle());
 	shatter_emitter.Set_Particle(Create_Shatter_Particle());
@@ -459,10 +461,18 @@ void Ship::Remove_Ship(int index) {
 
     for (std::deque<Collidable *>::iterator it = Collidable::objects.begin(); it != Collidable::objects.end(); it++)
 	{
+		Collidable *c = *it;
+		Particle *p = static_cast<Particle *>(c);
+		if (p != NULL)
+		{
+			if (p->owner == Ship::ships[index])
+				p->owner = NULL;
+		}
+
 		if (*it == Ship::ships[index])
 		{
 			Collidable::objects.erase(it);
-			break;
+			// break;
 		}
 	}
 

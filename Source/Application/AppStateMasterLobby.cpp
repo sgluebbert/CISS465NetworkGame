@@ -384,7 +384,7 @@ void AppStateMasterLobby::Receive() {
             	if (highlightedOption == -1)
             		highlightedOption = lobby->channelId;
             	lobbyCount++;
-            	// std::cout << "Got lobby: " << lobby->name << '\n';
+            	// std::cout << "Got lobby: " << lobby->name << " " << lobby->gamePort << '\n';
             	break;
             }
 
