@@ -20,6 +20,11 @@ int UDPNetwork::Init(bool isServer)
 		fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
 		return -1;
 	}
+
+	if (isServer)
+		std::cout << "Connecting Via: " << get_type() << "; Listening on port " << networkParser->GetServerPort() << std::endl;
+	else
+		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
 	
 	if (!(_sd = SDLNet_UDP_Open(listen_port)))
 	{
@@ -64,11 +69,6 @@ int UDPNetwork::Init(bool isServer)
 	SDLNet_Write16(networkParser->GetServerPort(), &_recveiveip.port);
 	_receive->address.host = host_address.host;
 	_receive->address.port = host_address.port;
-
-	if (isServer)
-		std::cout << "Connecting Via: " << get_type() << "; Listening on port " << networkParser->GetServerPort() << std::endl;
-	else
-		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
 
 	inited = true;
 	return 1;
@@ -272,6 +272,11 @@ int TCPNetwork::Init(bool isServer)
 		return -1;
 	}
 
+	if (isServer)
+		std::cout << "Connecting Via: " << get_type() << "; Listening on port " << networkParser->GetServerPort() << std::endl;
+	else
+		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
+
 	const char * host_ipaddress = networkParser->GetHostAddress();
 	if (isServer)
 		host_ipaddress = NULL;
@@ -315,11 +320,6 @@ int TCPNetwork::Init(bool isServer)
 
 	// Listen to our socket
 	SDLNet_TCP_AddSocket(_set, _sd);
-
-	if (isServer)
-		std::cout << "Connecting Via: " << get_type() << "; Listening on port " << networkParser->GetServerPort() << std::endl;
-	else
-		std::cout << "Connecting Via: " << get_type() << " to " << networkParser->GetHostAddress() << ":" << networkParser->GetServerPort() << std::endl;
 
 	inited = true;
 	return 1;

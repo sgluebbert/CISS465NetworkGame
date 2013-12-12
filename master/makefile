@@ -13,7 +13,7 @@ HeadServer.o: ./Source/HeadServer.cpp ./Source/HeadServer.h
 
 publish:
 	@read -p "bilbo.ccis.edu username: " USERNAME;\
-	ssh $$USERNAME@bilbo.ccis.edu "mkdir -p ~/ciss465/master; mkdir -p ~/ciss465/app;";\
+	ssh $$USERNAME@bilbo.ccis.edu "rm -rf ~/ciss465/master/; rm -rf ~/ciss465/app/; mkdir -p ~/ciss465/master; mkdir -p ~/ciss465/app;";\
 	scp -r mainserver conf $$USERNAME@bilbo.ccis.edu:~/ciss465/master/;\
 	scp -r ../app/starclash ../app/conf $$USERNAME@bilbo.ccis.edu:~/ciss465/app/;\
 

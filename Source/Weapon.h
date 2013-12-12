@@ -12,13 +12,13 @@
 enum Weapon_State 	{	WEAPON_READY, WEAPON_FIRING, WEAPON_RECHARGING, WEAPON_DISABLED		};
 
 
-
 class Weapon {
 public:
 	Weapon_State state;
 	Timer recharge_timer;
 	Particle_Emitter emitter;
 	Team team_id;
+	Ship *owner;
 
 	float x, y;
 
@@ -35,22 +35,22 @@ public:
 
 class Laser : public Weapon {
 public:
-	Laser();
+	Laser(Ship *);
 };
 
 class Gauss : public Weapon {
 public:
-	Gauss();
+	Gauss(Ship *);
 };
 
 class Rocket : public Weapon {
 public:
-	Rocket();
+	Rocket(Ship *);
 };
 
 class Bomb : public Weapon {
 public:
-	Bomb();
+	Bomb(Ship *);
 };
 
 

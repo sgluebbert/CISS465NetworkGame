@@ -73,10 +73,10 @@ void Client::Respawn(int spawnIndex) {
 	pawn->armor = pawn->max_armor;
 	pawn->power = pawn->max_power;
 
-	pawn->weapon_pool[ENERGY_TYPE]	= new Laser();
-	pawn->weapon_pool[BALLISTIC_TYPE] = new Gauss();
-	pawn->weapon_pool[PROPELLED_TYPE] = new Rocket();
-	pawn->weapon_pool[BOMB_TYPE]		= new Bomb();
+	pawn->weapon_pool[ENERGY_TYPE]	= new Laser(pawn);
+	pawn->weapon_pool[BALLISTIC_TYPE] = new Gauss(pawn);
+	pawn->weapon_pool[PROPELLED_TYPE] = new Rocket(pawn);
+	pawn->weapon_pool[BOMB_TYPE]		= new Bomb(pawn);
 	pawn->weapon_pool[POWERUP_TYPE]	= NULL;
 }
 
@@ -156,8 +156,12 @@ void Client::Update(double dt) {
 			stats.totalDeaths++;
 		if (pawn->state == DEAD && pawn->respawn_timer.Ended())
 			Respawn();
-		stats.captures = pawn->captures;
+		stats.captures += pawn->captures;
 		pawn->captures = 0;
+		stats.shotsHit += pawn->shots_hit;
+		pawn->shots_hit = 0;
+		stats.totalKills += pawn->kills;
+		pawn->kills = 0;
 	}
 
 	while (planet_alignment_bars.size() < Planet::planet_graph.size()) {

@@ -73,6 +73,8 @@ public:
 	float capture_modifier;
     float turn_rate;
     int captures;
+    int kills;
+    int shots_hit;
 	Weapon * weapon_pool[5];
 
 	static const float default_max_resource, default_recharge_delay, default_recharge_rate, default_capture_modifier;
