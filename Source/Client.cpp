@@ -6,16 +6,16 @@ Client::Client() {
 	pawn = NULL;
 
 	shield_bar.Set_Rect(0, 0, 100, 20, 2);
-	shield_bar.Set_Color(Color(0.00, 0.00, 0.50));
+	shield_bar.Set_Color(SHIELD_COLOR);
 
 	hull_bar.Set_Rect(0, 20, 100, 20, 2);
-	hull_bar.Set_Color(Color(0.50, 0.00, 0.00));
+	hull_bar.Set_Color(HEALTH_COLOR);
 
 	armor_bar.Set_Rect(0, 40, 100, 20, 2);
-	armor_bar.Set_Color(Color(0.00, 0.50, 0.00));
-
+	armor_bar.Set_Color(ARMOR_COLOR);
+	
 	power_bar.Set_Rect(0, 60, 100, 20, 2);
-	power_bar.Set_Color(Color(0.50, 0.50, 0.00));
+	power_bar.Set_Color(POWER_COLOR);
 	
 	for (int i = 3; i >= 0; i--)
 		weapon_status_bars[i].Set_Rect(700, 580 - 20 * i, 100, 20, 2);

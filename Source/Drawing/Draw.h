@@ -54,17 +54,22 @@ struct Color
 
 
 
-const Color RED(1, 0, 0, 1);
-const Color BLUE(0, 0, 1, 1);
-const Color GREEN(0, 1, 0, 1);
-const Color WHITE(1, 1, 1, 1);
-const Color BLACK(0, 0, 0, 1);
-const Color GRAY(.5, .5, .5, 1);
+static const Color RED(1, 0, 0, 1);
+static const Color BLUE(0, 0, 1, 1);
+static const Color GREEN(0, 1, 0, 1);
+static const Color WHITE(1, 1, 1, 1);
+static const Color BLACK(0, 0, 0, 1);
+static const Color GRAY(.5, .5, .5, 1);
 
-const Color LIGHT_BLUE(0, 0, 1, 0.5);
-const Color LIGHT_RED(1, 0, 0, 0.5);
-const Color LIGHT_GREEN(0, 1, 0, 0.5);
-const Color LIGHT_GRAY(.5, .5, .5, 0.5);
+static const Color LIGHT_BLUE(0, 0, 1, 0.5);
+static const Color LIGHT_RED(1, 0, 0, 0.5);
+static const Color LIGHT_GREEN(0, 1, 0, 0.5);
+static const Color LIGHT_GRAY(.5, .5, .5, 0.5);
+
+static const Color ARMOR_COLOR(0, 0.5, 0, 1);
+static const Color HEALTH_COLOR(0.5, 0.5, 0, 1);
+static const Color SHIELD_COLOR(0, 0.5, 0.5, 1);
+static const Color POWER_COLOR(0.5, 0.25, 0, 1);
 
 
 static const int SMOOTH_FACTOR = 100;

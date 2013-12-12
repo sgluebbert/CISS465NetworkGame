@@ -69,5 +69,22 @@ void Pickup_Factory::Draw() {
 	if (pickup == NULL)
 		return;
 
-    pickup->texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
+	Collectible * collectible = (Collectible *)(pickup);
+
+	switch (collectible->type) {
+	case HEALTH_COLLECTIBLE:
+		glColor4f(HEALTH_COLOR.r, HEALTH_COLOR.g, HEALTH_COLOR.b, 1.0);
+		break;
+	case SHIELDS_COLLECTIBLE:
+		glColor4f(SHIELD_COLOR.r, SHIELD_COLOR.g, SHIELD_COLOR.b, 1.0);
+		break;
+	case POWER_COLLECTIBLE:
+		glColor4f(POWER_COLOR.r, POWER_COLOR.g, POWER_COLOR.b, 1.0);
+		break;
+	case ARMOR_COLLECTIBLE:
+		glColor4f(ARMOR_COLOR.r, ARMOR_COLOR.g, ARMOR_COLOR.b, 1.0);
+		break;
+	}
+
+    collectible->texture->DrawCentered(drawing_box.x + drawing_box.w / 2.0, drawing_box.y + drawing_box.h / 2.0, -draw_angle, draw_scale);
 }

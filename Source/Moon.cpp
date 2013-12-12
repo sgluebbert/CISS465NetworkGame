@@ -95,19 +95,19 @@ void Moon::Draw()
    
    	if (type == HEALTH)
 	{
-		glColor4f(1.0, 1.0, 0.0, 1.0);
+		glColor4f(HEALTH_COLOR.r, HEALTH_COLOR.g, HEALTH_COLOR.b, 1.0);
 	}
 	else if (type == SHIELD)
 	{
-		glColor4f(0.0, 1.0, 1.0, 1.0);
+		glColor4f(SHIELD_COLOR.r, SHIELD_COLOR.g, SHIELD_COLOR.b, 1.0);
 	}	
 	else if (type == POWER)
 	{
-		glColor4f(1.0, 0.5, 1.0, 1.0);
+		glColor4f(POWER_COLOR.r, POWER_COLOR.g, POWER_COLOR.b, 1.0);
 	}
 	else if (type == ARMOR)
 	{
-		glColor4f(0.0, 1.0, 0.0, 1.0);
+		glColor4f(ARMOR_COLOR.r, ARMOR_COLOR.g, ARMOR_COLOR.b, 1.0);
 	}
 	else if (type == DEAD_MOON)
 	{
